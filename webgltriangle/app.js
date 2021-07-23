@@ -1,28 +1,29 @@
 const vertexShaderSource = `#version 300 es
 
 in vec3 aPosition;
-in vec3 aColor;
+in vec2 aTexCoord;
 
 uniform mat4 mWorld;
 uniform mat4 mView;
 uniform mat4 mProj;
 
-out vec3 vColor;
+out vec2 vTexCoord;
 
 void main() {
     gl_Position = mProj * mView * mWorld * vec4(aPosition, 1.0);
-    vColor = aColor;
+    vTexCoord = aTexCoord;
 }`;
 
 const fragmentShaderSource = `#version 300 es
 precision highp float;
 
-in vec3 vColor;
+in vec2 vTexCoord;
+uniform sampler2D sampler;
 
 out vec4 color;
 
 void main() {
-    color = vec4(vColor, 1.0);
+    color = texture(sampler, vTexCoord);
 }`;
 
 const createShader = function (gl, shaderSource, shaderType) {
@@ -83,41 +84,41 @@ const Initialize = function () {
     ];
 
     var boxVertices = [
-        // Top
-        -1.0, 1.0, -1.0,   0.5, 0.5, 0.5,
-		-1.0, 1.0, 1.0,    0.5, 0.5, 0.5,
-		1.0, 1.0, 1.0,     0.5, 0.5, 0.5,
-		1.0, 1.0, -1.0,    0.5, 0.5, 0.5,
+		// Top
+		-1.0, 1.0, -1.0,   0, 0,
+		-1.0, 1.0, 1.0,    0, 1,
+		1.0, 1.0, 1.0,     1, 1,
+		1.0, 1.0, -1.0,    1, 0,
 
 		// Left
-		-1.0, 1.0, 1.0,    0.75, 0.25, 0.5,
-		-1.0, -1.0, 1.0,   0.75, 0.25, 0.5,
-		-1.0, -1.0, -1.0,  0.75, 0.25, 0.5,
-		-1.0, 1.0, -1.0,   0.75, 0.25, 0.5,
+		-1.0, 1.0, 1.0,    0, 0,
+		-1.0, -1.0, 1.0,   1, 0,
+		-1.0, -1.0, -1.0,  1, 1,
+		-1.0, 1.0, -1.0,   0, 1,
 
 		// Right
-		1.0, 1.0, 1.0,    0.25, 0.25, 0.75,
-		1.0, -1.0, 1.0,   0.25, 0.25, 0.75,
-		1.0, -1.0, -1.0,  0.25, 0.25, 0.75,
-		1.0, 1.0, -1.0,   0.25, 0.25, 0.75,
+		1.0, 1.0, 1.0,    1, 1,
+		1.0, -1.0, 1.0,   0, 1,
+		1.0, -1.0, -1.0,  0, 0,
+		1.0, 1.0, -1.0,   1, 0,
 
 		// Front
-		1.0, 1.0, 1.0,    1.0, 0.0, 0.15,
-		1.0, -1.0, 1.0,    1.0, 0.0, 0.15,
-		-1.0, -1.0, 1.0,    1.0, 0.0, 0.15,
-		-1.0, 1.0, 1.0,    1.0, 0.0, 0.15,
+		1.0, 1.0, 1.0,    1, 1,
+		1.0, -1.0, 1.0,    1, 0,
+		-1.0, -1.0, 1.0,    0, 0,
+		-1.0, 1.0, 1.0,    0, 1,
 
 		// Back
-		1.0, 1.0, -1.0,    0.0, 1.0, 0.15,
-		1.0, -1.0, -1.0,    0.0, 1.0, 0.15,
-		-1.0, -1.0, -1.0,    0.0, 1.0, 0.15,
-		-1.0, 1.0, -1.0,    0.0, 1.0, 0.15,
+		1.0, 1.0, -1.0,    0, 0,
+		1.0, -1.0, -1.0,    0, 1,
+		-1.0, -1.0, -1.0,    1, 1,
+		-1.0, 1.0, -1.0,    1, 0,
 
 		// Bottom
-		-1.0, -1.0, -1.0,   0.5, 0.5, 1.0,
-		-1.0, -1.0, 1.0,    0.5, 0.5, 1.0,
-		1.0, -1.0, 1.0,     0.5, 0.5, 1.0,
-		1.0, -1.0, -1.0,    0.5, 0.5, 1.0,
+		-1.0, -1.0, -1.0,   1, 1,
+		-1.0, -1.0, 1.0,    1, 0,
+		1.0, -1.0, 1.0,     0, 0,
+		1.0, -1.0, -1.0,    0, 1,
     ];
 
     var boxIndices = [
@@ -155,28 +156,41 @@ const Initialize = function () {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(boxIndices), gl.STATIC_DRAW);
 
     let positionAttribLocation = gl.getAttribLocation(program, 'aPosition');
+    let texCoordAttribLocation = gl.getAttribLocation(program, 'aTexCoord');
+
     gl.vertexAttribPointer(
         positionAttribLocation, // Position Attrib location
         3, // Elements per attribute
         gl.FLOAT, // Type of element
         gl.FALSE, // Is normalized?
-        6 * Float32Array.BYTES_PER_ELEMENT,
+        5 * Float32Array.BYTES_PER_ELEMENT,
         0
     );
     
-    let colorAttribLocation = gl.getAttribLocation(program, 'aColor');
     gl.vertexAttribPointer(
-        colorAttribLocation, // Color Attrib location
-        3, // Elements per attribute
+        texCoordAttribLocation, // Color Attrib location
+        2, // Elements per attribute
         gl.FLOAT, // Type of element
         gl.FALSE, // Is normalized?
-        6 * Float32Array.BYTES_PER_ELEMENT,
+        5 * Float32Array.BYTES_PER_ELEMENT,
         3 * Float32Array.BYTES_PER_ELEMENT
     );
 
     gl.enableVertexAttribArray(positionAttribLocation);
-    gl.enableVertexAttribArray(colorAttribLocation);
+    gl.enableVertexAttribArray(texCoordAttribLocation);
 
+    let texture = gl.createTexture();
+    
+    gl.activeTexture(gl.TEXTURE0);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, document.getElementById("crate"));
+    
     gl.useProgram(program);
 
     let matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
@@ -197,7 +211,7 @@ const Initialize = function () {
     gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
 
     let angle = 0;
-    var loop = function() {
+    const loop = function() {
         angle = performance.now() / 1000 / 6 * 2 * Math.PI;
         glMatrix.mat4.rotate(worldMatrix, identityMatrix, angle, [0, 1, 0]);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
