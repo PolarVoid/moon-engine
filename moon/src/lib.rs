@@ -2,11 +2,12 @@ mod utils;
 mod shader;
 mod texture;
 
+use na::Perspective3;
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use nalgebra as na;
-use nalgebra::{Matrix4, Vector3, Vector4, Projective3};
+use nalgebra::{Matrix4, Vector3, Vector4};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
@@ -74,6 +75,9 @@ pub struct Application {
     time: f32,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
+    u_model_matrix: Option<WebGlUniformLocation>,
+    u_view_matrix: Option<WebGlUniformLocation>,
+    u_projection_matrix: Option<WebGlUniformLocation>,
 }
 
 #[wasm_bindgen]
@@ -85,6 +89,9 @@ impl Application {
             time: 0.0,
             u_time: None,
             u_texture_0: None,
+            u_model_matrix: None,
+            u_view_matrix: None,
+            u_projection_matrix: None,
         }
     }
     
@@ -108,6 +115,13 @@ impl Application {
         let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
         self.u_texture_0 = u_texture_0;
 
+        let u_model_matrix = gl.get_uniform_location(&program, "uModel");
+        self.u_model_matrix = u_model_matrix;
+        let u_view_matrix = gl.get_uniform_location(&program, "uView");
+        self.u_view_matrix = u_view_matrix;
+        let u_projection_matrix = gl.get_uniform_location(&program, "uProj");
+        self.u_projection_matrix = u_projection_matrix;
+
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
         let vcolor_attrib_location = gl.get_attrib_location(&program, "aColor");
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
@@ -123,28 +137,40 @@ impl Application {
         
         let vertices = vec![
             Vertex {
-                position: [-0.7, -0.7, 0.0],
+                position: [-0.5, 0.0, 0.5],
                 color: [0.7, 0.3, 0.7],
                 uv: [0.0, 0.0],
             },
             Vertex {
-                position: [0.7, -0.7, 0.0],
+                position: [-0.5, 0.0, -0.5],
                 color: [0.5, 0.2, 0.0],
-                uv: [1.0, 0.0],
+                uv: [5.0, 0.0],
             },
             Vertex {
-                position: [0.7, 0.7, 0.0],
+                position: [0.5, 0.0, -0.5],
                 color: [0.8, 0.6, 0.0],
-                uv: [1.0, 1.0],
+                uv: [0.0, 0.0],
             },
             Vertex {
-                position: [-0.7, 0.7, 0.0],
+                position: [0.5, 0.0, 0.5],
                 color: [0.0, 0.4, 0.8],
-                uv: [0.0, 1.0],
+                uv: [5.0, 5.0],
+            },
+            Vertex {
+                position: [0.0, 0.8, 0.0],
+                color: [0.0, 0.4, 0.8],
+                uv: [2.5, 5.0],
             },
         ];
         
-        let indices : [u8; 6] = [0, 1, 2, 2, 3, 0];
+        let indices : [u8; 18] = [
+            0, 1, 2,
+            0, 2, 3,
+            0, 1, 4,
+            1, 2, 4,
+            2, 3, 4,
+            3, 0, 4,
+            ];
         let u8_slice = unsafe {
             std::slice::from_raw_parts(
                 vertices.as_ptr() as *const u8, vertices.len()*std::mem::size_of::<Vertex>()
@@ -164,9 +190,15 @@ impl Application {
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
         let texture = create_texture(gl, &img).expect("Failed to create Texture");
+
+        let model = Matrix4::<f32>::identity();
+        let view = Matrix4::<f32>::new_translation(&Vector3::new(0.0, -0.5, -2.0));
+        let proj: Perspective3<f32> = Perspective3::new(16.0/9.0, 3.14 / 4.0, 0.1, 1000.0);
         gl.uniform1i(self.u_texture_0.as_ref(), 0);
+        gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
+        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, view.as_slice());
+        gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, proj.as_matrix().as_slice());
         gl.enable(GL::DEPTH_TEST);
-        gl.enable(GL::CULL_FACE);
     }
 
     #[wasm_bindgen]
@@ -175,6 +207,6 @@ impl Application {
         self.time += 0.1;
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
         gl.uniform1f(self.u_time.as_ref(), self.time);
-        gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_BYTE, 0);
+        gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
     }
 }
