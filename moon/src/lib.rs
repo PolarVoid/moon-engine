@@ -8,7 +8,7 @@ use nalgebra as na;
 use nalgebra::{Matrix4, Vector3, Vector4, Projective3};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
-use web_sys::{WebGlBuffer, WebGlVertexArrayObject, WebGlShader, WebGlProgram, WebGlUniformLocation};
+use web_sys::{WebGlBuffer, WebGlVertexArrayObject, WebGlShader, WebGlProgram, WebGlUniformLocation, HtmlImageElement, WebGlTexture};
 use shader::create_shader;
 use shader::create_program;
 
@@ -54,6 +54,7 @@ impl Transform {
 struct Vertex {
     position: [f32; 3],
     color: [f32; 3],
+    uv: [f32; 2],
 }
 
 pub fn get_gl_context() -> Result<GL, String> {
@@ -69,6 +70,22 @@ pub struct Application {
     gl: GL,
     time: f32,
     u_time: Option<WebGlUniformLocation>,
+    u_texture_0: Option<WebGlUniformLocation>,
+}
+
+pub fn create_texture(gl: &GL, image: &HtmlImageElement) -> Result<WebGlTexture, String>{
+    let texture = gl.create_texture().ok_or_else(|| String::from("Unable to create Texture object."))?;
+    gl.active_texture(GL::TEXTURE0);
+    gl.bind_texture(GL::TEXTURE_2D, Some(&texture));
+    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::LINEAR as i32);
+    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL::LINEAR as i32);
+    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::REPEAT as i32);
+    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::REPEAT as i32);
+    gl.tex_image_2d_with_u32_and_u32_and_html_image_element(GL::TEXTURE_2D, 0, 
+        GL::RGBA as i32, GL::RGBA, GL::UNSIGNED_BYTE, &image)
+        .expect("Failed to load texture");
+    gl.generate_mipmap(GL::TEXTURE_2D);
+    Ok(texture)
 }
 
 #[wasm_bindgen]
@@ -79,6 +96,7 @@ impl Application {
             gl: get_gl_context().unwrap(),
             time: 0.0,
             u_time: None,
+            u_texture_0: None,
         }
     }
     
@@ -87,7 +105,7 @@ impl Application {
         let gl = &self.gl;
         gl.clear_color(0.0, 0.55, 0.7, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
-    
+
         let vertex_shader = create_shader(gl, GL::VERTEX_SHADER, include_str!("..\\res\\shader\\vertex.glsl")).expect("Could not create Vertex Shader!");
         let fragment_shader = create_shader(gl, GL::FRAGMENT_SHADER, include_str!("..\\res\\shader\\fragment.glsl")).expect("Could not create Fragment Shader!");
         
@@ -99,8 +117,12 @@ impl Application {
 
         let u_time = gl.get_uniform_location(&program, "uTime");
         self.u_time = u_time;
+        let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
+        self.u_texture_0 = u_texture_0;
+
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
         let vcolor_attrib_location = gl.get_attrib_location(&program, "aColor");
+        let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         
         let vao = gl.create_vertex_array().expect("Could not create Vertex Array Object.");
         gl.bind_vertex_array(Some(&vao));
@@ -115,18 +137,22 @@ impl Application {
             Vertex {
                 position: [-0.7, -0.7, 0.0],
                 color: [0.7, 0.3, 0.7],
+                uv: [0.0, 1.0],
             },
             Vertex {
                 position: [0.7, -0.7, 0.0],
                 color: [0.5, 0.2, 0.0],
+                uv: [1.0, 1.0],
             },
             Vertex {
                 position: [0.7, 0.7, 0.0],
                 color: [0.8, 0.6, 0.0],
+                uv: [1.0, 0.0],
             },
             Vertex {
                 position: [-0.7, 0.7, 0.0],
                 color: [0.0, 0.4, 0.8],
+                uv: [0.0, 0.0],
             },
         ];
         
@@ -139,12 +165,18 @@ impl Application {
         gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, u8_slice, GL::STATIC_DRAW);
         gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, &indices, GL::STATIC_DRAW);
     
-        gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 6 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 3, GL::FLOAT, false, 6 * 4, 12);
+        gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 8 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 3, GL::FLOAT, false, 8 * 4, 12);
+        gl.vertex_attrib_pointer_with_i32(2, 2, GL::FLOAT, false, 8 * 4, 24);
+
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
         gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
+        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
 
-        // gl.draw_arrays(GL::TRIANGLES, 0, 6);
+        let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
+        let img = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
+        let texture = create_texture(gl, &img).expect("Failed to create Texture");
+        gl.uniform1i(self.u_texture_0.as_ref(), 0);
         gl.enable(GL::DEPTH_TEST);
         gl.enable(GL::CULL_FACE);
     }

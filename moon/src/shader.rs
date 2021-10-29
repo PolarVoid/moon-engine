@@ -1,12 +1,6 @@
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlShader, WebGlProgram};
 
-
-pub fn shader_log(gl: &GL, shader: &WebGlShader) {
-    let log = gl.get_shader_info_log(shader).unwrap_or(String::from("Nothing to print!\n"));
-    println!("{}", log);
-}
-
 /// Creates a new `WebGlShader` using a source `str`.
 pub fn create_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
     let shader = gl.create_shader(shader_type).ok_or_else(|| String::from("Unable to create Shader object."))?;
