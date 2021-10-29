@@ -14,4 +14,5 @@ void main() {
     gl_Position.y += cos(uTime) * 0.1;
     vColor = aColor;
     vTexCoord = aTexCoord;
+    vTexCoord.y = 1.0 - vTexCoord.y;
 }
