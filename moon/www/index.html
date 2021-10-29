@@ -3,9 +3,14 @@
   <head>
     <meta charset="utf-8">
     <title>Hello WASM!</title>
+    <style>
+      canvas:focus {
+        outline: none;
+      }
+    </style>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" tabindex="0"></canvas>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
     <script src="./bootstrap.js"></script>
   </body>

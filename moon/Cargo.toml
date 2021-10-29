@@ -40,6 +40,7 @@ features = [
     'WebGlShader',
     'WebGlBuffer',
     'WebGlVertexArrayObject',
+    'WebGlUniformLocation',
 ]
 
 [dev-dependencies]
