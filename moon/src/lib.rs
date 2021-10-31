@@ -1,6 +1,7 @@
 mod utils;
 mod shader;
 mod texture;
+mod camera;
 
 use na::Perspective3;
 use utils::set_panic_hook;
@@ -15,6 +16,7 @@ use web_sys::{WebGlUniformLocation, HtmlImageElement};
 use shader::create_shader;
 use shader::create_program;
 use texture::create_texture;
+use camera::Camera;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
