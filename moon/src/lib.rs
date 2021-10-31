@@ -3,12 +3,10 @@ mod shader;
 mod texture;
 mod camera;
 
-use na::Perspective3;
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use nalgebra as na;
-use nalgebra::{Matrix4, Vector3, Vector4};
+use nalgebra::{Matrix4, Vector3};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
@@ -35,24 +33,6 @@ pub fn check_gl_error(gl: &GL) -> bool {
     found_error
 }
 
-pub struct Transform {
-    position: Vector3<f32>,
-    scale: Vector3<f32>,
-    rotation: Vector3<f32>,
-    matrix: Matrix4<f32>,
-}
-
-impl Transform {
-    pub fn new() -> Self{
-        Transform {
-            position: Vector3::from_element(0.0f32),
-            scale: Vector3::from_element(1.0f32),
-            rotation: Vector3::from_element(0.0f32),
-            matrix: Matrix4::identity()
-        }
-    }
-}
-
 /// The `Vertex` struct
 /// 
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
@@ -74,6 +54,7 @@ pub fn get_gl_context() -> Result<GL, String> {
 #[wasm_bindgen]
 pub struct Application {
     gl: GL,
+    camera: Camera,
     time: f32,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
@@ -88,6 +69,7 @@ impl Application {
     pub fn new() -> Self {
         Self {
             gl: get_gl_context().unwrap(),
+            camera: Camera::new(),
             time: 0.0,
             u_time: None,
             u_texture_0: None,
@@ -191,14 +173,15 @@ impl Application {
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
-        let texture = create_texture(gl, &img).expect("Failed to create Texture");
-
+        let _texture = create_texture(gl, &img).expect("Failed to create Texture");
+        
+        self.camera = Camera::with_position(Vector3::new(0.0, -0.5, -2.0));
         let model = Matrix4::<f32>::identity();
-        let view = Matrix4::<f32>::new_translation(&Vector3::new(0.0, -0.5, -2.0));
-        let proj: Perspective3<f32> = Perspective3::new(16.0/9.0, 3.14 / 4.0, 0.1, 1000.0);
+        let proj =  self.camera.projection();
+        
         gl.uniform1i(self.u_texture_0.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
-        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, view.as_slice());
+        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.view.as_slice());
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, proj.as_matrix().as_slice());
         gl.enable(GL::DEPTH_TEST);
     }
