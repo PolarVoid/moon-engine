@@ -12,9 +12,15 @@ uniform mat4 uProj;
 out vec2 vTexCoord;
 out vec3 vColor;
 
+mat4 rotateY(float deg) {
+    return mat4(cos(deg), 0, sin(deg), 0,
+                0, 1, 0, 0,
+                -sin(deg), 0, cos(deg), 0,
+                0, 0, 0, 1);
+}
+
 void main() {
-    gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
-    gl_Position.x += sin(uTime);
+    gl_Position = uProj * uView * rotateY(uTime) * uModel * vec4(aPosition, 1.0);
     vColor = aColor;
     vTexCoord = aTexCoord;
     vTexCoord.y = 1.0 - vTexCoord.y;
