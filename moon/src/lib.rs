@@ -144,7 +144,7 @@ impl Application {
             Vertex {
                 position: [-0.5, 0.0, -0.5],
                 color: [0.5, 0.2, 0.0],
-                uv: [5.0, 0.0],
+                uv: [1.0, 0.0],
             },
             Vertex {
                 position: [0.5, 0.0, -0.5],
@@ -154,12 +154,12 @@ impl Application {
             Vertex {
                 position: [0.5, 0.0, 0.5],
                 color: [0.0, 0.4, 0.8],
-                uv: [5.0, 0.0],
+                uv: [1.0, 0.0],
             },
             Vertex {
                 position: [0.0, 0.8, 0.0],
                 color: [0.0, 0.4, 0.8],
-                uv: [2.5, 5.0],
+                uv: [0.5, 1.0],
             },
         ];
         
