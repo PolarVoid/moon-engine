@@ -13,12 +13,12 @@ function init() {
     }
 
     app.init();
-
+    let startTime = Date.now();
     function render() {
         window.requestAnimationFrame(render);
         let currentTime = Date.now();
-
-        if (currentTime >= lastDrawTime + FPS_LIMIT) {
+        let deltaTime = currentTime - lastDrawTime;
+        if (deltaTime >= FPS_LIMIT) {
             lastDrawTime = currentTime;
 
             if (canvas.height != window.innerHeight || canvas.width != window.innerWidth) {
@@ -30,7 +30,8 @@ function init() {
 
                 gl.viewport(0, 0, window.innerWidth, window.innerHeight);
             }
-            app.render();
+            console.log(currentTime- startTime);
+            app.render((currentTime - startTime)%36000);
         }
     }
 

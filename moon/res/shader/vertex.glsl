@@ -13,10 +13,7 @@ out vec2 vTexCoord;
 out vec3 vColor;
 
 mat4 rotateY(float deg) {
-    return mat4(cos(deg), 0, sin(deg), 0,
-                0, 1, 0, 0,
-                -sin(deg), 0, cos(deg), 0,
-                0, 0, 0, 1);
+    return mat4(cos(deg), 0, sin(deg), 0, 0, 1, 0, 0, -sin(deg), 0, cos(deg), 0, 0, 0, 0, 1);
 }
 
 void main() {

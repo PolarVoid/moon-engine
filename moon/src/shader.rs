@@ -10,7 +10,7 @@ pub fn create_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlSha
     if gl.get_shader_parameter(&shader, GL::COMPILE_STATUS).as_bool().unwrap_or(false) {
         Ok(shader)
     } else {
-        Err(gl.get_shader_info_log(&shader).unwrap_or_else(|| String::from("Could not create shader.")))
+        Err(gl.get_shader_info_log(&shader).unwrap_or_else(|| String::from("Could not compile shader.")))
     }
 }
 
@@ -23,6 +23,6 @@ pub fn create_program(gl: &GL, vertex_shader: &WebGlShader, fragment_shader: &We
     if gl.get_program_parameter(&program, GL::LINK_STATUS).as_bool().unwrap_or(false) {
         Ok(program)
     } else {
-        Err(gl.get_program_info_log(&program).unwrap_or_else(|| String::from("Could not create program.")))
+        Err(gl.get_program_info_log(&program).unwrap_or_else(|| String::from("Could not link program.")))
     }
 }

@@ -43,7 +43,7 @@ impl Camera {
         }
     }
     pub fn calculate_view(&mut self) {
-        
+        self.view = Matrix4::new_translation(&self.position);
     }
     pub fn projection(&self) -> Perspective3<f32> {
         Perspective3::new(self.width as f32 / self.height as f32, self.fov, self.znear, self.zfar)

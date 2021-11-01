@@ -55,7 +55,6 @@ pub fn get_gl_context() -> Result<GL, String> {
 pub struct Application {
     gl: GL,
     camera: Camera,
-    time: f32,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -70,7 +69,6 @@ impl Application {
         Self {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
-            time: 0.0,
             u_time: None,
             u_texture_0: None,
             u_model_matrix: None,
@@ -187,11 +185,10 @@ impl Application {
     }
 
     #[wasm_bindgen]
-    pub fn render(&mut self) {
+    pub fn render(&mut self, delta_time: u32) {
         let gl = &self.gl;
-        self.time += 0.1;
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
-        gl.uniform1f(self.u_time.as_ref(), self.time);
+        gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
     }
 }
