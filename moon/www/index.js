@@ -30,8 +30,7 @@ function init() {
 
                 gl.viewport(0, 0, window.innerWidth, window.innerHeight);
             }
-            console.log(currentTime- startTime);
-            app.render((currentTime - startTime)%36000);
+            app.render(currentTime - startTime);
         }
     }
 

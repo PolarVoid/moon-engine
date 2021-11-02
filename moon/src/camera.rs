@@ -2,6 +2,7 @@ use std::f32::consts;
 use nalgebra as na;
 use na::{Perspective3, Vector3, Matrix4};
 
+#[allow(dead_code)]
 pub struct Camera {
     pub view: Matrix4<f32>,
     position: Vector3<f32>,
@@ -14,6 +15,7 @@ pub struct Camera {
     zfar: f32,
 }
 
+#[allow(dead_code)]
 impl Camera {
     pub fn new() -> Self {
         Self {

@@ -2,6 +2,7 @@ mod utils;
 mod shader;
 mod texture;
 mod camera;
+mod input;
 
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
@@ -174,7 +175,7 @@ impl Application {
         let _texture = create_texture(gl, &img).expect("Failed to create Texture");
         
         self.camera = Camera::with_position(Vector3::new(0.0, -0.5, -2.0));
-        let model = Matrix4::<f32>::identity();
+        let model: Matrix4<f32> = Matrix4::identity();
         let proj =  self.camera.projection();
         
         gl.uniform1i(self.u_texture_0.as_ref(), 0);
