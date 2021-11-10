@@ -208,7 +208,7 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
-        let sensitivity = 0.1;
+        let sensitivity = 0.05;
         let gl = &self.gl;
         if self.input.get_key_state('W' as u8) {
             self.camera.translate(&(Vector3::z() * sensitivity));
