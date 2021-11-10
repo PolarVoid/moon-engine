@@ -1,8 +1,8 @@
 mod utils;
-mod shader;
-mod texture;
-mod camera;
-mod input;
+pub mod shader;
+pub mod texture;
+pub mod camera;
+pub mod input;
 
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
@@ -12,10 +12,11 @@ use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
 
-use shader::create_shader;
-use shader::create_program;
-use texture::create_texture;
-use camera::Camera;
+pub use shader::create_shader;
+pub use shader::create_program;
+pub use texture::create_texture;
+pub use camera::Camera;
+pub use input::InputManager;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -37,12 +38,14 @@ pub fn check_gl_error(gl: &GL) -> bool {
 /// The `Vertex` struct
 /// 
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
+/// It consists of position and color vectors, and UV co-ordinates.
 #[repr(C)]
-struct Vertex {
+pub struct Vertex {
     position: [f32; 3],
     color: [f32; 3],
     uv: [f32; 2],
 }
+
 
 pub fn get_gl_context() -> Result<GL, String> {
     set_panic_hook();
@@ -56,6 +59,7 @@ pub fn get_gl_context() -> Result<GL, String> {
 pub struct Application {
     gl: GL,
     camera: Camera,
+    input: InputManager,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -70,6 +74,7 @@ impl Application {
         Self {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
+            input: InputManager::new(),
             u_time: None,
             u_texture_0: None,
             u_model_matrix: None,
@@ -184,10 +189,33 @@ impl Application {
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, proj.as_matrix().as_slice());
         gl.enable(GL::DEPTH_TEST);
     }
+    
+    #[wasm_bindgen]
+    pub fn input(&mut self, key_code: u8, is_down: bool) {
+        if is_down {
+            self.input.key_down(key_code);
+        } else {
+            self.input.key_up(key_code);
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn foo() {
+        print!("foo");
+    }
 
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
         let gl = &self.gl;
+        if self.input.get_key_state('R' as u8) {
+            gl.clear_color(1.0,0.0, 0.0, 1.0);
+        } else if self.input.get_key_state('G' as u8) {
+            gl.clear_color(0.0,1.0, 0.0, 1.0);
+        } else if self.input.get_key_state('B' as u8) {
+            gl.clear_color(0.0,0.0, 1.0, 1.0);
+        } else {
+            gl.clear_color(0.0, 0.0, 0.0, 1.0);
+        }
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);

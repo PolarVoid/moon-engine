@@ -11,8 +11,13 @@ function init() {
         alert('Failed to initialize WebGL2 Context!');
         return;
     }
-
     app.init();
+    canvas.addEventListener("keydown", event => {
+        app.input(event.which, true);
+    });
+    canvas.addEventListener("keyup", event => {
+        app.input(event.which, false);
+    });
     let startTime = Date.now();
     function render() {
         window.requestAnimationFrame(render);
