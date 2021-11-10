@@ -3,6 +3,7 @@ pub mod shader;
 pub mod texture;
 pub mod camera;
 pub mod input;
+pub mod transform;
 
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
@@ -17,6 +18,7 @@ pub use shader::create_program;
 pub use texture::create_texture;
 pub use camera::Camera;
 pub use input::InputManager;
+pub use transform::Transform;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -206,17 +208,28 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
+        let sensitivity = 0.1;
         let gl = &self.gl;
-        if self.input.get_key_state('R' as u8) {
-            gl.clear_color(1.0,0.0, 0.0, 1.0);
-        } else if self.input.get_key_state('G' as u8) {
-            gl.clear_color(0.0,1.0, 0.0, 1.0);
-        } else if self.input.get_key_state('B' as u8) {
-            gl.clear_color(0.0,0.0, 1.0, 1.0);
-        } else {
-            gl.clear_color(0.0, 0.0, 0.0, 1.0);
+        if self.input.get_key_state('W' as u8) {
+            self.camera.translate(&(Vector3::z() * sensitivity));
+        }
+        if self.input.get_key_state('A' as u8) {
+            self.camera.translate(&(Vector3::x() * sensitivity));
+        }
+        if self.input.get_key_state('S' as u8) {
+            self.camera.translate(&(-Vector3::z() * sensitivity));
+        }
+        if self.input.get_key_state('D' as u8) {
+            self.camera.translate(&(-Vector3::x() * sensitivity));
+        }
+        if self.input.get_key_state('Q' as u8) {
+            self.camera.translate(&(Vector3::y() * sensitivity));
+        }
+        if self.input.get_key_state('E' as u8) {
+            self.camera.translate(&(-Vector3::y() * sensitivity));
         }
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
+        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.view.as_slice());
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
     }

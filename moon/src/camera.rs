@@ -1,4 +1,5 @@
 use std::f32::consts;
+use crate::transform::Transform;
 use nalgebra as na;
 use na::{Perspective3, Vector3, Matrix4};
 
@@ -49,5 +50,12 @@ impl Camera {
     }
     pub fn projection(&self) -> Perspective3<f32> {
         Perspective3::new(self.width as f32 / self.height as f32, self.fov, self.znear, self.zfar)
+    }
+}
+
+impl Transform for Camera {
+    fn translate(&mut self, shift: &Vector3<f32>) {
+        self.position += shift;
+        self.view.append_translation_mut(shift);
     }
 }
