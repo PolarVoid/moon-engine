@@ -31,9 +31,9 @@ impl Camera {
             zfar: 1000.0f32,
         }
     }
-    pub fn with_position(position: Vector3<f32>) -> Self {
+    pub fn with_position(position: &Vector3<f32>) -> Self {
         Self {
-            position,
+            position: *position,
             view: Matrix4::new_translation(&position),
             ..Camera::new()
         }

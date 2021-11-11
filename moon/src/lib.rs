@@ -12,6 +12,7 @@ use nalgebra::{Matrix4, Vector3};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
+use gltf::Gltf;
 
 pub use shader::create_shader;
 pub use shader::create_program;
@@ -25,6 +26,18 @@ pub use transform::Transform;
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace=console)]
+    fn log(s: &str);
+}
+
+macro_rules! console_log {
+    // Note that this is using the `log` function imported above during
+    // `bare_bones`
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
 
 pub fn check_gl_error(gl: &GL) -> bool {
     let mut found_error = false;
@@ -161,6 +174,12 @@ impl Application {
             2, 3, 4,
             3, 0, 4,
             ];
+        let model = Gltf::from_slice(include_bytes!("..\\res\\model\\matilda\\scene.gltf")).unwrap();
+        for scene in model.scenes() {
+            for node in scene.nodes() {
+                console_log!("Node {} has {} children", node.index(), node.children().count());
+            }
+        }
         let u8_slice = unsafe {
             std::slice::from_raw_parts(
                 vertices.as_ptr() as *const u8, vertices.len()*std::mem::size_of::<Vertex>()
@@ -181,7 +200,8 @@ impl Application {
         let img = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
         let _texture = create_texture(gl, &img).expect("Failed to create Texture");
         
-        self.camera = Camera::with_position(Vector3::new(0.0, -0.5, -2.0));
+        let initial_camera_position: Vector3<f32> = -Vector3::z()*2.0 - Vector3::y()*0.5;
+        self.camera = Camera::with_position(&initial_camera_position);
         let model: Matrix4<f32> = Matrix4::identity();
         let proj =  self.camera.projection();
         
@@ -199,11 +219,6 @@ impl Application {
         } else {
             self.input.key_up(key_code);
         }
-    }
-
-    #[wasm_bindgen]
-    pub fn foo() {
-        print!("foo");
     }
 
     #[wasm_bindgen]
