@@ -58,4 +58,7 @@ impl Transform for Camera {
         self.position += shift;
         self.view.append_translation_mut(shift);
     }
+    fn get_position(&self) -> &[f32] {
+        self.position.as_slice()
+    }
 }

@@ -58,6 +58,7 @@ pub struct Vertex {
     position: [f32; 3],
     color: [f32; 3],
     uv: [f32; 2],
+    normal: [f32; 3],
 }
 
 
@@ -79,6 +80,7 @@ pub struct Application {
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
+    u_camera_position: Option<WebGlUniformLocation>,
 }
 
 #[wasm_bindgen]
@@ -94,6 +96,7 @@ impl Application {
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
+            u_camera_position: None,
         }
     }
     
@@ -103,8 +106,8 @@ impl Application {
         gl.clear_color(0.0, 0.55, 0.7, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
 
-        let vertex_shader = create_shader(gl, GL::VERTEX_SHADER, include_str!("..\\res\\shader\\vertex.glsl")).expect("Could not create Vertex Shader!");
-        let fragment_shader = create_shader(gl, GL::FRAGMENT_SHADER, include_str!("..\\res\\shader\\fragment.glsl")).expect("Could not create Fragment Shader!");
+        let vertex_shader = create_shader(gl, GL::VERTEX_SHADER, include_str!("..\\res\\shader\\default.vert.glsl")).expect("Could not create Vertex Shader!");
+        let fragment_shader = create_shader(gl, GL::FRAGMENT_SHADER, include_str!("..\\res\\shader\\default.frag.glsl")).expect("Could not create Fragment Shader!");
         
         let program = create_program(&gl, &vertex_shader, &fragment_shader).expect("Failed while creating Program!");
         gl.use_program(Some(&program));
@@ -124,9 +127,13 @@ impl Application {
         let u_projection_matrix = gl.get_uniform_location(&program, "uProj");
         self.u_projection_matrix = u_projection_matrix;
 
+        let u_camera_position = gl.get_uniform_location(&program, "uCamPos");
+        self.u_camera_position = u_camera_position;
+
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
         let vcolor_attrib_location = gl.get_attrib_location(&program, "aColor");
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
+        let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
         let vao = gl.create_vertex_array().expect("Could not create Vertex Array Object.");
         gl.bind_vertex_array(Some(&vao));
@@ -138,40 +145,120 @@ impl Application {
         gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&ibo));
         
         let vertices = vec![
+            // Bottom Side
             Vertex {
                 position: [-0.5, 0.0, 0.5],
                 color: [0.7, 0.3, 0.7],
                 uv: [0.0, 0.0],
+                normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [-0.5, 0.0, -0.5],
                 color: [0.5, 0.2, 0.0],
-                uv: [1.0, 0.0],
+                uv: [0.0, 1.0],
+                normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [0.5, 0.0, -0.5],
                 color: [0.8, 0.6, 0.0],
-                uv: [0.0, 0.0],
+                uv: [1.0, 1.0],
+                normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [0.5, 0.0, 0.5],
                 color: [0.0, 0.4, 0.8],
                 uv: [1.0, 0.0],
+                normal: [0.0, -1.0, 0.0],
+            },
+
+            // Left Side
+            Vertex {
+                position: [-0.5, 0.0, 0.5],
+                color: [0.7, 0.3, 0.7],
+                uv: [0.0, 0.0],
+                normal: [-0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.0, -0.5],
+                color: [0.5, 0.2, 0.0],
+                uv: [1.0, 0.0],
+                normal: [-0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [0.0, 0.8, 0.0],
                 color: [0.0, 0.4, 0.8],
                 uv: [0.5, 1.0],
+                normal: [-0.8, 0.5, 0.0],
+            },
+
+            // Back Side
+            Vertex {
+                position: [-0.5, 0.0, -0.5],
+                color: [0.5, 0.2, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.0, 0.5, -0.8],
+            },
+            Vertex {
+                position: [0.5, 0.0, -0.5],
+                color: [0.8, 0.6, 0.0],
+                uv: [0.0, 0.0],
+                normal: [0.0, 0.5, -0.8],
+            },
+            Vertex {
+                position: [0.0, 0.8, 0.0],
+                color: [0.0, 0.4, 0.8],
+                uv: [0.5, 1.0],
+                normal: [0.0, 0.5, -0.8],
+            },
+
+            // Right Side
+            Vertex {
+                position: [0.5, 0.0, -0.5],
+                color: [0.7, 0.3, 0.7],
+                uv: [0.0, 0.0],
+                normal: [0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.0, 0.5],
+                color: [0.5, 0.2, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [0.0, 0.8, 0.0],
+                color: [0.0, 0.4, 0.8],
+                uv: [0.5, 1.0],
+                normal: [0.8, 0.5, 0.0],
+            },
+
+            // Front Side
+            Vertex {
+                position: [0.5, 0.0, 0.5],
+                color: [0.5, 0.2, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.0, 0.5, 0.8],
+            },
+            Vertex {
+                position: [-0.5, 0.0, 0.5],
+                color: [0.8, 0.6, 0.0],
+                uv: [0.0, 0.0],
+                normal: [0.0, 0.5, 0.8],
+            },
+            Vertex {
+                position: [0.0, 0.8, 0.0],
+                color: [0.0, 0.4, 0.8],
+                uv: [0.5, 1.0],
+                normal: [0.0, 0.5, 0.8],
             },
         ];
         
         let indices : [u8; 18] = [
             0, 1, 2,
             0, 2, 3,
-            0, 1, 4,
-            1, 2, 4,
-            2, 3, 4,
-            3, 0, 4,
+            4, 6, 5,
+            7, 9, 8,
+            10, 12, 11,
+            13, 15, 14,
             ];
         let u8_slice = unsafe {
             std::slice::from_raw_parts(
@@ -181,13 +268,15 @@ impl Application {
         gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, u8_slice, GL::STATIC_DRAW);
         gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, &indices, GL::STATIC_DRAW);
     
-        gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 8 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 3, GL::FLOAT, false, 8 * 4, 12);
-        gl.vertex_attrib_pointer_with_i32(2, 2, GL::FLOAT, false, 8 * 4, 24);
+        gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 11 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 3, GL::FLOAT, false, 11 * 4, 12);
+        gl.vertex_attrib_pointer_with_i32(2, 2, GL::FLOAT, false, 11 * 4, 24);
+        gl.vertex_attrib_pointer_with_i32(3, 3, GL::FLOAT, false, 11 * 4, 32);
 
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
         gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
@@ -197,7 +286,6 @@ impl Application {
         self.camera = Camera::with_position(&initial_camera_position);
         let model: Matrix4<f32> = Matrix4::identity();
         let proj =  self.camera.projection();
-        
         gl.uniform1i(self.u_texture_0.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.view.as_slice());
@@ -213,7 +301,7 @@ impl Application {
             self.input.key_up(key_code);
         }
     }
-
+    
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
         let sensitivity = 0.05;
@@ -237,6 +325,7 @@ impl Application {
             self.camera.translate(&(-Vector3::y() * sensitivity));
         }
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
+        gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.get_position());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.view.as_slice());
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
