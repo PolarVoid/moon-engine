@@ -12,7 +12,6 @@ use nalgebra::{Matrix4, Vector3};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
-use gltf::Gltf;
 
 pub use shader::create_shader;
 pub use shader::create_program;
@@ -174,12 +173,6 @@ impl Application {
             2, 3, 4,
             3, 0, 4,
             ];
-        let model = Gltf::from_slice(include_bytes!("..\\res\\model\\matilda\\scene.gltf")).unwrap();
-        for scene in model.scenes() {
-            for node in scene.nodes() {
-                console_log!("Node {} has {} children", node.index(), node.children().count());
-            }
-        }
         let u8_slice = unsafe {
             std::slice::from_raw_parts(
                 vertices.as_ptr() as *const u8, vertices.len()*std::mem::size_of::<Vertex>()
