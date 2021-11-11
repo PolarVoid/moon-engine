@@ -19,7 +19,7 @@ void main() {
     vec3 lightDirection = normalize(light - vPosition);
     float diffuse = max(dot(vNormal, lightDirection), 0.0f);
 
-    float specularIntensity = 0.5f;
+    float specularIntensity = 1.0f;
     vec3 viewDirection = normalize(-uCamPos - vPosition);
     vec3 reflectionDirection = reflect(-lightDirection, vNormal);
     float specularAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 8.0f);
