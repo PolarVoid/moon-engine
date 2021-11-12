@@ -29,6 +29,9 @@ impl Transform {
         self.matrix.append_translation_mut(shift);
     }
     pub fn get_position(&self) -> &[f32] {
-        return self.position.as_slice()
+        self.position.as_slice()
+    }
+    pub fn get_scale(&self) -> &[f32] {
+        self.scale.as_slice()
     }
 }

@@ -75,6 +75,8 @@ pub struct Application {
     gl: GL,
     camera: Camera,
     input: InputManager,
+    width: u32,
+    height: u32,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -91,6 +93,8 @@ impl Application {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
             input: InputManager::new(),
+            width: 1920,
+            height: 1080,
             u_time: None,
             u_texture_0: None,
             u_model_matrix: None,
@@ -200,14 +204,20 @@ impl Application {
         let initial_camera_position: Vector3<f32> = -Vector3::z()*2.0 - Vector3::y()*0.5;
         self.camera = Camera::with_position(initial_camera_position);
         let model: Matrix4<f32> = Matrix4::identity();
-        let proj =  self.camera.projection();
         gl.uniform1i(self.u_texture_0.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
-        gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, proj.as_matrix().as_slice());
+        gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, self.camera.projection());
         gl.enable(GL::DEPTH_TEST);
     }
     
+    #[wasm_bindgen]
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.width = width;
+        self.height = height;
+        self.gl.viewport(0, 0, width as i32, height as i32);
+    }
+
     #[wasm_bindgen]
     pub fn input(&mut self, key_code: u8, is_down: bool) {
         if is_down {
@@ -215,6 +225,12 @@ impl Application {
         } else {
             self.input.key_up(key_code);
         }
+    }
+
+    #[wasm_bindgen]
+    pub fn mouse_move(&mut self, mouse_x: f32, mouse_y: f32) {
+        self.input.mouse_x = mouse_x / self.width as f32;
+        self.input.mouse_y = mouse_y / self.height as f32;
     }
     
     #[wasm_bindgen]

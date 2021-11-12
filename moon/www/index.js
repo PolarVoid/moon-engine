@@ -18,6 +18,10 @@ function init() {
     canvas.addEventListener("keyup", event => {
         app.input(event.which, false);
     });
+    canvas.addEventListener("mousemove", event => {
+        app.mouse_move(event.clientX, event.clientY);
+    });
+    app.resize(window.innerWidth, window.innerHeight);
     let startTime = Date.now();
     function render() {
         window.requestAnimationFrame(render);
@@ -32,8 +36,7 @@ function init() {
                 
                 canvas.width = window.innerWidth;
                 canvas.style.width = window.innerWidth;
-
-                gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+                app.resize(window.innerWidth, window.innerHeight);
             }
             app.render(currentTime - startTime);
         }

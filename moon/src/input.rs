@@ -5,6 +5,8 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 pub struct InputManager {
     keyboard_states: HashSet<u8>,
+    pub mouse_x: f32,
+    pub mouse_y: f32,
 }
 
 #[wasm_bindgen]
@@ -13,6 +15,8 @@ impl InputManager {
     pub fn new() -> Self {
         Self {
             keyboard_states: HashSet::new(),
+            mouse_x: 0.0,
+            mouse_y: 0.0,
         }
     }
     #[wasm_bindgen]

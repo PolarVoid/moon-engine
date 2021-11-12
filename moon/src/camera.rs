@@ -6,6 +6,7 @@ use na::{Perspective3, Vector3, Matrix4};
 #[allow(dead_code)]
 pub struct Camera {
     pub transform: Transform,
+    pub perspective: Perspective3<f32>,
     orientation: Vector3<f32>,
     up: Vector3<f32>,
     width: u32,
@@ -27,6 +28,7 @@ impl Camera {
             fov: consts::PI/4.0,
             znear: 0.3f32,
             zfar: 1000.0f32,
+            perspective: Perspective3::new(192.0/108.0, consts::PI/4.0, 0.3f32, 1000.0f32),
         }
     }
     pub fn with_position(position: Vector3<f32>) -> Self {
@@ -39,10 +41,11 @@ impl Camera {
         Self {
             width,
             height,
+            perspective: Perspective3::new(width as f32 / height as f32, consts::PI/4.0, 0.3f32, 1000.0f32),
             ..Camera::new()
         }
     }
-    pub fn projection(&self) -> Perspective3<f32> {
-        Perspective3::new(self.width as f32 / self.height as f32, self.fov, self.znear, self.zfar)
+    pub fn projection(&self) -> &[f32] {
+        self.perspective.as_matrix().as_slice()
     }
 }
