@@ -5,8 +5,7 @@ use na::{Perspective3, Vector3, Matrix4};
 
 #[allow(dead_code)]
 pub struct Camera {
-    pub view: Matrix4<f32>,
-    position: Vector3<f32>,
+    pub transform: Transform,
     orientation: Vector3<f32>,
     up: Vector3<f32>,
     width: u32,
@@ -20,8 +19,7 @@ pub struct Camera {
 impl Camera {
     pub fn new() -> Self {
         Self {
-            view: Matrix4::identity(),
-            position: Vector3::zeros(),
+            transform: Transform::new(),
             orientation: -Vector3::z(),
             up: Vector3::y(),
             width: 1920,
@@ -31,10 +29,9 @@ impl Camera {
             zfar: 1000.0f32,
         }
     }
-    pub fn with_position(position: &Vector3<f32>) -> Self {
+    pub fn with_position(position: Vector3<f32>) -> Self {
         Self {
-            position: *position,
-            view: Matrix4::new_translation(&position),
+            transform: Transform::new_with_position(position),
             ..Camera::new()
         }
     }
@@ -45,20 +42,7 @@ impl Camera {
             ..Camera::new()
         }
     }
-    pub fn calculate_view(&mut self) {
-        self.view = Matrix4::new_translation(&self.position);
-    }
     pub fn projection(&self) -> Perspective3<f32> {
         Perspective3::new(self.width as f32 / self.height as f32, self.fov, self.znear, self.zfar)
-    }
-}
-
-impl Transform for Camera {
-    fn translate(&mut self, shift: &Vector3<f32>) {
-        self.position += shift;
-        self.view.append_translation_mut(shift);
-    }
-    fn get_position(&self) -> &[f32] {
-        self.position.as_slice()
     }
 }

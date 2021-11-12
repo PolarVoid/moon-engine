@@ -170,95 +170,10 @@ impl Application {
                 uv: [1.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
-
-            // Left Side
-            Vertex {
-                position: [-0.5, 0.0, 0.5],
-                color: [0.7, 0.3, 0.7],
-                uv: [0.0, 0.0],
-                normal: [-0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [-0.5, 0.0, -0.5],
-                color: [0.5, 0.2, 0.0],
-                uv: [1.0, 0.0],
-                normal: [-0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [0.0, 0.8, 0.0],
-                color: [0.0, 0.4, 0.8],
-                uv: [0.5, 1.0],
-                normal: [-0.8, 0.5, 0.0],
-            },
-
-            // Back Side
-            Vertex {
-                position: [-0.5, 0.0, -0.5],
-                color: [0.5, 0.2, 0.0],
-                uv: [1.0, 0.0],
-                normal: [0.0, 0.5, -0.8],
-            },
-            Vertex {
-                position: [0.5, 0.0, -0.5],
-                color: [0.8, 0.6, 0.0],
-                uv: [0.0, 0.0],
-                normal: [0.0, 0.5, -0.8],
-            },
-            Vertex {
-                position: [0.0, 0.8, 0.0],
-                color: [0.0, 0.4, 0.8],
-                uv: [0.5, 1.0],
-                normal: [0.0, 0.5, -0.8],
-            },
-
-            // Right Side
-            Vertex {
-                position: [0.5, 0.0, -0.5],
-                color: [0.7, 0.3, 0.7],
-                uv: [0.0, 0.0],
-                normal: [0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [0.5, 0.0, 0.5],
-                color: [0.5, 0.2, 0.0],
-                uv: [1.0, 0.0],
-                normal: [0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [0.0, 0.8, 0.0],
-                color: [0.0, 0.4, 0.8],
-                uv: [0.5, 1.0],
-                normal: [0.8, 0.5, 0.0],
-            },
-
-            // Front Side
-            Vertex {
-                position: [0.5, 0.0, 0.5],
-                color: [0.5, 0.2, 0.0],
-                uv: [1.0, 0.0],
-                normal: [0.0, 0.5, 0.8],
-            },
-            Vertex {
-                position: [-0.5, 0.0, 0.5],
-                color: [0.8, 0.6, 0.0],
-                uv: [0.0, 0.0],
-                normal: [0.0, 0.5, 0.8],
-            },
-            Vertex {
-                position: [0.0, 0.8, 0.0],
-                color: [0.0, 0.4, 0.8],
-                uv: [0.5, 1.0],
-                normal: [0.0, 0.5, 0.8],
-            },
         ];
-        
-        let indices : [u8; 18] = [
+        let indices : [u8; 6] = [
             0, 1, 2,
             0, 2, 3,
-            4, 6, 5,
-            7, 9, 8,
-            10, 12, 11,
-            13, 15, 14,
             ];
         let u8_slice = unsafe {
             std::slice::from_raw_parts(
@@ -283,12 +198,12 @@ impl Application {
         let _texture = create_texture(gl, &img).expect("Failed to create Texture");
         
         let initial_camera_position: Vector3<f32> = -Vector3::z()*2.0 - Vector3::y()*0.5;
-        self.camera = Camera::with_position(&initial_camera_position);
+        self.camera = Camera::with_position(initial_camera_position);
         let model: Matrix4<f32> = Matrix4::identity();
         let proj =  self.camera.projection();
         gl.uniform1i(self.u_texture_0.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
-        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.view.as_slice());
+        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, proj.as_matrix().as_slice());
         gl.enable(GL::DEPTH_TEST);
     }
@@ -307,27 +222,27 @@ impl Application {
         let sensitivity = 0.05;
         let gl = &self.gl;
         if self.input.get_key_state('W' as u8) {
-            self.camera.translate(&(Vector3::z() * sensitivity));
+            self.camera.transform.translate(&(Vector3::z() * sensitivity));
         }
         if self.input.get_key_state('A' as u8) {
-            self.camera.translate(&(Vector3::x() * sensitivity));
+            self.camera.transform.translate(&(Vector3::x() * sensitivity));
         }
         if self.input.get_key_state('S' as u8) {
-            self.camera.translate(&(-Vector3::z() * sensitivity));
+            self.camera.transform.translate(&(-Vector3::z() * sensitivity));
         }
         if self.input.get_key_state('D' as u8) {
-            self.camera.translate(&(-Vector3::x() * sensitivity));
+            self.camera.transform.translate(&(-Vector3::x() * sensitivity));
         }
         if self.input.get_key_state('Q' as u8) {
-            self.camera.translate(&(Vector3::y() * sensitivity));
+            self.camera.transform.translate(&(Vector3::y() * sensitivity));
         }
         if self.input.get_key_state('E' as u8) {
-            self.camera.translate(&(-Vector3::y() * sensitivity));
+            self.camera.transform.translate(&(-Vector3::y() * sensitivity));
         }
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
-        gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.get_position());
-        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.view.as_slice());
+        gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.transform.get_position());
+        gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
+        gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_BYTE, 0);
     }
 }

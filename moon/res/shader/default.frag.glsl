@@ -11,10 +11,9 @@ in vec3 vNormal;
 
 out vec4 color;
 
-
 void main() {
     float ambient = 0.2f;
-    vec3 light = vec3(0.5f, 0.5f, 0.5f);
+    vec3 light = vec3(0.0f, -0.1f, 0.0f);
     vec4 lightColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     vec3 lightDirection = normalize(light - vPosition);
     float diffuse = max(dot(vNormal, lightDirection), 0.0f);
