@@ -75,8 +75,6 @@ pub struct Application {
     gl: GL,
     camera: Camera,
     input: InputManager,
-    width: u32,
-    height: u32,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -93,8 +91,6 @@ impl Application {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
             input: InputManager::new(),
-            width: 1920,
-            height: 1080,
             u_time: None,
             u_texture_0: None,
             u_model_matrix: None,
@@ -212,9 +208,8 @@ impl Application {
     }
     
     #[wasm_bindgen]
-    pub fn resize(&mut self, width: u32, height: u32) {
-        self.width = width;
-        self.height = height;
+    pub fn resize(&mut self, width: f32, height: f32) {
+        self.camera.set_width_and_height(width, height);
         self.gl.viewport(0, 0, width as i32, height as i32);
     }
 
@@ -229,8 +224,8 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: f32, mouse_y: f32) {
-        self.input.mouse_x = mouse_x / self.width as f32;
-        self.input.mouse_y = mouse_y / self.height as f32;
+        self.input.mouse_x = mouse_x / self.camera.width;
+        self.input.mouse_y = mouse_y / self.camera.height;
     }
     
     #[wasm_bindgen]
