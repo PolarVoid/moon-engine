@@ -119,7 +119,8 @@ impl Application {
         let u_time = gl.get_uniform_location(&program, "uTime");
         self.u_time = u_time;
         let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
-        self.u_texture_0 = u_texture_0;
+        let u_texture_1 = gl.get_uniform_location(&program, "uTex1");
+        
 
         let u_model_matrix = gl.get_uniform_location(&program, "uModel");
         self.u_model_matrix = u_model_matrix;
@@ -195,13 +196,16 @@ impl Application {
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
-        let img = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
-        let _texture = create_texture(gl, &img).expect("Failed to create Texture");
+        let img1 = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
+        let _texture_alb = create_texture(gl, &img1, 0).expect("Failed to create Texture");
+        let img2 = document.get_element_by_id("texture1").unwrap().dyn_into::<HtmlImageElement>().unwrap();
+        let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
         
         let initial_camera_position: Vector3<f32> = -Vector3::z()*2.0 - Vector3::y()*0.5;
         self.camera = Camera::with_position(initial_camera_position);
         let model: Matrix4<f32> = Matrix4::identity();
-        gl.uniform1i(self.u_texture_0.as_ref(), 0);
+        gl.uniform1i(u_texture_0.as_ref(), 0);
+        gl.uniform1i(u_texture_1.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, self.camera.projection());
@@ -212,6 +216,7 @@ impl Application {
     pub fn resize(&mut self, width: f32, height: f32) {
         self.camera.set_width_and_height(width, height);
         self.gl.viewport(0, 0, width as i32, height as i32);
+        self.gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, self.camera.projection());
     }
 
     #[wasm_bindgen]

@@ -1,9 +1,9 @@
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlTexture, HtmlImageElement};
 
-pub fn create_texture(gl: &GL, image: &HtmlImageElement) -> Result<WebGlTexture, String>{
+pub fn create_texture(gl: &GL, image: &HtmlImageElement, count: u32) -> Result<WebGlTexture, String>{
     let texture = gl.create_texture().ok_or_else(|| String::from("Unable to create Texture object."))?;
-    gl.active_texture(GL::TEXTURE0);
+    gl.active_texture(GL::TEXTURE0 + count);
     gl.bind_texture(GL::TEXTURE_2D, Some(&texture));
     gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::LINEAR as i32);
     gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL::LINEAR as i32);
