@@ -12,19 +12,20 @@ in vec3 vNormal;
 
 out vec4 color;
 
-void main() {
-    float ambient = 0.2f;
-    vec3 light = vec3(0.0f, -0.5f, 0.0f);
+vec4 pointLight(vec3 light, float ambient, float specularIntensity, float specularPower) {
     vec4 lightColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     vec3 lightDirection = normalize(light - vPosition);
     float diffuse = max(dot(vNormal, lightDirection), 0.0f);
 
-    float specularIntensity = 1.0f;
     vec3 viewDirection = normalize(-uCamPos - vPosition);
     vec3 reflectionDirection = reflect(-lightDirection, vNormal);
-    float specularAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16.0f);
+    float specularAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), specularPower);
     float specular = specularAmount * specularIntensity;
+    vec4 res = lightColor * (ambient + diffuse) + texture(uTex1, vTexCoord).r * specular;
+    res.a = 1.0f;
+    return res;
+}
 
-    color = texture(uTex0, vTexCoord) * lightColor * (ambient + diffuse) + texture(uTex1, vTexCoord).r * specular;
-    color.a = 1.0f;
+void main() {
+    color = pointLight(vec3(0.0, -0.1, 0.1), 0.1, 2.0, 8.0);
 }
