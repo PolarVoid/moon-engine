@@ -13,6 +13,13 @@ pub struct Vertex {
     pub uv: [f32; 2],
     pub normal: [f32; 3],
 }
+pub enum Shape {
+    Quad(f32),
+    Cube(f32),
+    Sphere(f32),
+    Pyramid(f32, f32),
+    Complex,
+}
 
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
@@ -20,14 +27,6 @@ pub struct Mesh {
     vao: WebGlVertexArrayObject,
     vbo: WebGlBuffer,
     ibo: WebGlBuffer,
-}
-
-pub enum Shape {
-    Quad(f32),
-    Cube(f32),
-    Sphere(f32),
-    Pyramid(f32),
-    Complex,
 }
 
 impl Mesh {
@@ -50,9 +49,11 @@ impl Mesh {
             _ => Self::quad(gl),
         }
     }
+    /// Create a new Quad mesh with a side length of 1m
     pub fn quad(gl: &WebGl2RenderingContext) -> Self {
         Self::quad_with_side(gl, 1.0)
     }
+    /// Create a new Quad mesh with a given side length
     pub fn quad_with_side(gl: &WebGl2RenderingContext, side: f32) -> Self {
         let half = side/2.0;
         let vertices = vec![
@@ -87,6 +88,7 @@ impl Mesh {
         ];
         Self::new(gl, vertices, indices)
     }
+    /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
     pub fn setup(&self, gl: &WebGl2RenderingContext) {
         self.bind(gl);
         gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));
@@ -100,6 +102,7 @@ impl Mesh {
         gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, u8_slice, WebGl2RenderingContext::STATIC_DRAW);
         gl.buffer_data_with_u8_array(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, &self.indices, WebGl2RenderingContext::STATIC_DRAW);
     }
+    /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     pub fn bind(&self, gl: &WebGl2RenderingContext) {
         gl.bind_vertex_array(Some(&self.vao));
     }
