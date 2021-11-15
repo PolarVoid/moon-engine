@@ -84,8 +84,8 @@ impl Mesh {
             },
         ];
         let indices: Vec<u8> = vec![
-            0, 1, 2,
-            0, 2, 3,
+            0, 2, 1,
+            0, 3, 2,
         ];
         Self::new(gl, vertices, indices)
     }
@@ -97,25 +97,25 @@ impl Mesh {
         let vertices = vec![
             // Bottom Side
             Vertex {
-                position: [-0.5, 0.0, 0.5],
+                position: [-half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
-                position: [-0.5, 0.0, -0.5],
+                position: [-half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
-                position: [0.5, 0.0, -0.5],
+                position: [half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
-                position: [0.5, 0.0, 0.5],
+                position: [half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
@@ -123,13 +123,13 @@ impl Mesh {
 
             // Left Side
             Vertex {
-                position: [-0.5, 0.0, 0.5],
+                position: [-half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             Vertex {
-                position: [-0.5, 0.0, -0.5],
+                position: [-half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [-0.8, 0.5, 0.0],
@@ -143,13 +143,13 @@ impl Mesh {
 
             // Back Side
             Vertex {
-                position: [-0.5, 0.0, -0.5],
+                position: [-half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, 0.5, -0.8],
             },
             Vertex {
-                position: [0.5, 0.0, -0.5],
+                position: [half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, 0.5, -0.8],
@@ -163,13 +163,13 @@ impl Mesh {
 
             // Right Side
             Vertex {
-                position: [0.5, 0.0, -0.5],
+                position: [half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.8, 0.5, 0.0],
             },
             Vertex {
-                position: [0.5, 0.0, 0.5],
+                position: [half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.8, 0.5, 0.0],
@@ -183,13 +183,13 @@ impl Mesh {
 
             // Front Side
             Vertex {
-                position: [0.5, 0.0, 0.5],
+                position: [half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, 0.5, 0.8],
             },
             Vertex {
-                position: [-0.5, 0.0, 0.5],
+                position: [-half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, 0.5, 0.8],
@@ -224,6 +224,11 @@ impl Mesh {
         };
         gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, u8_slice, WebGl2RenderingContext::STATIC_DRAW);
         gl.buffer_data_with_u8_array(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, &self.indices, WebGl2RenderingContext::STATIC_DRAW);
+    
+        gl.vertex_attrib_pointer_with_i32(0, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 12);
+        gl.vertex_attrib_pointer_with_i32(2, 2, WebGl2RenderingContext::FLOAT, false, 11 * 4, 24);
+        gl.vertex_attrib_pointer_with_i32(3, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 32);
     }
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     pub fn bind(&self, gl: &WebGl2RenderingContext) {

@@ -1,6 +1,7 @@
 import * as wasm from "moon-engine";
 const canvas = document.getElementById("canvas");
 const gl = canvas.getContext('webgl2');
+const counter = document.getElementById("fpsCounter");
 const app = new wasm.Application();
 
 const FPS_LIMIT = 1000.0 / 30.0;
@@ -22,12 +23,12 @@ function init() {
         app.mouse_move(event.clientX, event.clientY);
     });
     app.resize(window.innerWidth, window.innerHeight);
-    let startTime = Date.now();
+    let startTime = performance.now();
     function render() {
         window.requestAnimationFrame(render);
-        let currentTime = Date.now();
+        let currentTime = performance.now();
         let deltaTime = currentTime - lastDrawTime;
-        if (deltaTime >= FPS_LIMIT) {
+        if (deltaTime >= 0) { // Ignoring FPS_LIMIT for now
             lastDrawTime = currentTime;
 
             if (canvas.height != window.innerHeight || canvas.width != window.innerWidth) {
@@ -39,6 +40,7 @@ function init() {
                 app.resize(window.innerWidth, window.innerHeight);
             }
             app.render(currentTime - startTime);
+            counter.innerText = Math.round(1000/deltaTime);
         }
     }
 

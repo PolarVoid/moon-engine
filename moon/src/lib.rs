@@ -66,6 +66,7 @@ pub struct Application {
     gl: GL,
     camera: Camera,
     input: InputManager,
+    meshes: Vec<Mesh>,
     u_time: Option<WebGlUniformLocation>,
     u_texture_0: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -82,6 +83,7 @@ impl Application {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
             input: InputManager::new(),
+            meshes: Vec::new(),
             u_time: None,
             u_texture_0: None,
             u_model_matrix: None,
@@ -100,7 +102,7 @@ impl Application {
         let vertex_shader = create_shader(gl, GL::VERTEX_SHADER, include_str!("..\\res\\shader\\default.vert.glsl")).expect("Could not create Vertex Shader!");
         let fragment_shader = create_shader(gl, GL::FRAGMENT_SHADER, include_str!("..\\res\\shader\\default.frag.glsl")).expect("Could not create Fragment Shader!");
         
-        let program = create_program(&gl, &vertex_shader, &fragment_shader).expect("Failed while creating Program!");
+        let program = create_program(gl, &vertex_shader, &fragment_shader).expect("Failed while creating Program!");
         gl.use_program(Some(&program));
         
         gl.delete_shader(Some(&vertex_shader));
@@ -127,13 +129,18 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        let plane = Mesh::primitive(gl, Shape::Pyramid(1.0, 1.0));
+        let pyramid = Mesh::primitive(gl, Shape::Quad(1.0));
+        pyramid.setup(gl);
+        self.meshes.push(pyramid);
+
+        gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
+        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+
+        let plane = Mesh::primitive(gl, Shape::Pyramid(0.5, 0.5));
         plane.setup(gl);
-        
-        gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 11 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 3, GL::FLOAT, false, 11 * 4, 12);
-        gl.vertex_attrib_pointer_with_i32(2, 2, GL::FLOAT, false, 11 * 4, 24);
-        gl.vertex_attrib_pointer_with_i32(3, 3, GL::FLOAT, false, 11 * 4, 32);
+        self.meshes.push(plane);
 
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
         gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
@@ -155,6 +162,7 @@ impl Application {
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, self.camera.projection());
         gl.enable(GL::DEPTH_TEST);
+        gl.enable(GL::CULL_FACE);
     }
     
     #[wasm_bindgen]
@@ -205,6 +213,9 @@ impl Application {
         gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.transform.get_position());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
+        for mesh in self.meshes.iter() {
+            mesh.bind(gl);
+            gl.draw_elements_with_i32(GL::TRIANGLES, mesh.indices.len() as i32, GL::UNSIGNED_BYTE, 0);
+        }
     }
 }
