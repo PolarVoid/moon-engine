@@ -4,6 +4,7 @@ pub mod texture;
 pub mod camera;
 pub mod input;
 pub mod transform;
+pub mod mesh;
 
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
@@ -19,6 +20,7 @@ pub use texture::create_texture;
 pub use camera::Camera;
 pub use input::InputManager;
 pub use transform::Transform;
+pub use mesh::Vertex;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -49,19 +51,6 @@ pub fn check_gl_error(gl: &GL) -> bool {
     }
     found_error
 }
-
-/// The `Vertex` struct
-/// 
-/// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
-/// It consists of position and color vectors, and UV co-ordinates.
-#[repr(C)]
-pub struct Vertex {
-    position: [f32; 3],
-    color: [f32; 3],
-    uv: [f32; 2],
-    normal: [f32; 3],
-}
-
 
 pub fn get_gl_context() -> Result<GL, String> {
     set_panic_hook();
@@ -173,7 +162,7 @@ impl Application {
                 normal: [0.0, -1.0, 0.0],
             },
         ];
-        let indices : [u8; 6] = [
+        let indices =  vec![
             0, 1, 2,
             0, 2, 3,
             ];
