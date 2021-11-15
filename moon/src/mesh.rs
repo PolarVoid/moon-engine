@@ -23,10 +23,10 @@ pub struct Mesh {
 }
 
 pub enum Shape {
-    Quad { side: f32 },
-    Cube { side: f32 },
-    Sphere { radius: f32 },
-    Pyramid { base: f32, height: f32},
+    Quad(f32),
+    Cube(f32),
+    Sphere(f32),
+    Pyramid(f32),
     Complex,
 }
 
@@ -40,45 +40,42 @@ impl Mesh {
                 gl.bind_vertex_array(Some(&vao));
                 vao
             },
-            vbo: {
-                let vbo = gl.create_buffer().expect("Could not create Buffer.");
-                gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&vbo));
-                vbo
-            },
-            ibo: {
-                let ibo = gl.create_buffer().expect("Could not create Buffer.");
-                gl.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&ibo));
-                ibo
-            },
+            vbo: gl.create_buffer().expect("Could not create Buffer."),
+            ibo: gl.create_buffer().expect("Could not create Buffer."),
         }
     }
     pub fn primitive(gl: &WebGl2RenderingContext, shape: Shape) -> Self {
         match shape {
+            Shape::Quad(side) => Self::quad_with_side(gl, side),
             _ => Self::quad(gl),
         }
     }
-    fn quad(gl: &WebGl2RenderingContext) -> Self {
+    pub fn quad(gl: &WebGl2RenderingContext) -> Self {
+        Self::quad_with_side(gl, 1.0)
+    }
+    pub fn quad_with_side(gl: &WebGl2RenderingContext, side: f32) -> Self {
+        let half = side/2.0;
         let vertices = vec![
             Vertex {
-                position: [-0.5, 0.0, 0.5],
+                position: [-half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
-                position: [-0.5, 0.0, -0.5],
+                position: [-half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
-                position: [0.5, 0.0, -0.5],
+                position: [half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
-                position: [0.5, 0.0, 0.5],
+                position: [half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
@@ -89,5 +86,21 @@ impl Mesh {
             0, 2, 3,
         ];
         Self::new(gl, vertices, indices)
+    }
+    pub fn setup(&self, gl: &WebGl2RenderingContext) {
+        self.bind(gl);
+        gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));
+        gl.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&self.ibo));
+
+        let u8_slice = unsafe {
+            std::slice::from_raw_parts(
+                self.vertices.as_ptr() as *const u8, self.vertices.len()*std::mem::size_of::<Vertex>()
+            )
+        };
+        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, u8_slice, WebGl2RenderingContext::STATIC_DRAW);
+        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, &self.indices, WebGl2RenderingContext::STATIC_DRAW);
+    }
+    pub fn bind(&self, gl: &WebGl2RenderingContext) {
+        gl.bind_vertex_array(Some(&self.vao));
     }
 }

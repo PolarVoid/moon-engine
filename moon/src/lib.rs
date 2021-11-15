@@ -20,7 +20,8 @@ pub use texture::create_texture;
 pub use camera::Camera;
 pub use input::InputManager;
 pub use transform::Transform;
-pub use mesh::Vertex;
+pub use mesh::Mesh;
+pub use mesh::Shape;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -126,54 +127,9 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        let vao = gl.create_vertex_array().expect("Could not create Vertex Array Object.");
-        gl.bind_vertex_array(Some(&vao));
+        let plane = Mesh::primitive(gl, Shape::Quad(1.0));
+        plane.setup(gl);
         
-        let vbo = gl.create_buffer().expect("Could not create Buffer Object.");
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&vbo));
-
-        let ibo = gl.create_buffer().expect("Could not create Index Buffer Object.");
-        gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&ibo));
-        
-        let vertices = vec![
-            // Bottom Side
-            Vertex {
-                position: [-0.5, 0.0, 0.5],
-                color: [0.7, 0.3, 0.7],
-                uv: [0.0, 0.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            Vertex {
-                position: [-0.5, 0.0, -0.5],
-                color: [0.5, 0.2, 0.0],
-                uv: [0.0, 1.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            Vertex {
-                position: [0.5, 0.0, -0.5],
-                color: [0.8, 0.6, 0.0],
-                uv: [1.0, 1.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            Vertex {
-                position: [0.5, 0.0, 0.5],
-                color: [0.0, 0.4, 0.8],
-                uv: [1.0, 0.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-        ];
-        let indices =  vec![
-            0, 1, 2,
-            0, 2, 3,
-            ];
-        let u8_slice = unsafe {
-            std::slice::from_raw_parts(
-                vertices.as_ptr() as *const u8, vertices.len()*std::mem::size_of::<Vertex>()
-            )
-        };
-        gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, u8_slice, GL::STATIC_DRAW);
-        gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, &indices, GL::STATIC_DRAW);
-    
         gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 11 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 3, GL::FLOAT, false, 11 * 4, 12);
         gl.vertex_attrib_pointer_with_i32(2, 2, GL::FLOAT, false, 11 * 4, 24);
