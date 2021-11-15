@@ -61,25 +61,25 @@ impl Mesh {
                 position: [-half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
-                normal: [0.0, -1.0, 0.0],
+                normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [0.0, 1.0],
-                normal: [0.0, -1.0, 0.0],
+                normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, -half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 1.0],
-                normal: [0.0, -1.0, 0.0],
+                normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
                 color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
-                normal: [0.0, -1.0, 0.0],
+                normal: [0.0, 1.0, 0.0],
             },
         ];
         let indices: Vec<u8> = vec![
