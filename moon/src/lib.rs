@@ -127,7 +127,7 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        let plane = Mesh::primitive(gl, Shape::Quad(1.0));
+        let plane = Mesh::primitive(gl, Shape::Pyramid(1.0, 1.0));
         plane.setup(gl);
         
         gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 11 * 4, 0);
@@ -205,6 +205,6 @@ impl Application {
         gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.transform.get_position());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_BYTE, 0);
+        gl.draw_elements_with_i32(GL::TRIANGLES, 18, GL::UNSIGNED_BYTE, 0);
     }
 }

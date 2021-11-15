@@ -46,6 +46,7 @@ impl Mesh {
     pub fn primitive(gl: &WebGl2RenderingContext, shape: Shape) -> Self {
         match shape {
             Shape::Quad(side) => Self::quad_with_side(gl, side),
+            Shape::Pyramid(base, height) => Self::pyramid_with_base_and_height(gl, base, height),
             _ => Self::quad(gl),
         }
     }
@@ -85,6 +86,128 @@ impl Mesh {
         let indices: Vec<u8> = vec![
             0, 1, 2,
             0, 2, 3,
+        ];
+        Self::new(gl, vertices, indices)
+    }
+    pub fn pyramid(gl: &WebGl2RenderingContext) -> Self {
+        Self::pyramid_with_base_and_height(gl, 1.0, 0.8)
+    }
+    pub fn pyramid_with_base_and_height(gl: &WebGl2RenderingContext, base: f32, height: f32) -> Self {
+        let half = base / 2.0;
+        let vertices = vec![
+            // Bottom Side
+            Vertex {
+                position: [-0.5, 0.0, 0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.0, 0.0],
+                normal: [0.0, -1.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.0, -0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.0, 1.0],
+                normal: [0.0, -1.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.0, -0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [1.0, 1.0],
+                normal: [0.0, -1.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.0, 0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.0, -1.0, 0.0],
+            },
+
+            // Left Side
+            Vertex {
+                position: [-0.5, 0.0, 0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.0, 0.0],
+                normal: [-0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.0, -0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [1.0, 0.0],
+                normal: [-0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [0.0, height, 0.0],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.5, 1.0],
+                normal: [-0.8, 0.5, 0.0],
+            },
+
+            // Back Side
+            Vertex {
+                position: [-0.5, 0.0, -0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.0, 0.5, -0.8],
+            },
+            Vertex {
+                position: [0.5, 0.0, -0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.0, 0.0],
+                normal: [0.0, 0.5, -0.8],
+            },
+            Vertex {
+                position: [0.0, height, 0.0],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.5, 1.0],
+                normal: [0.0, 0.5, -0.8],
+            },
+
+            // Right Side
+            Vertex {
+                position: [0.5, 0.0, -0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.0, 0.0],
+                normal: [0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.0, 0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.8, 0.5, 0.0],
+            },
+            Vertex {
+                position: [0.0, height, 0.0],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.5, 1.0],
+                normal: [0.8, 0.5, 0.0],
+            },
+
+            // Front Side
+            Vertex {
+                position: [0.5, 0.0, 0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [1.0, 0.0],
+                normal: [0.0, 0.5, 0.8],
+            },
+            Vertex {
+                position: [-0.5, 0.0, 0.5],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.0, 0.0],
+                normal: [0.0, 0.5, 0.8],
+            },
+            Vertex {
+                position: [0.0, height, 0.0],
+                color: [0.0, 0.0, 0.0],
+                uv: [0.5, 1.0],
+                normal: [0.0, 0.5, 0.8],
+            },
+        ];
+        let indices: Vec<u8> = vec![
+            0, 1, 2,
+            0, 2, 3,
+            4, 6, 5,
+            7, 9, 8,
+            10, 12, 11,
+            13, 15, 14,
         ];
         Self::new(gl, vertices, indices)
     }
