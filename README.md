@@ -12,6 +12,15 @@ Install light-server using ```npm install -g light-server```
 
 In the root directory of the downloaded folder, run ```light-server --serve .```
 
+### Controls
+|Key|Control|
+|--|--|
+|W|Move Forward|
+|A|Move Left|
+|S|Move Backward|
+|D|Move Right|
+|Q|Move Camera Down|
+|E|Move Camera Up|
 
 ## Instructions
 ### Install Rust and wasm-pack
