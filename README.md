@@ -1,5 +1,5 @@
 # moon-engine
-A Game library written with Rust, compiled to WebAssembly and rendered with WebGl2. Intended to be used as my final year project.
+A Game library written with Rust, compiled to WebAssembly and rendered with WebGL2. Intended to be used as my final year project.
 
 Requires node.js and npm to be installed. 
 If you do not already have these installed, a manager like [nvm](https://github.com/nvm-sh/nvm/blob/master/README.md) is **HIGHLY** recommended.
@@ -28,7 +28,7 @@ Install Rust using [rustup](https://www.rust-lang.org/tools/install)
 
 Check that Rust installed successfully using ```rustc --version```
 
-Install [Wasm-Pack](https://rustwasm.github.io/wasm-pack/installer/).
+Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
 
 ### Ensuring npm is up-to-date
 Make sure your version of npm is up-to-date with ```npm install npm@latest -g```
