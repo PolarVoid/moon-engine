@@ -45,6 +45,8 @@ Build the wasm file. The initial run might take a while. Subsequent builds shoul
 
 ```wasm-pack build```
 
+On a non-Windows system, you will have to change the slashes used in the include_str!() macro from \\ to /. Otherwise, rustc might throw an error at you.
+
 Switch to the www directory and install the node packages.
 
 ```
