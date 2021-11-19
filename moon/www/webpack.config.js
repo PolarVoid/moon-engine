@@ -1,4 +1,4 @@
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const path = require('path');
 
 module.exports = {
@@ -7,11 +7,14 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     filename: "bootstrap.js",
   },
+  experiments: { asyncWebAssembly: true },
   mode: "development",
   plugins: [
-    new CopyWebpackPlugin([
+    new CopyPlugin({
+      patterns: [
       "index.html",
       { from: "texture", to: "texture" },
-    ]),
+      ]
+    }),
   ],
 };
