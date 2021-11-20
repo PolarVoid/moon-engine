@@ -23,14 +23,14 @@ pub enum Shape {
 
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
-    pub indices: Vec<u16>,
+    pub indices: Vec<u32>,
     vao: WebGlVertexArrayObject,
     vbo: WebGlBuffer,
     ibo: WebGlBuffer,
 }
 
 impl Mesh {
-    pub fn new(gl: &WebGl2RenderingContext, vertices: Vec<Vertex>, indices: Vec<u16>) -> Self {
+    pub fn new(gl: &WebGl2RenderingContext, vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
         Self {
             vertices,
             indices,
@@ -83,7 +83,7 @@ impl Mesh {
                 normal: [0.0, 1.0, 0.0],
             },
         ];
-        let indices: Vec<u16> = vec![
+        let indices: Vec<u32> = vec![
             0, 2, 1,
             0, 3, 2,
         ];
@@ -201,7 +201,7 @@ impl Mesh {
                 normal: [0.0, 0.5, 0.8],
             },
         ];
-        let indices: Vec<u16> = vec![
+        let indices: Vec<u32> = vec![
             0, 1, 2,
             0, 2, 3,
             4, 6, 5,
@@ -224,7 +224,7 @@ impl Mesh {
         };
         let index_slice = unsafe {
             std::slice::from_raw_parts(
-                self.indices.as_ptr() as *const u8, self.indices.len()*std::mem::size_of::<u16>())
+                self.indices.as_ptr() as *const u8, self.indices.len()*std::mem::size_of::<u32>())
         };
 
         gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, vertex_slice, WebGl2RenderingContext::STATIC_DRAW);

@@ -239,7 +239,7 @@ impl Application {
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         for mesh in self.meshes.iter() {
             mesh.bind(gl);
-            gl.draw_elements_with_i32(GL::TRIANGLES, mesh.indices.len() as i32, GL::UNSIGNED_SHORT, 0);
+            gl.draw_elements_with_i32(GL::TRIANGLES, mesh.indices.len() as i32, GL::UNSIGNED_INT, 0);
         }
     }
 }
