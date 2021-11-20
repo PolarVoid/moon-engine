@@ -221,12 +221,12 @@ impl Application {
             }
             let mesh = Mesh::new(gl, vertices, indices);
             mesh.setup(gl);
+            gl.enable_vertex_attrib_array(position_attrib_location as u32);
+            gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
+            gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+            gl.enable_vertex_attrib_array(normal_attrib_location as u32);
             self.meshes.push(mesh);
         }
-        gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
-        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img1 = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
