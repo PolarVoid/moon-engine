@@ -27,5 +27,5 @@ vec4 pointLight(vec3 light, float ambient, float specularIntensity, float specul
 }
 
 void main() {
-    color = texture(uTex0, vTexCoord) * pointLight(vec3(1.0, 0.5, 0.7), 0.1, 2.0, 8.0);
+    color = vec4(vColor, 1.0) * pointLight(vec3(80.0, 0.5, 10.0), 0.3, 1.5, 8.0);
 }

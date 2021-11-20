@@ -74,7 +74,14 @@ pub fn load_material(file: &[u8]) -> tobj::MTLLoadResult {
 
 pub fn load_model(file: &[u8]) -> Vec<tobj::Model>{
     let mut file = BufReader::new(file);
-    let (models, _materials) = load_obj_buf(&mut file, &LoadOptions::default(), |p| {
+    let (models, _materials) = 
+    load_obj_buf(&mut file,
+         &LoadOptions {
+             single_index: true,
+             triangulate: true,
+             ..Default::default()
+         }, 
+    |p| {
         match p.file_name().unwrap().to_str().unwrap() {
             "12140_Skull_v3_L2.mtl" => load_material(include_bytes!("../res/model/skull/skull.mtl")),
             _ => {
@@ -172,11 +179,10 @@ impl Application {
             let mut vertices = Vec::<Vertex>::new();
             for i in 0..positions.len()/3 {
                 let first = i*3;
-                let positions = &positions[first..first+3];
                 vertices.push(Vertex {
-                    position: positions.try_into().unwrap(),
+                    position: positions[first..first+3].try_into().unwrap(),
                     color: [1.0, 1.0, 1.0],
-                    normal: [0.0, 0.0, 0.0],
+                    normal: model.mesh.normals[first..first+3].try_into().unwrap(),
                     uv: [0.0, 0.0],
                 });
             }
@@ -197,13 +203,16 @@ impl Application {
         
         let initial_camera_position: Vector3<f32> = -Vector3::z()*100.0 - Vector3::y()*0.5;
         self.camera = Camera::with_position(initial_camera_position);
-        let model: Matrix4<f32> = Matrix4::identity();
+        let mut model: Matrix4<f32> = Matrix4::identity();
+        let rot: Matrix4<f32> = Matrix4::from_scaled_axis(&Vector3::x() * 3.0 * 3.14/2.0);
+        model = model * rot;
         gl.uniform1i(u_texture_0.as_ref(), 0);
         gl.uniform1i(u_texture_1.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, self.camera.projection());
         gl.enable(GL::DEPTH_TEST);
+        gl.enable(GL::CULL_FACE);
     }
     
     #[wasm_bindgen]
