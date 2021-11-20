@@ -68,3 +68,4 @@ wasm-pack publish
 * [`wee_alloc`](https://github.com/rustwasm/wee_alloc), an allocator optimized
   for small code size.
   
+  "Matilda" (https://skfb.ly/6zGMG) by nicolekeane is licensed under CC Attribution-NonCommercial-ShareAlike (http://creativecommons.org/licenses/by-nc-sa/4.0/).
