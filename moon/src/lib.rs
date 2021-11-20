@@ -156,20 +156,6 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        // let pyramid = Mesh::primitive(gl, Shape::Quad(1.0));
-        // pyramid.setup(gl);
-        // self.meshes.push(pyramid);
-
-        // gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        // gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
-        // gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        // gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-
-        // let plane = Mesh::primitive(gl, Shape::Pyramid(0.5, 0.5));
-        // plane.setup(gl);
-        // self.meshes.push(plane);
-
-        
         let models = load_model(include_bytes!("../res/model/skull/skull.obj"));
         
         for model in models.iter() {
