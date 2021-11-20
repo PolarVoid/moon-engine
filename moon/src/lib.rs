@@ -8,6 +8,7 @@ pub mod mesh;
 
 use std::io::BufReader;
 
+use mesh::Vertex;
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -17,6 +18,7 @@ use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
 use tobj::LoadOptions;
 use tobj::load_obj_buf;
+use std::convert::TryInto;
 
 pub use shader::create_shader;
 pub use shader::create_program;
@@ -70,9 +72,9 @@ pub fn load_material(file: &[u8]) -> tobj::MTLLoadResult {
     tobj::load_mtl_buf(&mut file)
 }
 
-pub fn load_model(file: &[u8]) {
+pub fn load_model(file: &[u8]) -> Vec<tobj::Model>{
     let mut file = BufReader::new(file);
-    let (models, materials) = load_obj_buf(&mut file, &LoadOptions::default(), |p| {
+    let (models, _materials) = load_obj_buf(&mut file, &LoadOptions::default(), |p| {
         match p.file_name().unwrap().to_str().unwrap() {
             "12140_Skull_v3_L2.mtl" => load_material(include_bytes!("../res/model/skull/skull.mtl")),
             _ => {
@@ -81,9 +83,7 @@ pub fn load_model(file: &[u8]) {
             }
         }
     }).unwrap();
-    for model in models.iter() {
-        console_log!("{:#?}", model.mesh);
-    }
+    models
 }
 
 #[wasm_bindgen]
@@ -151,33 +151,51 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        let pyramid = Mesh::primitive(gl, Shape::Quad(1.0));
-        pyramid.setup(gl);
-        self.meshes.push(pyramid);
+        // let pyramid = Mesh::primitive(gl, Shape::Quad(1.0));
+        // pyramid.setup(gl);
+        // self.meshes.push(pyramid);
 
+        // gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        // gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
+        // gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        // gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+
+        // let plane = Mesh::primitive(gl, Shape::Pyramid(0.5, 0.5));
+        // plane.setup(gl);
+        // self.meshes.push(plane);
+
+        
+        let models = load_model(include_bytes!("../res/model/skull/skull.obj"));
+        
+        for model in models.iter() {
+            let positions = &model.mesh.positions;
+            let mut vertices = Vec::<Vertex>::new();
+            for i in 0..positions.len()/3 {
+                let first = i*3;
+                let positions = &positions[first..first+3];
+                vertices.push(Vertex {
+                    position: positions.try_into().unwrap(),
+                    color: [1.0, 1.0, 1.0],
+                    normal: [0.0, 0.0, 0.0],
+                    uv: [0.0, 0.0],
+                });
+            }
+            let mesh = Mesh::new(gl, vertices, model.mesh.indices.clone());
+            mesh.setup(gl);
+            self.meshes.push(mesh);
+        }
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
         gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-
-        let plane = Mesh::primitive(gl, Shape::Pyramid(0.5, 0.5));
-        plane.setup(gl);
-        self.meshes.push(plane);
-
-        gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
-        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-
-        // load_model(include_bytes!("../res/model/skull/skull.obj"));
-
+        
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img1 = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
         let _texture_alb = create_texture(gl, &img1, 0).expect("Failed to create Texture");
         let img2 = document.get_element_by_id("texture1").unwrap().dyn_into::<HtmlImageElement>().unwrap();
         let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
         
-        let initial_camera_position: Vector3<f32> = -Vector3::z()*2.0 - Vector3::y()*0.5;
+        let initial_camera_position: Vector3<f32> = -Vector3::z()*100.0 - Vector3::y()*0.5;
         self.camera = Camera::with_position(initial_camera_position);
         let model: Matrix4<f32> = Matrix4::identity();
         gl.uniform1i(u_texture_0.as_ref(), 0);
@@ -186,7 +204,6 @@ impl Application {
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
         gl.uniform_matrix4fv_with_f32_array(self.u_projection_matrix.as_ref(), false, self.camera.projection());
         gl.enable(GL::DEPTH_TEST);
-        gl.enable(GL::CULL_FACE);
     }
     
     #[wasm_bindgen]
