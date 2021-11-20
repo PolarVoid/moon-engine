@@ -234,10 +234,12 @@ impl Application {
         let img2 = document.get_element_by_id("texture1").unwrap().dyn_into::<HtmlImageElement>().unwrap();
         let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
         
-        let initial_camera_position: Vector3<f32> = -Vector3::z()*100.0 - Vector3::y()*0.5;
+        let initial_camera_position: Vector3<f32> = -Vector3::z()*80.0 - Vector3::y()*20.0;
         self.camera = Camera::with_position(initial_camera_position);
         let mut model: Matrix4<f32> = Matrix4::identity();
         let rot: Matrix4<f32> = Matrix4::from_scaled_axis(&Vector3::x() * 3.0 * 3.14/2.0);
+        model = model * rot;
+        let rot: Matrix4<f32> = Matrix4::from_scaled_axis(&Vector3::z() * 3.14/8.0);
         model = model * rot;
         gl.uniform1i(u_texture_0.as_ref(), 0);
         gl.uniform1i(u_texture_1.as_ref(), 0);
