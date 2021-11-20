@@ -20,10 +20,10 @@ mat4 rotateY(float deg) {
 }
 
 void main() {
-    gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
-    vPosition = vec3(uModel * vec4(aPosition, 1.0f));
+    gl_Position = uProj * uView * uModel * rotateY(uTime) * vec4(aPosition, 1.0);
+    vPosition = vec3(uModel * rotateY(uTime) * vec4(aPosition, 1.0f));
     vColor = aColor;
     vTexCoord = aTexCoord;
     vTexCoord.y = 1.0 - vTexCoord.y;
-    vNormal = normalize(aNormal);
+    vNormal = normalize(mat3(rotateY(uTime)) * aNormal);
 }
