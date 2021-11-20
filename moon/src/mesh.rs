@@ -23,14 +23,14 @@ pub enum Shape {
 
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
-    pub indices: Vec<u8>,
+    pub indices: Vec<u16>,
     vao: WebGlVertexArrayObject,
     vbo: WebGlBuffer,
     ibo: WebGlBuffer,
 }
 
 impl Mesh {
-    pub fn new(gl: &WebGl2RenderingContext, vertices: Vec<Vertex>, indices: Vec<u8>) -> Self {
+    pub fn new(gl: &WebGl2RenderingContext, vertices: Vec<Vertex>, indices: Vec<u16>) -> Self {
         Self {
             vertices,
             indices,
@@ -83,7 +83,7 @@ impl Mesh {
                 normal: [0.0, 1.0, 0.0],
             },
         ];
-        let indices: Vec<u8> = vec![
+        let indices: Vec<u16> = vec![
             0, 2, 1,
             0, 3, 2,
         ];
@@ -201,7 +201,7 @@ impl Mesh {
                 normal: [0.0, 0.5, 0.8],
             },
         ];
-        let indices: Vec<u8> = vec![
+        let indices: Vec<u16> = vec![
             0, 1, 2,
             0, 2, 3,
             4, 6, 5,
@@ -217,13 +217,18 @@ impl Mesh {
         gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));
         gl.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&self.ibo));
 
-        let u8_slice = unsafe {
+        let vertex_slice = unsafe {
             std::slice::from_raw_parts(
                 self.vertices.as_ptr() as *const u8, self.vertices.len()*std::mem::size_of::<Vertex>()
             )
         };
-        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, u8_slice, WebGl2RenderingContext::STATIC_DRAW);
-        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, &self.indices, WebGl2RenderingContext::STATIC_DRAW);
+        let index_slice = unsafe {
+            std::slice::from_raw_parts(
+                self.indices.as_ptr() as *const u8, self.indices.len()*std::mem::size_of::<u16>())
+        };
+
+        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, vertex_slice, WebGl2RenderingContext::STATIC_DRAW);
+        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, index_slice, WebGl2RenderingContext::STATIC_DRAW);
     
         gl.vertex_attrib_pointer_with_i32(0, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 12);
