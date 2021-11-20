@@ -7,9 +7,6 @@ pub mod transform;
 pub mod mesh;
 
 use std::io::BufReader;
-
-use mesh::Vertex;
-use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use nalgebra::{Matrix4, Vector3};
@@ -18,14 +15,15 @@ use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
 use tobj::LoadOptions;
 use tobj::load_obj_buf;
-use std::convert::TryInto;
 
+use utils::set_panic_hook;
 pub use shader::create_shader;
 pub use shader::create_program;
 pub use texture::create_texture;
 pub use camera::Camera;
 pub use input::InputManager;
 pub use transform::Transform;
+use mesh::Vertex;
 pub use mesh::Mesh;
 pub use mesh::Shape;
 
@@ -175,18 +173,53 @@ impl Application {
         let models = load_model(include_bytes!("../res/model/skull/skull.obj"));
         
         for model in models.iter() {
-            let positions = &model.mesh.positions;
+            let mesh = &model.mesh;
+            let indices = mesh.indices.clone();
             let mut vertices = Vec::<Vertex>::new();
-            for i in 0..positions.len()/3 {
-                let first = i*3;
-                vertices.push(Vertex {
-                    position: positions[first..first+3].try_into().unwrap(),
-                    color: [1.0, 1.0, 1.0],
-                    normal: model.mesh.normals[first..first+3].try_into().unwrap(),
-                    uv: [0.0, 0.0],
-                });
+            for i in 0..(mesh.positions.len()/3) {
+                vertices.push(
+                    Vertex {
+                        position: [
+                            mesh.positions[i*3],
+                            mesh.positions[i*3 + 1],
+                            mesh.positions[i*3 + 2],
+                        ],
+                        color: {
+                            if mesh.vertex_color.is_empty() {
+                                [1.0, 1.0, 1.0]
+                            } else {
+                                [
+                                    mesh.vertex_color[i*3],
+                                    mesh.vertex_color[i*3+1],
+                                    mesh.vertex_color[i*3+2],
+                                ]
+                            }
+                        },
+                        uv: {
+                            if mesh.texcoords.is_empty() {
+                                [0.0, 0.0]
+                            } else {
+                                [
+                                    mesh.texcoords[i*2],
+                                    mesh.texcoords[i*2+1],
+                                ]
+                            }
+                        },
+                        normal: {
+                            if mesh.normals.is_empty() {
+                                [0.0, 1.0, 0.0]
+                            } else {
+                                [
+                                    mesh.normals[i*3],
+                                    mesh.normals[i*3+1],
+                                    mesh.normals[i*3+2],
+                                ]
+                            }
+                        }
+                    }
+                );
             }
-            let mesh = Mesh::new(gl, vertices, model.mesh.indices.clone());
+            let mesh = Mesh::new(gl, vertices, indices);
             mesh.setup(gl);
             self.meshes.push(mesh);
         }
