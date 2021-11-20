@@ -57,3 +57,8 @@ npm install
 To run a live development server, use the command ```npm run start```
 
 To build the application, use ```npm run build```. The files will be stored in a folder called dist/ within the www directory.
+
+
+## Credits
+
+"Matilda" (https://skfb.ly/6zGMG) by nicolekeane is licensed under CC Attribution-NonCommercial-ShareAlike (http://creativecommons.org/licenses/by-nc-sa/4.0/).
