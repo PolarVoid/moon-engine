@@ -6,6 +6,8 @@ pub mod input;
 pub mod transform;
 pub mod mesh;
 
+use std::io::BufReader;
+
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -13,6 +15,8 @@ use nalgebra::{Matrix4, Vector3};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
+use tobj::LoadOptions;
+use tobj::load_obj_buf;
 
 pub use shader::create_shader;
 pub use shader::create_program;
@@ -61,6 +65,27 @@ pub fn get_gl_context() -> Result<GL, String> {
     Ok(context)
 }
 
+pub fn load_material(file: &[u8]) -> tobj::MTLLoadResult {
+    let mut file = BufReader::new(file);
+    tobj::load_mtl_buf(&mut file)
+}
+
+pub fn load_model(file: &[u8]) {
+    let mut file = BufReader::new(file);
+    let (models, materials) = load_obj_buf(&mut file, &LoadOptions::default(), |p| {
+        match p.file_name().unwrap().to_str().unwrap() {
+            "12140_Skull_v3_L2.mtl" => load_material(include_bytes!("../res/model/skull/skull.mtl")),
+            _ => {
+                console_log!("Need to import {} material", &p.file_name().unwrap().to_str().unwrap());
+                unimplemented!()
+            }
+        }
+    }).unwrap();
+    for model in models.iter() {
+        console_log!("{:#?}", model.mesh);
+    }
+}
+
 #[wasm_bindgen]
 pub struct Application {
     gl: GL,
@@ -68,7 +93,6 @@ pub struct Application {
     input: InputManager,
     meshes: Vec<Mesh>,
     u_time: Option<WebGlUniformLocation>,
-    u_texture_0: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
@@ -85,7 +109,6 @@ impl Application {
             input: InputManager::new(),
             meshes: Vec::new(),
             u_time: None,
-            u_texture_0: None,
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
@@ -113,7 +136,6 @@ impl Application {
         let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
         let u_texture_1 = gl.get_uniform_location(&program, "uTex1");
         
-
         let u_model_matrix = gl.get_uniform_location(&program, "uModel");
         self.u_model_matrix = u_model_matrix;
         let u_view_matrix = gl.get_uniform_location(&program, "uView");
@@ -146,6 +168,8 @@ impl Application {
         gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+
+        // load_model(include_bytes!("../res/model/skull/skull.obj"));
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img1 = document.get_element_by_id("texture0").unwrap().dyn_into::<HtmlImageElement>().unwrap();
@@ -215,7 +239,7 @@ impl Application {
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         for mesh in self.meshes.iter() {
             mesh.bind(gl);
-            gl.draw_elements_with_i32(GL::TRIANGLES, mesh.indices.len() as i32, GL::UNSIGNED_BYTE, 0);
+            gl.draw_elements_with_i32(GL::TRIANGLES, mesh.indices.len() as i32, GL::UNSIGNED_SHORT, 0);
         }
     }
 }
