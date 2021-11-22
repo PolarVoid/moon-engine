@@ -13,6 +13,9 @@ function init() {
         return;
     }
     app.init();
+    canvas.onclick = function () {
+        canvas.requestPointerLock();
+    };
     canvas.addEventListener("keydown", event => {
         app.input(event.which, true);
     });

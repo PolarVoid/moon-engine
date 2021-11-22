@@ -2,6 +2,7 @@ use nalgebra::Quaternion;
 use nalgebra::Vector3;
 use nalgebra::Matrix4;
 
+#[allow(dead_code)]
 pub struct Transform {
     matrix: Matrix4<f32>,
     position: Vector3<f32>,
@@ -36,8 +37,8 @@ impl Transform {
         self.position += shift;
         self.matrix.append_translation_mut(shift);
     }
-    pub fn rotate(&mut self) {
-        
+    pub fn rotate(&mut self, _angle: f32, _axis: Vector3<f32>) {
+        unimplemented!();
     }
     pub fn get_position(&self) -> &[f32] {
         self.position.as_slice()
