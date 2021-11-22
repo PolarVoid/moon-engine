@@ -23,8 +23,8 @@ function init() {
         app.input(event.which, false);
     });
     canvas.addEventListener("mousemove", event => {
-        app.mouse_move(event.clientX, event.clientY);
-    });
+        app.mouse_move(event.movementX, event.movementY);
+    }, false);
     app.resize(window.innerWidth, window.innerHeight);
     let startTime = performance.now();
     function render() {

@@ -252,9 +252,10 @@ impl Application {
     }
 
     #[wasm_bindgen]
-    pub fn mouse_move(&mut self, mouse_x: f32, mouse_y: f32) {
-        self.input.mouse_x = mouse_x / self.camera.width;
-        self.input.mouse_y = mouse_y / self.camera.height;
+    pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
+        console_log!("X: {}, Y: {}", mouse_x, mouse_y);
+        // self.input.mouse_x = mouse_x / self.camera.width;
+        // self.input.mouse_y = mouse_y / self.camera.height;
     }
     
     #[wasm_bindgen]
