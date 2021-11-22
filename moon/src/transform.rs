@@ -1,4 +1,5 @@
-use nalgebra::Quaternion;
+use nalgebra::UnitQuaternion;
+use nalgebra::UnitVector3;
 use nalgebra::Vector3;
 use nalgebra::Matrix4;
 
@@ -6,7 +7,7 @@ use nalgebra::Matrix4;
 pub struct Transform {
     matrix: Matrix4<f32>,
     position: Vector3<f32>,
-    rotation: Quaternion<f32>,
+    rotation: UnitQuaternion<f32>,
     scale: Vector3<f32>,
 }
 
@@ -16,7 +17,7 @@ impl Transform {
         Self {
             matrix: Matrix4::identity(),
             position: Vector3::zeros(),
-            rotation: Quaternion::identity(),
+            rotation: UnitQuaternion::identity(),
             scale: Vector3::from_element(1.0),
         }
     }
@@ -37,8 +38,12 @@ impl Transform {
         self.position += shift;
         self.matrix.append_translation_mut(shift);
     }
-    pub fn rotate(&mut self, _angle: f32, _axis: Vector3<f32>) {
-        unimplemented!();
+    pub fn rotate(&mut self, angle: f32, axis: UnitVector3<f32>) {
+        self.rotation = UnitQuaternion::from_axis_angle(&axis, angle);
+        let mut temp = self.matrix.append_translation(&-self.position);
+        temp = self.rotation.to_homogeneous() * temp;
+        temp.append_translation_mut(&self.position);
+        self.matrix = temp;
     }
     pub fn get_position(&self) -> &[f32] {
         self.position.as_slice()

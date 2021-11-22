@@ -253,7 +253,8 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-        console_log!("X: {}, Y: {}", mouse_x, mouse_y);
+        self.camera.transform.rotate(mouse_x as f32 / 1000.0, Vector3::y_axis());
+        self.camera.transform.rotate(mouse_y as f32 / 1000.0, Vector3::z_axis());
         // self.input.mouse_x = mouse_x / self.camera.width;
         // self.input.mouse_y = mouse_y / self.camera.height;
     }
