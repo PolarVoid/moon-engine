@@ -128,8 +128,8 @@ impl Application {
         gl.clear_color(0.0, 0.11, 0.2, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
 
-        let vertex_shader = create_shader(gl, GL::VERTEX_SHADER, include_str!("..\\res\\shader\\default.vert.glsl")).expect("Could not create Vertex Shader!");
-        let fragment_shader = create_shader(gl, GL::FRAGMENT_SHADER, include_str!("..\\res\\shader\\default.frag.glsl")).expect("Could not create Fragment Shader!");
+        let vertex_shader = create_shader(gl, GL::VERTEX_SHADER, include_str!("../res/shader/default.vert.glsl")).expect("Could not create Vertex Shader!");
+        let fragment_shader = create_shader(gl, GL::FRAGMENT_SHADER, include_str!("../res/shader/default.frag.glsl")).expect("Could not create Fragment Shader!");
         
         let program = create_program(gl, &vertex_shader, &fragment_shader).expect("Failed while creating Program!");
         gl.use_program(Some(&program));
