@@ -7,6 +7,7 @@ pub mod transform;
 pub mod mesh;
 
 use std::io::BufReader;
+use nalgebra::clamp;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use nalgebra::{Matrix4, Vector3};
@@ -253,8 +254,11 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-        self.camera.transform.rotate(mouse_x as f32 / 1000.0, Vector3::y_axis());
-        self.camera.transform.rotate(mouse_y as f32 / 1000.0, Vector3::z_axis());
+        let move_x = mouse_x as f32 / 1000.0;
+        let move_y = mouse_y as f32 / 1000.0;
+        self.camera.transform.rotate(move_x, Vector3::y_axis());
+
+        self.camera.transform.rotate(move_y, -Vector3::x_axis());
         // self.input.mouse_x = mouse_x / self.camera.width;
         // self.input.mouse_y = mouse_y / self.camera.height;
     }
