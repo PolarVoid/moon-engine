@@ -157,8 +157,8 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        let models = load_model(include_bytes!("../res/model/matilda/matilda.obj"));
-        
+        let models = load_model(include_bytes!("../res/model/sponza/sponza.obj"));
+        let position_only = true;
         for model in models.iter() {
             let mesh = &model.mesh;
             let indices = mesh.indices.clone();
@@ -172,7 +172,7 @@ impl Application {
                             mesh.positions[i*3 + 2],
                         ],
                         color: {
-                            if mesh.vertex_color.is_empty() {
+                            if position_only || mesh.vertex_color.is_empty() {
                                 [1.0, 1.0, 1.0]
                             } else {
                                 [
@@ -183,7 +183,7 @@ impl Application {
                             }
                         },
                         uv: {
-                            if mesh.texcoords.is_empty() {
+                            if position_only || mesh.texcoords.is_empty() {
                                 [0.0, 0.0]
                             } else {
                                 [
@@ -193,7 +193,7 @@ impl Application {
                             }
                         },
                         normal: {
-                            if mesh.normals.is_empty() {
+                            if position_only || mesh.normals.is_empty() {
                                 [0.0, 1.0, 0.0]
                             } else {
                                 [
@@ -256,8 +256,6 @@ impl Application {
         let move_x = mouse_x as f32 / 1000.0;
         let move_y = mouse_y as f32 / 1000.0;
         self.camera.transform.rotate(move_x, Vector3::y_axis());
-
-        self.camera.transform.rotate(move_y, -Vector3::x_axis());
         // self.input.mouse_x = mouse_x / self.camera.width;
         // self.input.mouse_y = mouse_y / self.camera.height;
     }

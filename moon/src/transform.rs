@@ -40,9 +40,9 @@ impl Transform {
     }
     pub fn rotate(&mut self, angle: f32, axis: UnitVector3<f32>) {
         self.rotation = UnitQuaternion::from_axis_angle(&axis, angle);
-        self.matrix.append_translation_mut(&-self.position);
-        self.position = self.rotation.transform_vector(&self.position);
-        self.matrix.append_translation_mut(&self.position);
+        self.matrix.prepend_translation_mut(&-self.position);
+        self.matrix = self.rotation.to_homogeneous() * self.matrix;
+        self.matrix.prepend_translation_mut(&self.position);
     }
     pub fn get_position(&self) -> &[f32] {
         self.position.as_slice()
