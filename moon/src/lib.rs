@@ -7,7 +7,6 @@ pub mod transform;
 pub mod mesh;
 
 use std::io::BufReader;
-use nalgebra::clamp;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use nalgebra::{Matrix4, Vector3};
