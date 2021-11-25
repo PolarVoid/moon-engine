@@ -7,14 +7,13 @@ pub mod transform;
 pub mod mesh;
 
 use std::io::BufReader;
+use nalgebra::UnitQuaternion;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use nalgebra::{Matrix4, Vector3};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
 use web_sys::{WebGlUniformLocation, HtmlImageElement};
-use tobj::LoadOptions;
-use tobj::load_obj_buf;
 
 use utils::set_panic_hook;
 pub use shader::create_shader;
@@ -73,8 +72,8 @@ pub fn load_material(file: &[u8]) -> tobj::MTLLoadResult {
 pub fn load_model(file: &[u8]) -> Vec<tobj::Model>{
     let mut file = BufReader::new(file);
     let (models, _materials) = 
-    load_obj_buf(&mut file,
-         &LoadOptions {
+    tobj::load_obj_buf(&mut file,
+         &tobj::LoadOptions {
              single_index: true,
              triangulate: true,
              ..Default::default()
@@ -98,6 +97,8 @@ pub struct Application {
     camera: Camera,
     input: InputManager,
     meshes: Vec<Mesh>,
+    x_rotation: f32,
+    y_rotation: f32,
     u_time: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
@@ -114,6 +115,8 @@ impl Application {
             camera: Camera::new(),
             input: InputManager::new(),
             meshes: Vec::new(),
+            x_rotation: 0.0,
+            y_rotation: 0.0,
             u_time: None,
             u_model_matrix: None,
             u_view_matrix: None,
@@ -157,8 +160,8 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
         
-        let models = load_model(include_bytes!("../res/model/sponza/sponza.obj"));
-        let position_only = true;
+        let models = load_model(include_bytes!("../res/model/matilda/matilda.obj"));
+        let position_only = false;
         for model in models.iter() {
             let mesh = &model.mesh;
             let indices = mesh.indices.clone();
@@ -223,9 +226,8 @@ impl Application {
         
         let initial_camera_position: Vector3<f32> = -Vector3::z()*50.0 - Vector3::y()*10.0;
         self.camera = Camera::with_position(initial_camera_position);
-        let mut model: Matrix4<f32> = Matrix4::identity();
-        let rot: Matrix4<f32> = Matrix4::from_scaled_axis(&Vector3::y() * 3.14/8.0);
-        model = model * rot;
+        let model: Matrix4<f32> = Matrix4::identity();
+        
         gl.uniform1i(u_texture_0.as_ref(), 0);
         gl.uniform1i(u_texture_1.as_ref(), 0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
@@ -253,35 +255,42 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-        let move_x = mouse_x as f32 / 1000.0;
-        let move_y = mouse_y as f32 / 1000.0;
-        self.camera.transform.rotate(move_x, Vector3::y_axis());
-        // self.input.mouse_x = mouse_x / self.camera.width;
-        // self.input.mouse_y = mouse_y / self.camera.height;
+        let sensitivity: f32 = 3.0;
+        let move_x = mouse_x as f32 / self.camera.width * sensitivity;
+        let move_y = mouse_y as f32 / self.camera.height * sensitivity;
+        self.x_rotation = nalgebra::clamp(self.x_rotation + move_y, -std::f32::consts::FRAC_PI_4, std::f32::consts::FRAC_PI_4);
+        self.camera.transform.rotation = UnitQuaternion::from_euler_angles(self.x_rotation, 0.0, 0.0);
+        self.y_rotation += move_x;
+        self.y_rotation = self.y_rotation % (2.0 * std::f32::consts::PI);
+        self.camera.transform.rotation *= UnitQuaternion::from_euler_angles(0.0, self.y_rotation, 0.0);
     }
-    
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
-        let sensitivity = 0.05;
+        let sensitivity = 0.15f32;
         let gl = &self.gl;
+        let mut movement: Vector3<f32> = Vector3::zeros();
+        let front = self.camera.transform.front();
+        let right = self.camera.transform.right();
         if self.input.get_key_state('W' as u8) {
-            self.camera.transform.translate(&(Vector3::z() * sensitivity));
+            movement += front;
         }
         if self.input.get_key_state('A' as u8) {
-            self.camera.transform.translate(&(Vector3::x() * sensitivity));
+            movement += right;
         }
         if self.input.get_key_state('S' as u8) {
-            self.camera.transform.translate(&(-Vector3::z() * sensitivity));
+            movement -= front;
         }
         if self.input.get_key_state('D' as u8) {
-            self.camera.transform.translate(&(-Vector3::x() * sensitivity));
+            movement -= right;
         }
         if self.input.get_key_state('Q' as u8) {
-            self.camera.transform.translate(&(Vector3::y() * sensitivity));
+            movement.y += 1.0;
         }
         if self.input.get_key_state('E' as u8) {
-            self.camera.transform.translate(&(-Vector3::y() * sensitivity));
+            movement.y -= 1.0;
         }
+        movement = self.camera.transform.rotation.transform_vector(&movement);
+        self.camera.transform.position += movement * sensitivity;
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.transform.get_position());
         gl.uniform_matrix4fv_with_f32_array(self.u_view_matrix.as_ref(), false, self.camera.transform.matrix());
