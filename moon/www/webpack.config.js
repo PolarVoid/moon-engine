@@ -13,6 +13,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
       "index.html",
+      "favicon.ico",
       { from: "texture", to: "texture" },
       ]
     }),

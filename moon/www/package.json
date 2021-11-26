@@ -1,10 +1,10 @@
 {
-  "name": "create-wasm-app",
-  "version": "0.1.0",
-  "description": "create an app to consume rust-generated wasm packages",
+  "name": "moon-engine",
+  "version": "0.0.3",
+  "description": "A WebGL2/WASM Game Library written in the Rust programming language",
   "main": "index.js",
   "bin": {
-    "create-wasm-app": ".bin/create-wasm-app.js"
+    "moon": ".bin/moon.js"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rustwasm/create-wasm-app.git"
+    "url": "git+https://github.com/polarvoid/moon-engine.git"
   },
   "keywords": [
     "webassembly",
@@ -20,14 +20,13 @@
     "rust",
     "webpack"
   ],
-  "author": "Ashley Williams <ashley666ashley@gmail.com>",
-  "license": "(MIT OR Apache-2.0)",
+  "author": "Alvin Philips <alvinphilips257@gmail.com>",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rustwasm/create-wasm-app/issues"
+    "url": "https://github.com/polarvoid/moon-engine/issues"
   },
-  "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
+  "homepage": "https://polarvoid.github.io/moon-engine/",
   "dependencies": {
-    "light-server": "^2.9.1",
     "moon-engine": "file:../pkg"
   },
   "devDependencies": {
