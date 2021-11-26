@@ -39,9 +39,9 @@ impl Transform {
         self.scale.as_slice()
     }
     pub fn front(&self) -> Vector3<f32> {
-        self.rotation.transform_vector(&Vector3::z())
+        self.rotation.inverse_transform_vector(&Vector3::z())
     }
     pub fn right(&self) -> Vector3<f32> {
-        self.rotation.transform_vector(&Vector3::x())
+        self.rotation.inverse_transform_vector(&Vector3::x())
     }
 }

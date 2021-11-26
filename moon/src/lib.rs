@@ -268,20 +268,22 @@ impl Application {
     pub fn render(&mut self, delta_time: u32) {
         let sensitivity = 0.15f32;
         let gl = &self.gl;
-        let mut movement: Vector3<f32> = Vector3::zeros();
+        let mut movement = Vector3::zeros();
         let front = self.camera.transform.front();
         let right = self.camera.transform.right();
+        let mut vertical_axis = 0.0f32;
+        let mut horizontal_axis = 0.0f32;
         if self.input.get_key_state('W' as u8) {
-            movement += front;
+            vertical_axis += 1.0;
         }
         if self.input.get_key_state('A' as u8) {
-            movement += right;
+            horizontal_axis += 1.0;
         }
         if self.input.get_key_state('S' as u8) {
-            movement -= front;
+            vertical_axis -= 1.0;
         }
         if self.input.get_key_state('D' as u8) {
-            movement -= right;
+            horizontal_axis -= 1.0;
         }
         if self.input.get_key_state('Q' as u8) {
             movement.y += 1.0;
@@ -289,7 +291,7 @@ impl Application {
         if self.input.get_key_state('E' as u8) {
             movement.y -= 1.0;
         }
-        movement = self.camera.transform.rotation.transform_vector(&movement);
+        movement = front * vertical_axis + right * horizontal_axis;
         self.camera.transform.position += movement * sensitivity;
         gl.clear(GL::COLOR_BUFFER_BIT|GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(self.u_camera_position.as_ref(), self.camera.transform.get_position());
