@@ -1,9 +1,7 @@
 use nalgebra::UnitQuaternion;
-use nalgebra::UnitVector3;
 use nalgebra::Vector3;
 use nalgebra::Matrix4;
 
-#[allow(dead_code)]
 pub struct Transform {
     matrix: Matrix4<f32>,
     pub position: Vector3<f32>,
