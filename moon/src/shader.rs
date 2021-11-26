@@ -1,8 +1,9 @@
-use web_sys::WebGl2RenderingContext as GL;
-use web_sys::{WebGlProgram, WebGlShader};
+use web_sys::WebGl2RenderingContext;
+use web_sys::WebGlProgram;
+use web_sys::WebGlShader;
 
 /// Creates a new `WebGlShader` using a source `str`.
-pub fn create_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
+pub fn create_shader(gl: &WebGl2RenderingContext, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
     let shader = gl
         .create_shader(shader_type)
         .ok_or_else(|| String::from("Unable to create Shader object."))?;
@@ -10,7 +11,7 @@ pub fn create_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlSha
     gl.compile_shader(&shader);
 
     if gl
-        .get_shader_parameter(&shader, GL::COMPILE_STATUS)
+        .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
         .as_bool()
         .unwrap_or(false)
     {
@@ -23,7 +24,7 @@ pub fn create_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlSha
 }
 
 pub fn create_program(
-    gl: &GL,
+    gl: &WebGl2RenderingContext,
     vertex_shader: &WebGlShader,
     fragment_shader: &WebGlShader,
 ) -> Result<WebGlProgram, String> {
@@ -35,7 +36,7 @@ pub fn create_program(
     gl.link_program(&program);
 
     if gl
-        .get_program_parameter(&program, GL::LINK_STATUS)
+        .get_program_parameter(&program, WebGl2RenderingContext::LINK_STATUS)
         .as_bool()
         .unwrap_or(false)
     {

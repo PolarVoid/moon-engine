@@ -7,19 +7,21 @@ pub mod transform;
 mod utils;
 
 use nalgebra::UnitQuaternion;
-use nalgebra::{Matrix4, Vector3};
+use nalgebra::Matrix4;
+use nalgebra::Vector3;
 use std::io::BufReader;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGl2RenderingContext as GL;
-use web_sys::{HtmlImageElement, WebGlUniformLocation};
+use web_sys::HtmlImageElement;
+use web_sys::WebGlUniformLocation;
 
 pub use camera::Camera;
 pub use input::InputManager;
 pub use mesh::Mesh;
 pub use mesh::Shape;
-use mesh::Vertex;
+pub use mesh::Vertex;
 pub use shader::create_program;
 pub use shader::create_shader;
 pub use texture::create_texture;

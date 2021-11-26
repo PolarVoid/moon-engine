@@ -1,29 +1,30 @@
-use web_sys::WebGl2RenderingContext as GL;
-use web_sys::{HtmlImageElement, WebGlTexture};
+use web_sys::WebGl2RenderingContext;
+use web_sys::HtmlImageElement;
+use web_sys::WebGlTexture;
 
 pub fn create_texture(
-    gl: &GL,
+    gl: &WebGl2RenderingContext,
     image: &HtmlImageElement,
     count: u32,
 ) -> Result<WebGlTexture, String> {
     let texture = gl
         .create_texture()
         .ok_or_else(|| String::from("Unable to create Texture object."))?;
-    gl.active_texture(GL::TEXTURE0 + count);
-    gl.bind_texture(GL::TEXTURE_2D, Some(&texture));
-    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::LINEAR as i32);
-    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL::LINEAR as i32);
-    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::REPEAT as i32);
-    gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::REPEAT as i32);
+    gl.active_texture(WebGl2RenderingContext::TEXTURE0 + count);
+    gl.bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&texture));
+    gl.tex_parameteri(WebGl2RenderingContext::TEXTURE_2D, WebGl2RenderingContext::TEXTURE_MIN_FILTER, WebGl2RenderingContext::LINEAR as i32);
+    gl.tex_parameteri(WebGl2RenderingContext::TEXTURE_2D, WebGl2RenderingContext::TEXTURE_MAG_FILTER, WebGl2RenderingContext::LINEAR as i32);
+    gl.tex_parameteri(WebGl2RenderingContext::TEXTURE_2D, WebGl2RenderingContext::TEXTURE_WRAP_S, WebGl2RenderingContext::REPEAT as i32);
+    gl.tex_parameteri(WebGl2RenderingContext::TEXTURE_2D, WebGl2RenderingContext::TEXTURE_WRAP_T, WebGl2RenderingContext::REPEAT as i32);
     gl.tex_image_2d_with_u32_and_u32_and_html_image_element(
-        GL::TEXTURE_2D,
+        WebGl2RenderingContext::TEXTURE_2D,
         0,
-        GL::RGBA as i32,
-        GL::RGBA,
-        GL::UNSIGNED_BYTE,
+        WebGl2RenderingContext::RGBA as i32,
+        WebGl2RenderingContext::RGBA,
+        WebGl2RenderingContext::UNSIGNED_BYTE,
         &image,
     )
     .expect("Failed to load texture");
-    gl.generate_mipmap(GL::TEXTURE_2D);
+    gl.generate_mipmap(WebGl2RenderingContext::TEXTURE_2D);
     Ok(texture)
 }
