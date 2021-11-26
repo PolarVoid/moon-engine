@@ -12,9 +12,9 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-      "index.html",
-      "favicon.ico",
-      { from: "texture", to: "texture" },
+        "index.html",
+        "favicon.ico",
+        { from: "texture", to: "texture" },
       ]
     }),
   ],
