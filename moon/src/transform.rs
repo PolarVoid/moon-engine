@@ -1,6 +1,6 @@
+use nalgebra::Matrix4;
 use nalgebra::UnitQuaternion;
 use nalgebra::Vector3;
-use nalgebra::Matrix4;
 
 pub struct Transform {
     matrix: Matrix4<f32>,
@@ -29,7 +29,10 @@ impl Transform {
     }
     /// Get the `Matrix4` representing the transform as a slice of `f32` to use with WebGL.
     pub fn matrix(&mut self) -> &[f32] {
-        self.matrix = self.rotation.to_homogeneous().prepend_translation(&self.position);
+        self.matrix = self
+            .rotation
+            .to_homogeneous()
+            .prepend_translation(&self.position);
         self.matrix.as_slice()
     }
     pub fn get_position(&self) -> &[f32] {

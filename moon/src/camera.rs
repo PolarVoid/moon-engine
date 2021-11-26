@@ -1,6 +1,6 @@
-use std::f32::consts;
 use crate::transform::Transform;
 use nalgebra::{Perspective3, Vector3};
+use std::f32::consts;
 
 #[allow(dead_code)]
 pub struct Camera {
@@ -25,10 +25,10 @@ impl Camera {
             up: Vector3::y(),
             width: 1920.0,
             height: 1080.0,
-            fov: consts::PI/4.0,
+            fov: consts::PI / 4.0,
             znear: 0.3f32,
             zfar: 1000.0f32,
-            perspective: Perspective3::new(192.0/108.0, consts::PI/4.0, 0.3f32, 1000.0f32),
+            perspective: Perspective3::new(192.0 / 108.0, consts::PI / 4.0, 0.3f32, 1000.0f32),
         }
     }
     /// Create a new `Camera` with an initial position.
@@ -43,7 +43,7 @@ impl Camera {
         Self {
             width,
             height,
-            perspective: Perspective3::new(width / height, consts::PI/4.0, 0.3f32, 1000.0f32),
+            perspective: Perspective3::new(width / height, consts::PI / 4.0, 0.3f32, 1000.0f32),
             ..Camera::new()
         }
     }

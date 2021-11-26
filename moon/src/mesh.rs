@@ -3,7 +3,7 @@ use web_sys::WebGlBuffer;
 use web_sys::WebGlVertexArrayObject;
 
 /// The `Vertex` struct
-/// 
+///
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
 #[repr(C)]
@@ -35,7 +35,9 @@ impl Mesh {
             vertices,
             indices,
             vao: {
-                let vao = gl.create_vertex_array().expect("Could not create Vertex Array Object.");
+                let vao = gl
+                    .create_vertex_array()
+                    .expect("Could not create Vertex Array Object.");
                 gl.bind_vertex_array(Some(&vao));
                 vao
             },
@@ -56,7 +58,7 @@ impl Mesh {
     }
     /// Create a new Quad mesh with a given side length
     pub fn quad_with_side(gl: &WebGl2RenderingContext, side: f32) -> Self {
-        let half = side/2.0;
+        let half = side / 2.0;
         let vertices = vec![
             Vertex {
                 position: [-half, 0.0, half],
@@ -83,16 +85,17 @@ impl Mesh {
                 normal: [0.0, 1.0, 0.0],
             },
         ];
-        let indices: Vec<u32> = vec![
-            0, 2, 1,
-            0, 3, 2,
-        ];
+        let indices: Vec<u32> = vec![0, 2, 1, 0, 3, 2];
         Self::new(gl, vertices, indices)
     }
     pub fn pyramid(gl: &WebGl2RenderingContext) -> Self {
         Self::pyramid_with_base_and_height(gl, 1.0, 0.8)
     }
-    pub fn pyramid_with_base_and_height(gl: &WebGl2RenderingContext, base: f32, height: f32) -> Self {
+    pub fn pyramid_with_base_and_height(
+        gl: &WebGl2RenderingContext,
+        base: f32,
+        height: f32,
+    ) -> Self {
         let half = base / 2.0;
         let vertices = vec![
             // Bottom Side
@@ -120,7 +123,6 @@ impl Mesh {
                 uv: [1.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
-
             // Left Side
             Vertex {
                 position: [-half, 0.0, half],
@@ -140,7 +142,6 @@ impl Mesh {
                 uv: [0.5, 1.0],
                 normal: [-0.8, 0.5, 0.0],
             },
-
             // Back Side
             Vertex {
                 position: [-half, 0.0, -half],
@@ -160,7 +161,6 @@ impl Mesh {
                 uv: [0.5, 1.0],
                 normal: [0.0, 0.5, -0.8],
             },
-
             // Right Side
             Vertex {
                 position: [half, 0.0, -half],
@@ -180,7 +180,6 @@ impl Mesh {
                 uv: [0.5, 1.0],
                 normal: [0.8, 0.5, 0.0],
             },
-
             // Front Side
             Vertex {
                 position: [half, 0.0, half],
@@ -201,35 +200,42 @@ impl Mesh {
                 normal: [0.0, 0.5, 0.8],
             },
         ];
-        let indices: Vec<u32> = vec![
-            0, 1, 2,
-            0, 2, 3,
-            4, 6, 5,
-            7, 9, 8,
-            10, 12, 11,
-            13, 15, 14,
-        ];
+        let indices: Vec<u32> = vec![0, 1, 2, 0, 2, 3, 4, 6, 5, 7, 9, 8, 10, 12, 11, 13, 15, 14];
         Self::new(gl, vertices, indices)
     }
     /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
     pub fn setup(&self, gl: &WebGl2RenderingContext) {
         self.bind(gl);
         gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));
-        gl.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&self.ibo));
+        gl.bind_buffer(
+            WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+            Some(&self.ibo),
+        );
 
         let vertex_slice = unsafe {
             std::slice::from_raw_parts(
-                self.vertices.as_ptr() as *const u8, self.vertices.len()*std::mem::size_of::<Vertex>()
+                self.vertices.as_ptr() as *const u8,
+                self.vertices.len() * std::mem::size_of::<Vertex>(),
             )
         };
         let index_slice = unsafe {
             std::slice::from_raw_parts(
-                self.indices.as_ptr() as *const u8, self.indices.len()*std::mem::size_of::<u32>())
+                self.indices.as_ptr() as *const u8,
+                self.indices.len() * std::mem::size_of::<u32>(),
+            )
         };
 
-        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ARRAY_BUFFER, vertex_slice, WebGl2RenderingContext::STATIC_DRAW);
-        gl.buffer_data_with_u8_array(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, index_slice, WebGl2RenderingContext::STATIC_DRAW);
-    
+        gl.buffer_data_with_u8_array(
+            WebGl2RenderingContext::ARRAY_BUFFER,
+            vertex_slice,
+            WebGl2RenderingContext::STATIC_DRAW,
+        );
+        gl.buffer_data_with_u8_array(
+            WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+            index_slice,
+            WebGl2RenderingContext::STATIC_DRAW,
+        );
+
         gl.vertex_attrib_pointer_with_i32(0, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 12);
         gl.vertex_attrib_pointer_with_i32(2, 2, WebGl2RenderingContext::FLOAT, false, 11 * 4, 24);
