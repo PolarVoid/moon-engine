@@ -13,14 +13,17 @@ Install light-server using ```npm install -g light-server```
 In the root directory of the downloaded folder, run ```light-server --serve .```
 
 ### Controls
+
+Click anywhere on the Canvas to control the demo, and Esc to leave it
+
 |Key|Control|
 |--|--|
 |W|Move Forward|
 |A|Move Left|
 |S|Move Backward|
 |D|Move Right|
-|Q|Move Camera Down|
-|E|Move Camera Up|
+
+Mouse movements to llook around
 
 ## Instructions
 ### Install Rust and wasm-pack
