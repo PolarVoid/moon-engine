@@ -23,7 +23,7 @@ Click anywhere on the Canvas to control the demo, and Esc to leave it
 |S|Move Backward|
 |D|Move Right|
 
-Mouse movements to llook around
+Mouse movements to look around
 
 ## Instructions
 ### Install Rust and wasm-pack
