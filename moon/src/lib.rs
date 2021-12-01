@@ -1,15 +1,15 @@
 pub mod camera;
 pub mod input;
 pub mod mesh;
+pub mod obj;
 pub mod shader;
 pub mod texture;
 pub mod transform;
-mod utils;
+pub mod utils;
 
 use nalgebra::UnitQuaternion;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
-use std::io::BufReader;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement as Canvas;
@@ -26,6 +26,7 @@ pub use shader::create_program;
 pub use shader::create_shader;
 pub use texture::create_texture;
 pub use transform::Transform;
+pub use obj::load_model;
 use utils::set_panic_hook;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -33,19 +34,6 @@ use utils::set_panic_hook;
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace=console)]
-    fn log(s: &str);
-}
-
-#[allow(unused_macros)]
-macro_rules! console_log {
-    // Note that this is using the `log` function imported above during
-    // `bare_bones`
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
 
 pub fn check_gl_error(gl: &GL) -> bool {
     let mut found_error = false;
@@ -73,38 +61,6 @@ pub fn get_gl_context() -> Result<GL, String> {
         .dyn_into::<GL>()
         .unwrap();
     Ok(context)
-}
-
-pub fn load_material(file: &[u8]) -> tobj::MTLLoadResult {
-    let mut file = BufReader::new(file);
-    tobj::load_mtl_buf(&mut file)
-}
-
-pub fn load_model(file: &[u8]) -> Vec<tobj::Model> {
-    let mut file = BufReader::new(file);
-    let (models, _materials) = tobj::load_obj_buf(
-        &mut file,
-        &tobj::LoadOptions {
-            single_index: true,
-            triangulate: true,
-            ..Default::default()
-        },
-        |p| match p.file_name().unwrap().to_str().unwrap() {
-            "12140_Skull_v3_L2.mtl" => {
-                load_material(include_bytes!("../res/model/skull/skull.mtl"))
-            }
-            "matilda.mtl" => load_material(include_bytes!("../res/model/matilda/matilda.mtl")),
-            _ => {
-                console_log!(
-                    "Need to import {} material",
-                    &p.file_name().unwrap().to_str().unwrap()
-                );
-                unimplemented!()
-            }
-        },
-    )
-    .unwrap();
-    models
 }
 
 #[wasm_bindgen]
