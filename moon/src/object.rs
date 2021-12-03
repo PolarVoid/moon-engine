@@ -1,9 +1,11 @@
+use core::slice::Iter;
+
 use crate::Transform;
 use crate::Mesh;
 
 pub struct Object {
     pub transform: Transform,
-    mesh: Option<Mesh>,
+    pub mesh: Option<Mesh>,
     children: Vec<Object>,
 }
 
@@ -36,5 +38,8 @@ impl Object {
     }
     pub fn add_child(&mut self, child: Object) {
         self.children.push(child);
+    }
+    pub fn children(&self) -> Iter<'_, Object> {
+        self.children.iter()
     }
 }

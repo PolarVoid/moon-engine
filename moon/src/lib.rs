@@ -10,6 +10,7 @@ mod utils;
 use nalgebra::UnitQuaternion;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
+use object::Object;
 use std::io::BufReader;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -113,7 +114,7 @@ pub struct Application {
     gl: GL,
     camera: Camera,
     input: InputManager,
-    meshes: Vec<Mesh>,
+    objects: Vec<Object>,
     u_time: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
@@ -129,7 +130,7 @@ impl Application {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
             input: InputManager::new(),
-            meshes: Vec::new(),
+            objects: Vec::new(),
             u_time: None,
             u_model_matrix: None,
             u_view_matrix: None,
@@ -236,6 +237,14 @@ impl Application {
         //     gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         //     self.meshes.push(mesh);
         // }
+        let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
+        mesh.setup(gl);
+        gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
+        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+        let spaceship = Object::new_with_mesh(Some(mesh));
+        self.objects.push(spaceship);
         
         let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         mesh.setup(gl);
@@ -243,7 +252,8 @@ impl Application {
         gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-        self.meshes.push(mesh);
+        let spaceship = Object::new_with_mesh(Some(mesh));
+        self.objects.push(spaceship);
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img1 = document
@@ -322,24 +332,17 @@ impl Application {
     pub fn render(&mut self, delta_time: u32) {
         let sensitivity = 0.15f32;
         let gl = &self.gl;
-        let front = self.camera.transform.front();
         let right = self.camera.transform.right();
-        let mut vertical_axis = 0.0f32;
         let mut horizontal_axis = 0.0f32;
-        if self.input.get_key_state('W' as u8) {
-            vertical_axis += 1.0;
-        }
         if self.input.get_key_state('A' as u8) {
             horizontal_axis += 1.0;
-        }
-        if self.input.get_key_state('S' as u8) {
-            vertical_axis -= 1.0;
         }
         if self.input.get_key_state('D' as u8) {
             horizontal_axis -= 1.0;
         }
-        let movement = front * vertical_axis + right * horizontal_axis;
-        self.camera.transform.position += movement * sensitivity;
+        horizontal_axis = nalgebra::clamp(horizontal_axis, -2.0, 2.0);
+        let movement: Vector3<f32> = right * horizontal_axis;
+        self.objects[0].transform.position -= movement * sensitivity;
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(
             self.u_camera_position.as_ref(),
@@ -351,14 +354,22 @@ impl Application {
             self.camera.transform.matrix(),
         );
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        for mesh in self.meshes.iter() {
-            mesh.bind(gl);
-            gl.draw_elements_with_i32(
-                GL::TRIANGLES,
-                mesh.indices.len() as i32,
-                GL::UNSIGNED_INT,
-                0,
-            );
+        for object in self.objects.iter_mut() {
+            match &object.mesh {
+                Some(mesh) => {
+                    gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, object.transform.matrix());
+                    mesh.bind(gl);
+                    gl.draw_elements_with_i32(
+                        GL::TRIANGLES,
+                        mesh.indices.len() as i32,
+                        GL::UNSIGNED_INT,
+                        0,
+                    );
+                },
+                None => {
+
+                }
+            }
         }
     }
 }
