@@ -34,6 +34,13 @@ impl Camera {
             ..Camera::new()
         }
     }
+    /// Create a new `Camera` with an initial position.
+    pub fn with_transform(transform: Transform) -> Self {
+        Self {
+            transform,
+            ..Camera::new()
+        }
+    }
     /// Create a new `Camera` with an initial width and height.
     pub fn with_width_and_height(width: f32, height: f32) -> Self {
         Self {
