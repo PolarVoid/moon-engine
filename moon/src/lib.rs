@@ -4,6 +4,7 @@ pub mod mesh;
 pub mod shader;
 pub mod texture;
 pub mod transform;
+pub mod object;
 mod utils;
 
 use nalgebra::UnitQuaternion;
@@ -113,8 +114,6 @@ pub struct Application {
     camera: Camera,
     input: InputManager,
     meshes: Vec<Mesh>,
-    x_rotation: f32,
-    y_rotation: f32,
     u_time: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
@@ -131,8 +130,6 @@ impl Application {
             camera: Camera::new(),
             input: InputManager::new(),
             meshes: Vec::new(),
-            x_rotation: 0.0,
-            y_rotation: 0.0,
             u_time: None,
             u_model_matrix: None,
             u_view_matrix: None,
