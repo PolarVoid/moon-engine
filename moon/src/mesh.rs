@@ -2,6 +2,7 @@ use web_sys::WebGl2RenderingContext;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlVertexArrayObject;
 
+const WHITE: [f32; 3] = [1.0, 1.0, 1.0];
 /// The `Vertex` struct
 ///
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
@@ -62,25 +63,25 @@ impl Mesh {
         let vertices = vec![
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 0.0],
                 normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 1.0],
                 normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 1.0],
                 normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 0.0],
                 normal: [0.0, 1.0, 0.0],
             },
@@ -101,101 +102,101 @@ impl Mesh {
             // Bottom Side
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
             // Left Side
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 0.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 0.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.5, 1.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             // Back Side
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 0.0],
                 normal: [0.0, 0.5, -0.8],
             },
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 0.0],
                 normal: [0.0, 0.5, -0.8],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.5, 1.0],
                 normal: [0.0, 0.5, -0.8],
             },
             // Right Side
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 0.0],
                 normal: [0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 0.0],
                 normal: [0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.5, 1.0],
                 normal: [0.8, 0.5, 0.0],
             },
             // Front Side
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [1.0, 0.0],
                 normal: [0.0, 0.5, 0.8],
             },
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.0, 0.0],
                 normal: [0.0, 0.5, 0.8],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
+                color: WHITE,
                 uv: [0.5, 1.0],
                 normal: [0.0, 0.5, 0.8],
             },
