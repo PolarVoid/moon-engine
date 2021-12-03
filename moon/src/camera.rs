@@ -6,8 +6,6 @@ use std::f32::consts;
 pub struct Camera {
     pub transform: Transform,
     pub perspective: Perspective3<f32>,
-    orientation: Vector3<f32>,
-    up: Vector3<f32>,
     pub width: f32,
     pub height: f32,
     fov: f32,
@@ -21,8 +19,6 @@ impl Camera {
     pub fn new() -> Self {
         Self {
             transform: Transform::new(),
-            orientation: -Vector3::z(),
-            up: Vector3::y(),
             width: 1920.0,
             height: 1080.0,
             fov: consts::PI / 4.0,
