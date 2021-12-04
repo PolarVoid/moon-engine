@@ -312,7 +312,7 @@ impl Application {
     }
 
     #[wasm_bindgen]
-    pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
+    pub fn mouse_move(&mut self, _mouse_x: i32, _mouse_y: i32) {
         // let sensitivity: f32 = 1.0;
         // let move_x = mouse_x as f32 / self.camera.width * sensitivity;
         // let move_y = mouse_y as f32 / self.camera.height * sensitivity;
@@ -330,7 +330,7 @@ impl Application {
     }
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
-        let sensitivity = 0.15f32;
+        let speed = 5f32;
         let gl = &self.gl;
         let mut horizontal_axis = 0.0f32;
         if self.input.get_key_state('A' as u8) {
@@ -340,7 +340,7 @@ impl Application {
             horizontal_axis -= 1.0;
         }
         console_log!("{:?}", self.objects[0].transform.position);
-        self.objects[0].transform.position -= Vector3::x() * horizontal_axis * sensitivity;
+        self.objects[0].transform.position -= Vector3::x() * horizontal_axis * speed * (delta_time as f32 / 1000.0);
         self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(
