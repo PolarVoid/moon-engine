@@ -332,7 +332,6 @@ impl Application {
     pub fn render(&mut self, delta_time: u32) {
         let sensitivity = 0.15f32;
         let gl = &self.gl;
-        let right = self.camera.transform.right();
         let mut horizontal_axis = 0.0f32;
         if self.input.get_key_state('A' as u8) {
             horizontal_axis += 1.0;
@@ -340,9 +339,9 @@ impl Application {
         if self.input.get_key_state('D' as u8) {
             horizontal_axis -= 1.0;
         }
-        horizontal_axis = nalgebra::clamp(horizontal_axis, -2.0, 2.0);
-        let movement: Vector3<f32> = right * horizontal_axis;
-        self.objects[0].transform.position -= movement * sensitivity;
+        console_log!("{:?}", self.objects[0].transform.position);
+        self.objects[0].transform.position -= Vector3::x() * horizontal_axis * sensitivity;
+        self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -1.0, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(
             self.u_camera_position.as_ref(),
