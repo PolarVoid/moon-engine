@@ -1,11 +1,13 @@
 use crate::transform::Transform;
-use nalgebra::{Perspective3, Vector3};
+use nalgebra::{Vector3, Orthographic3};
 use std::f32::consts;
+
+const FIXED_WIDTH: f32 = 5.0;
 
 #[allow(dead_code)]
 pub struct Camera {
     pub transform: Transform,
-    pub perspective: Perspective3<f32>,
+    pub perspective: Orthographic3<f32>,
     pub width: f32,
     pub height: f32,
     fov: f32,
@@ -24,7 +26,7 @@ impl Camera {
             fov: consts::PI / 4.0,
             znear: 0.3f32,
             zfar: 1000.0f32,
-            perspective: Perspective3::new(192.0 / 108.0, consts::PI / 4.0, 0.3f32, 1000.0f32),
+            perspective: Orthographic3::new(-FIXED_WIDTH, FIXED_WIDTH, -3.0, 3.0, 0f32, 1000.0f32),
         }
     }
     /// Create a new `Camera` with an initial position.
@@ -46,7 +48,7 @@ impl Camera {
         Self {
             width,
             height,
-            perspective: Perspective3::new(width / height, consts::PI / 4.0, 0.3f32, 1000.0f32),
+            //perspective: Orthographic3::new(0.0, width, 0.0, height, 0f32, 1000.0f32),
             ..Camera::new()
         }
     }
@@ -54,7 +56,8 @@ impl Camera {
     pub fn set_width_and_height(&mut self, width: f32, height: f32) {
         self.width = width;
         self.height = height;
-        self.perspective.set_aspect(width / height);
+        // self.perspective.set_right(width);
+        // self.perspective.set_top(height);
     }
     /// Return the Projection Matrix of the `Camera` as a slice of `f32` so it can be used by WebGL.
     pub fn projection(&self) -> &[f32] {
