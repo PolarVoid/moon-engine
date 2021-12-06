@@ -181,7 +181,6 @@ impl Application {
         self.u_camera_position = u_camera_position;
 
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
-        let vcolor_attrib_location = gl.get_attrib_location(&program, "aColor");
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
 
@@ -232,7 +231,6 @@ impl Application {
         //     let mesh = Mesh::new(gl, vertices, indices);
         //     mesh.setup(gl);
         //     gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        //     gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         //     gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         //     gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         //     self.meshes.push(mesh);
@@ -240,7 +238,6 @@ impl Application {
         let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         mesh.setup(gl);
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         let spaceship = Object::new_with_mesh(Some(mesh));
@@ -249,7 +246,6 @@ impl Application {
         let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         mesh.setup(gl);
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         let spaceship = Object::new_with_mesh(Some(mesh));
