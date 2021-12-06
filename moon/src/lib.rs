@@ -269,7 +269,7 @@ impl Application {
             .unwrap();
         let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
 
-        let mut initial_camera_transform = Transform::new_with_position(-Vector3::y() * 10.0 + Vector3::z() * 2.0);
+        let mut initial_camera_transform = Transform::new_with_position(-Vector3::y() * 1.0);
         initial_camera_transform.rotation = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 3.14/2.0);
         self.camera = Camera::with_transform(initial_camera_transform);
         let model: Matrix4<f32> = Matrix4::identity();
@@ -339,7 +339,6 @@ impl Application {
         if self.input.get_key_state('D' as u8) {
             horizontal_axis -= 1.0;
         }
-        console_log!("{:?}", self.objects[0].transform.position);
         self.objects[0].transform.position -= Vector3::x() * horizontal_axis * speed * (delta_time as f32 / 1000.0);
         self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
