@@ -354,20 +354,15 @@ impl Application {
         );
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
         for object in self.objects.iter_mut() {
-            match &object.mesh {
-                Some(mesh) => {
-                    gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, object.transform.matrix());
-                    mesh.bind(gl);
-                    gl.draw_elements_with_i32(
-                        GL::TRIANGLES,
-                        mesh.indices.len() as i32,
-                        GL::UNSIGNED_INT,
-                        0,
-                    );
-                },
-                None => {
-
-                }
+            if let Some(mesh) = &object.mesh {
+                gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, object.transform.matrix());
+                mesh.bind(gl);
+                gl.draw_elements_with_i32(
+                    GL::TRIANGLES,
+                    mesh.indices.len() as i32,
+                    GL::UNSIGNED_INT,
+                    0,
+                );
             }
         }
     }
