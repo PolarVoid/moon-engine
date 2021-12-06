@@ -169,7 +169,7 @@ impl Application {
         self.u_time = u_time;
         let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
         let u_texture_1 = gl.get_uniform_location(&program, "uTex1");
-
+        let u_color = gl.get_uniform_location(&program, "uColor");
         let u_model_matrix = gl.get_uniform_location(&program, "uModel");
         self.u_model_matrix = u_model_matrix;
         let u_view_matrix = gl.get_uniform_location(&program, "uView");
@@ -272,6 +272,7 @@ impl Application {
 
         gl.uniform1i(u_texture_0.as_ref(), 0);
         gl.uniform1i(u_texture_1.as_ref(), 0);
+        gl.uniform4f(u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
