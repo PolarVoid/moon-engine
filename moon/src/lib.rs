@@ -8,6 +8,7 @@ pub mod object;
 pub mod collider;
 mod utils;
 
+use collider::AABB;
 use nalgebra::UnitQuaternion;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
@@ -29,6 +30,7 @@ pub use shader::create_program;
 pub use shader::create_shader;
 pub use texture::create_texture;
 pub use transform::Transform;
+pub use collider::Collide;
 use utils::set_panic_hook;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -117,6 +119,7 @@ pub struct Application {
     input: InputManager,
     objects: Vec<Object>,
     u_time: Option<WebGlUniformLocation>,
+    u_color: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
@@ -133,6 +136,7 @@ impl Application {
             input: InputManager::new(),
             objects: Vec::new(),
             u_time: None,
+            u_color: None,
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
@@ -285,6 +289,7 @@ impl Application {
             false,
             self.camera.projection(),
         );
+        self.u_color = u_color;
         gl.enable(GL::DEPTH_TEST);
         gl.enable(GL::CULL_FACE);
     }
@@ -339,6 +344,15 @@ impl Application {
         }
         self.objects[0].transform.position -= Vector3::x() * horizontal_axis * speed * (delta_time as f32 / 1000.0);
         self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
+        let box1 = AABB::new_position(self.objects[0].transform.position.x, self.objects[0].transform.position.z);
+        let box2 = AABB::new_position(self.objects[1].transform.position.x, self.objects[1].transform.position.z);
+        if box2.collide_with(&box1) {
+            gl.uniform4f(self.u_color.as_ref(), 1.0, 0.0, 0.0, 1.0);
+        } else {
+            console_log!("A {:?}", &box1);
+            console_log!("B {:?}", &box2);
+            gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
+        }
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(
             self.u_camera_position.as_ref(),
