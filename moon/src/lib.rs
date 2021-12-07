@@ -5,6 +5,7 @@ pub mod shader;
 pub mod texture;
 pub mod transform;
 pub mod object;
+pub mod collider;
 mod utils;
 
 use nalgebra::UnitQuaternion;
