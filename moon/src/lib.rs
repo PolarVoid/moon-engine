@@ -9,6 +9,7 @@ pub mod collider;
 mod utils;
 
 use collider::AABB;
+use collider::Circle;
 use nalgebra::UnitQuaternion;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
@@ -290,7 +291,7 @@ impl Application {
             self.camera.projection(),
         );
         self.u_color = u_color;
-        gl.enable(GL::DEPTH_TEST);
+        //gl.enable(GL::DEPTH_TEST);
         gl.enable(GL::CULL_FACE);
     }
 
@@ -336,21 +337,27 @@ impl Application {
         let speed = 5f32;
         let gl = &self.gl;
         let mut horizontal_axis = 0.0f32;
+        let mut vertical_axis = 0.0f32;
         if self.input.get_key_state('A' as u8) {
             horizontal_axis += 1.0;
         }
         if self.input.get_key_state('D' as u8) {
             horizontal_axis -= 1.0;
         }
-        self.objects[0].transform.position -= Vector3::x() * horizontal_axis * speed * (delta_time as f32 / 1000.0);
+        if self.input.get_key_state('W' as u8) {
+            vertical_axis += 1.0;
+        }
+        if self.input.get_key_state('S' as u8) {
+            vertical_axis -= 1.0;
+        }
+        self.objects[0].transform.position.y = 0.0;
+        self.objects[0].transform.position -= (Vector3::x() * horizontal_axis + Vector3::z() * vertical_axis) * speed * (delta_time as f32 / 1000.0);
         self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
-        let box1 = AABB::new_position(self.objects[0].transform.position.x, self.objects[0].transform.position.z);
-        let box2 = AABB::new_position(self.objects[1].transform.position.x, self.objects[1].transform.position.z);
+        let box1 = Circle::new_position(self.objects[0].transform.position.x, self.objects[0].transform.position.z);
+        let box2 = Circle::new_position(self.objects[1].transform.position.x, self.objects[1].transform.position.z);
         if box2.collide_with(&box1) {
             gl.uniform4f(self.u_color.as_ref(), 1.0, 0.0, 0.0, 1.0);
         } else {
-            console_log!("A {:?}", &box1);
-            console_log!("B {:?}", &box2);
             gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
         }
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
