@@ -52,7 +52,7 @@ impl Circle {
     pub fn new_position(x: f32, y: f32) -> Self {
         Self {
             origin: Point::new(x, y),
-            radius: 1.0,
+            radius: 0.5,
         }
     }
     pub fn new_size(radius: f32) -> Self {

@@ -68,8 +68,8 @@ fn circle_and_circle_seperate() {
 
 #[test]
 fn circle_and_circle_intersecting() {
-    let c1 = Circle::new_size(1.0);
-    let c2 = Circle::new_position(1.5, 0.0);
+    let c1 = Circle::new_size(0.5);
+    let c2 = Circle::new_position(0.9, 0.0);
     assert!(c1.collide_with(&c2))
 }
 
