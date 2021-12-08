@@ -70,7 +70,7 @@ fn circle_and_circle_seperate() {
 fn circle_and_circle_intersecting() {
     let c1 = Circle::new_size(1.0);
     let c2 = Circle::new_position(1.5, 0.0);
-    assert_eq!(c1.collide_with(&c2), false)
+    assert!(c1.collide_with(&c2))
 }
 
 #[test]

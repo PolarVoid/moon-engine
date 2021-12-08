@@ -136,8 +136,9 @@ impl Collide<Circle> for AABB {
 
 impl Collide<Circle> for Circle {
     fn collide_with(&self, _other: &Circle) -> bool {
+        let radii_sum = self.radius + _other.radius;
         let distance: Point = _other.origin - self.origin;
-        distance.norm_squared() < self.radius * _other.radius
+        distance.norm_squared() < radii_sum * radii_sum
     }
 }
 
