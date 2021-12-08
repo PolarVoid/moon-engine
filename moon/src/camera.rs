@@ -1,14 +1,15 @@
 use crate::transform::Transform;
-use nalgebra::{Perspective3, Vector3};
-use std::f32::consts;
+use nalgebra::{Vector3, Orthographic3};
+
+const FIXED_WIDTH: f32 = 5.0;
+const HEIGHT: f32 = FIXED_WIDTH/1.77;
 
 #[allow(dead_code)]
 pub struct Camera {
     pub transform: Transform,
-    pub perspective: Perspective3<f32>,
+    pub orthographic: Orthographic3<f32>,
     pub width: f32,
     pub height: f32,
-    fov: f32,
     znear: f32,
     zfar: f32,
 }
@@ -21,10 +22,9 @@ impl Camera {
             transform: Transform::new(),
             width: 1920.0,
             height: 1080.0,
-            fov: consts::PI / 4.0,
-            znear: 0.3f32,
+            znear: 0.0f32,
             zfar: 1000.0f32,
-            perspective: Perspective3::new(192.0 / 108.0, consts::PI / 4.0, 0.3f32, 1000.0f32),
+            orthographic: Orthographic3::new(-FIXED_WIDTH, FIXED_WIDTH, -HEIGHT, HEIGHT, 0f32, 1000.0f32),
         }
     }
     /// Create a new `Camera` with an initial position.
@@ -34,12 +34,19 @@ impl Camera {
             ..Camera::new()
         }
     }
+    /// Create a new `Camera` with an initial position.
+    pub fn with_transform(transform: Transform) -> Self {
+        Self {
+            transform,
+            ..Camera::new()
+        }
+    }
     /// Create a new `Camera` with an initial width and height.
     pub fn with_width_and_height(width: f32, height: f32) -> Self {
         Self {
             width,
             height,
-            perspective: Perspective3::new(width / height, consts::PI / 4.0, 0.3f32, 1000.0f32),
+            //orthographic: Orthographic3::new(0.0, width, 0.0, height, 0f32, 1000.0f32),
             ..Camera::new()
         }
     }
@@ -47,10 +54,11 @@ impl Camera {
     pub fn set_width_and_height(&mut self, width: f32, height: f32) {
         self.width = width;
         self.height = height;
-        self.perspective.set_aspect(width / height);
+        // self.orthographic.set_right(width);
+        // self.orthographic.set_top(height);
     }
     /// Return the Projection Matrix of the `Camera` as a slice of `f32` so it can be used by WebGL.
     pub fn projection(&self) -> &[f32] {
-        self.perspective.as_matrix().as_slice()
+        self.orthographic.as_matrix().as_slice()
     }
 }

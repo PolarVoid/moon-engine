@@ -65,7 +65,7 @@ function init() {
                 canvas.style.width = window.innerWidth;
                 app.resize(window.innerWidth, window.innerHeight);
             }
-            app.render(currentTime - startTime);
+            app.render(deltaTime);
             counter.innerText = Math.round(1000/deltaTime);
         }
     }

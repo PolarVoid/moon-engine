@@ -9,7 +9,6 @@ use web_sys::WebGlVertexArrayObject;
 #[repr(C)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub color: [f32; 3],
     pub uv: [f32; 2],
     pub normal: [f32; 3],
 }
@@ -62,25 +61,21 @@ impl Mesh {
         let vertices = vec![
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 1.0],
                 normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 1.0],
                 normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, 1.0, 0.0],
             },
@@ -101,101 +96,85 @@ impl Mesh {
             // Bottom Side
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 1.0],
                 normal: [0.0, -1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, -1.0, 0.0],
             },
             // Left Side
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.5, 1.0],
                 normal: [-0.8, 0.5, 0.0],
             },
             // Back Side
             Vertex {
                 position: [-half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, 0.5, -0.8],
             },
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, 0.5, -0.8],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.5, 1.0],
                 normal: [0.0, 0.5, -0.8],
             },
             // Right Side
             Vertex {
                 position: [half, 0.0, -half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.8, 0.5, 0.0],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.5, 1.0],
                 normal: [0.8, 0.5, 0.0],
             },
             // Front Side
             Vertex {
                 position: [half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [1.0, 0.0],
                 normal: [0.0, 0.5, 0.8],
             },
             Vertex {
                 position: [-half, 0.0, half],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.0, 0.0],
                 normal: [0.0, 0.5, 0.8],
             },
             Vertex {
                 position: [0.0, height, 0.0],
-                color: [0.0, 0.0, 0.0],
                 uv: [0.5, 1.0],
                 normal: [0.0, 0.5, 0.8],
             },
@@ -236,10 +215,9 @@ impl Mesh {
             WebGl2RenderingContext::STATIC_DRAW,
         );
 
-        gl.vertex_attrib_pointer_with_i32(0, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 12);
-        gl.vertex_attrib_pointer_with_i32(2, 2, WebGl2RenderingContext::FLOAT, false, 11 * 4, 24);
-        gl.vertex_attrib_pointer_with_i32(3, 3, WebGl2RenderingContext::FLOAT, false, 11 * 4, 32);
+        gl.vertex_attrib_pointer_with_i32(0, 3, WebGl2RenderingContext::FLOAT, false, 8 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 8 * 4, 12);
+        gl.vertex_attrib_pointer_with_i32(2, 3, WebGl2RenderingContext::FLOAT, false, 8 * 4, 20);
     }
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     pub fn bind(&self, gl: &WebGl2RenderingContext) {

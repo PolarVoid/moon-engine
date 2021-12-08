@@ -5,11 +5,14 @@ pub mod obj;
 pub mod shader;
 pub mod texture;
 pub mod transform;
-pub mod utils;
+pub mod object;
+pub mod collider;
+mod utils;
 
 use nalgebra::UnitQuaternion;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
+use std::io::BufReader;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement as Canvas;
@@ -22,10 +25,14 @@ pub use input::InputManager;
 pub use mesh::Mesh;
 pub use mesh::Shape;
 pub use mesh::Vertex;
+pub use object::Object;
 pub use shader::create_program;
 pub use shader::create_shader;
 pub use texture::create_texture;
 pub use transform::Transform;
+pub use collider::AABB;
+pub use collider::Circle;
+pub use collider::Collide;
 pub use obj::load_model;
 use utils::set_panic_hook;
 
@@ -68,10 +75,9 @@ pub struct Application {
     gl: GL,
     camera: Camera,
     input: InputManager,
-    meshes: Vec<Mesh>,
-    x_rotation: f32,
-    y_rotation: f32,
+    objects: Vec<Object>,
     u_time: Option<WebGlUniformLocation>,
+    u_color: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
@@ -86,10 +92,9 @@ impl Application {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
             input: InputManager::new(),
-            meshes: Vec::new(),
-            x_rotation: 0.0,
-            y_rotation: 0.0,
+            objects: Vec::new(),
             u_time: None,
+            u_color: None,
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
@@ -127,7 +132,7 @@ impl Application {
         self.u_time = u_time;
         let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
         let u_texture_1 = gl.get_uniform_location(&program, "uTex1");
-
+        let u_color = gl.get_uniform_location(&program, "uColor");
         let u_model_matrix = gl.get_uniform_location(&program, "uModel");
         self.u_model_matrix = u_model_matrix;
         let u_view_matrix = gl.get_uniform_location(&program, "uView");
@@ -139,62 +144,75 @@ impl Application {
         self.u_camera_position = u_camera_position;
 
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
-        let vcolor_attrib_location = gl.get_attrib_location(&program, "aColor");
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
 
-        let models = load_model(include_bytes!("../res/model/matilda/matilda.obj"));
-        let position_only = false;
-        for model in models.iter() {
-            let mesh = &model.mesh;
-            let indices = mesh.indices.clone();
-            let mut vertices = Vec::<Vertex>::new();
-            for i in 0..(mesh.positions.len() / 3) {
-                vertices.push(Vertex {
-                    position: [
-                        mesh.positions[i * 3],
-                        mesh.positions[i * 3 + 1],
-                        mesh.positions[i * 3 + 2],
-                    ],
-                    color: {
-                        if position_only || mesh.vertex_color.is_empty() {
-                            [1.0, 1.0, 1.0]
-                        } else {
-                            [
-                                mesh.vertex_color[i * 3],
-                                mesh.vertex_color[i * 3 + 1],
-                                mesh.vertex_color[i * 3 + 2],
-                            ]
-                        }
-                    },
-                    uv: {
-                        if position_only || mesh.texcoords.is_empty() {
-                            [0.0, 0.0]
-                        } else {
-                            [mesh.texcoords[i * 2], mesh.texcoords[i * 2 + 1]]
-                        }
-                    },
-                    normal: {
-                        if position_only || mesh.normals.is_empty() {
-                            [0.0, 1.0, 0.0]
-                        } else {
-                            [
-                                mesh.normals[i * 3],
-                                mesh.normals[i * 3 + 1],
-                                mesh.normals[i * 3 + 2],
-                            ]
-                        }
-                    },
-                });
-            }
-            let mesh = Mesh::new(gl, vertices, indices);
-            mesh.setup(gl);
-            gl.enable_vertex_attrib_array(position_attrib_location as u32);
-            gl.enable_vertex_attrib_array(vcolor_attrib_location as u32);
-            gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-            gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-            self.meshes.push(mesh);
-        }
+        // let models = load_model(include_bytes!("../res/model/matilda/matilda.obj"));
+        // let position_only = false;
+        // for model in models.iter() {
+        //     let mesh = &model.mesh;
+        //     let indices = mesh.indices.clone();
+        //     let mut vertices = Vec::<Vertex>::new();
+        //     for i in 0..(mesh.positions.len() / 3) {
+        //         vertices.push(Vertex {
+        //             position: [
+        //                 mesh.positions[i * 3],
+        //                 mesh.positions[i * 3 + 1],
+        //                 mesh.positions[i * 3 + 2],
+        //             ],
+        //             color: {
+        //                 if position_only || mesh.vertex_color.is_empty() {
+        //                     [1.0, 1.0, 1.0]
+        //                 } else {
+        //                     [
+        //                         mesh.vertex_color[i * 3],
+        //                         mesh.vertex_color[i * 3 + 1],
+        //                         mesh.vertex_color[i * 3 + 2],
+        //                     ]
+        //                 }
+        //             },
+        //             uv: {
+        //                 if position_only || mesh.texcoords.is_empty() {
+        //                     [0.0, 0.0]
+        //                 } else {
+        //                     [mesh.texcoords[i * 2], mesh.texcoords[i * 2 + 1]]
+        //                 }
+        //             },
+        //             normal: {
+        //                 if position_only || mesh.normals.is_empty() {
+        //                     [0.0, 1.0, 0.0]
+        //                 } else {
+        //                     [
+        //                         mesh.normals[i * 3],
+        //                         mesh.normals[i * 3 + 1],
+        //                         mesh.normals[i * 3 + 2],
+        //                     ]
+        //                 }
+        //             },
+        //         });
+        //     }
+        //     let mesh = Mesh::new(gl, vertices, indices);
+        //     mesh.setup(gl);
+        //     gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        //     gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        //     gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+        //     self.meshes.push(mesh);
+        // }
+        let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
+        mesh.setup(gl);
+        gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+        let spaceship = Object::new_with_mesh(Some(mesh));
+        self.objects.push(spaceship);
+        
+        let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
+        mesh.setup(gl);
+        gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+        let spaceship = Object::new_with_mesh(Some(mesh));
+        self.objects.push(spaceship);
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img1 = document
@@ -210,12 +228,14 @@ impl Application {
             .unwrap();
         let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
 
-        let initial_camera_position: Vector3<f32> = -Vector3::z() * 50.0 - Vector3::y() * 10.0;
-        self.camera = Camera::with_position(initial_camera_position);
+        let mut initial_camera_transform = Transform::new_with_position(-Vector3::y() * 1.0);
+        initial_camera_transform.rotation = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 3.14/2.0);
+        self.camera = Camera::with_transform(initial_camera_transform);
         let model: Matrix4<f32> = Matrix4::identity();
 
         gl.uniform1i(u_texture_0.as_ref(), 0);
         gl.uniform1i(u_texture_1.as_ref(), 0);
+        gl.uniform4f(u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
@@ -227,7 +247,8 @@ impl Application {
             false,
             self.camera.projection(),
         );
-        gl.enable(GL::DEPTH_TEST);
+        self.u_color = u_color;
+        //gl.enable(GL::DEPTH_TEST);
         gl.enable(GL::CULL_FACE);
     }
 
@@ -252,44 +273,50 @@ impl Application {
     }
 
     #[wasm_bindgen]
-    pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-        let sensitivity: f32 = 1.0;
-        let move_x = mouse_x as f32 / self.camera.width * sensitivity;
-        let move_y = mouse_y as f32 / self.camera.height * sensitivity;
-        self.x_rotation = nalgebra::clamp(
-            self.x_rotation + move_y,
-            -std::f32::consts::FRAC_PI_4,
-            std::f32::consts::FRAC_PI_4,
-        );
-        self.camera.transform.rotation =
-            UnitQuaternion::from_euler_angles(self.x_rotation, 0.0, 0.0);
-        self.y_rotation += move_x;
-        self.y_rotation = self.y_rotation % (2.0 * std::f32::consts::PI);
-        self.camera.transform.rotation *=
-            UnitQuaternion::from_euler_angles(0.0, self.y_rotation, 0.0);
+    pub fn mouse_move(&mut self, _mouse_x: i32, _mouse_y: i32) {
+        // let sensitivity: f32 = 1.0;
+        // let move_x = mouse_x as f32 / self.camera.width * sensitivity;
+        // let move_y = mouse_y as f32 / self.camera.height * sensitivity;
+        // self.x_rotation = nalgebra::clamp(
+        //     self.x_rotation + move_y,
+        //     -std::f32::consts::FRAC_PI_4,
+        //     std::f32::consts::FRAC_PI_4,
+        // );
+        // self.camera.transform.rotation =
+        //     UnitQuaternion::from_euler_angles(self.x_rotation, 0.0, 0.0);
+        // self.y_rotation += move_x;
+        // self.y_rotation = self.y_rotation % (2.0 * std::f32::consts::PI);
+        // self.camera.transform.rotation *=
+        //     UnitQuaternion::from_euler_angles(0.0, self.y_rotation, 0.0);
     }
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
-        let sensitivity = 0.15f32;
+        let speed = 5f32;
         let gl = &self.gl;
-        let front = self.camera.transform.front();
-        let right = self.camera.transform.right();
-        let mut vertical_axis = 0.0f32;
         let mut horizontal_axis = 0.0f32;
-        if self.input.get_key_state('W' as u8) {
-            vertical_axis += 1.0;
-        }
+        let mut vertical_axis = 0.0f32;
         if self.input.get_key_state('A' as u8) {
             horizontal_axis += 1.0;
-        }
-        if self.input.get_key_state('S' as u8) {
-            vertical_axis -= 1.0;
         }
         if self.input.get_key_state('D' as u8) {
             horizontal_axis -= 1.0;
         }
-        let movement = front * vertical_axis + right * horizontal_axis;
-        self.camera.transform.position += movement * sensitivity;
+        if self.input.get_key_state('W' as u8) {
+            vertical_axis += 1.0;
+        }
+        if self.input.get_key_state('S' as u8) {
+            vertical_axis -= 1.0;
+        }
+        self.objects[0].transform.position.y = 0.0;
+        self.objects[0].transform.position -= (Vector3::x() * horizontal_axis + Vector3::z() * vertical_axis) * speed * (delta_time as f32 / 1000.0);
+        self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
+        let box1 = Circle::new_position(self.objects[0].transform.position.x, self.objects[0].transform.position.z);
+        let box2 = Circle::new_position(self.objects[1].transform.position.x, self.objects[1].transform.position.z);
+        if box2.collide_with(&box1) {
+            gl.uniform4f(self.u_color.as_ref(), 1.0, 0.0, 0.0, 1.0);
+        } else {
+            gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
+        }
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(
             self.u_camera_position.as_ref(),
@@ -301,14 +328,17 @@ impl Application {
             self.camera.transform.matrix(),
         );
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        for mesh in self.meshes.iter() {
-            mesh.bind(gl);
-            gl.draw_elements_with_i32(
-                GL::TRIANGLES,
-                mesh.indices.len() as i32,
-                GL::UNSIGNED_INT,
-                0,
-            );
+        for object in self.objects.iter_mut() {
+            if let Some(mesh) = &object.mesh {
+                gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, object.transform.matrix());
+                mesh.bind(gl);
+                gl.draw_elements_with_i32(
+                    GL::TRIANGLES,
+                    mesh.indices.len() as i32,
+                    GL::UNSIGNED_INT,
+                    0,
+                );
+            }
         }
     }
 }

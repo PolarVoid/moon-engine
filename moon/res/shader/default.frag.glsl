@@ -1,13 +1,17 @@
 #version 300 es
 precision highp float;
 
+uniform float uTime;
+uniform mat4 uModel;
+uniform mat4 uView;
+uniform mat4 uProj;
 uniform sampler2D uTex0;
 uniform sampler2D uTex1;
 uniform vec3 uCamPos;
+uniform vec4 uColor;
 
-in vec2 vTexCoord;
-in vec3 vColor;
 in vec3 vPosition;
+in vec2 vTexCoord;
 in vec3 vNormal;
 
 out vec4 color;
@@ -27,5 +31,5 @@ vec4 pointLight(vec3 light, float ambient, float specularIntensity, float specul
 }
 
 void main() {
-    color = texture(uTex0, vTexCoord) * vec4(vColor, 1.0) * pointLight(vec3(80.0, 0.5, 10.0), 0.3, 1.5, 8.0);
+    color = texture(uTex0, vTexCoord) * uColor * pointLight(vec3(0.0, 100.0, 0.0), 0.3, 1.5, 8.0);
 }
