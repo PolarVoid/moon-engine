@@ -12,7 +12,6 @@ mod utils;
 use nalgebra::UnitQuaternion;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
-use std::io::BufReader;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement as Canvas;
