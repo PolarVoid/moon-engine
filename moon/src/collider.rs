@@ -1,18 +1,26 @@
 use nalgebra::{Vector2, clamp};
 
+/// Default bounding box size for a `Point`
 const POINT_BOUNDING_SIZE: f32 = 0.1;
 
+/// The `Collider` trait is implemented by different Colliders
 pub trait Collider {
+    /// Get the bounding box of a Collider as an `AABB`
     fn get_bounding_box(&self) -> AABB;
+
+    /// Get the center of the Collider as a `Point`
+    fn get_center(&self) -> Point;
 }
 
+/// The `Collide` trait is used to define collisions between two Colliders
 pub trait Collide<T: Collider> {
     fn collide_with(&self, _other: &T) -> bool;
 }
 
+/// A `Point` is an alias for `nalgebra::Vector2<f32>`
 pub type Point = Vector2<f32>;
 
-// Axis-Aligned Bounding Box
+/// Axis-Aligned Bounding Box (AABB)
 #[derive(Debug, Default)]
 pub struct AABB {
     pub min: Point,
@@ -42,6 +50,8 @@ impl AABB {
         }
     }
 }
+
+/// Cicle
 #[derive(Debug, Default)]
 pub struct Circle {
     pub origin: Point,
@@ -73,6 +83,10 @@ impl Collider for Point {
     fn get_bounding_box(&self) -> AABB {
         AABB::new_position_and_size(self.x, self.y, POINT_BOUNDING_SIZE, POINT_BOUNDING_SIZE)
     }
+
+    fn get_center(&self) -> Point {
+        *self
+    }
 }
 
 impl Collider for AABB {
@@ -80,6 +94,10 @@ impl Collider for AABB {
         AABB { 
             ..*self
         }
+    }
+
+    fn get_center(&self) -> Point {
+        self.max - self.min
     }
 }
 
@@ -89,6 +107,10 @@ impl Collider for Circle {
             min: self.origin - Point::from_element(1.0),
             max: self.origin + Point::from_element(1.0),
         }
+    }
+
+    fn get_center(&self) -> Point {
+        self.origin
     }
 }
 
@@ -154,4 +176,3 @@ impl Collide<AABB> for Circle {
         _other.collide_with(self)
     }
 }
-
