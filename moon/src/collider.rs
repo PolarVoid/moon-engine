@@ -80,22 +80,26 @@ impl Circle {
 }
 
 impl Collider for Point {
+    /// Get a bounding box for a `Point`, using `POINT_BOUNDING_SIZE` as its size
     fn get_bounding_box(&self) -> AABB {
         AABB::new_position_and_size(self.x, self.y, POINT_BOUNDING_SIZE, POINT_BOUNDING_SIZE)
     }
 
+    /// Get the center of the Point Collider
     fn get_center(&self) -> Point {
         *self
     }
 }
 
 impl Collider for AABB {
+    /// Return the tight bounding box of the `AABB`, as a copy of itself
     fn get_bounding_box(&self) -> AABB {
         AABB { 
             ..*self
         }
     }
 
+    /// Get the center of the AABB Collider
     fn get_center(&self) -> Point {
         self.max - self.min
     }
@@ -114,24 +118,28 @@ impl Collider for Circle {
     }
 }
 
+/// Point and Point Collsion
 impl Collide<Point> for Point {
     fn collide_with(&self, _other: &Point) -> bool {
         self == _other
     }
 }
 
+/// Point and AABB Collison
 impl Collide<AABB> for Point {
     fn collide_with(&self, _other: &AABB) -> bool {
         _other.collide_with(self)
     }
 }
 
+/// Point and Circle Collison
 impl Collide<Circle> for Point {
     fn collide_with(&self, _other: &Circle) -> bool {
         _other.collide_with(self)
     }
 }
 
+/// AABB and AABB Collison
 impl Collide<AABB> for AABB {
     fn collide_with(&self, _other: &AABB) -> bool {
         self.min.x < _other.max.x && _other.min.x < self.max.x &&
@@ -139,6 +147,7 @@ impl Collide<AABB> for AABB {
     }
 }
 
+/// AABB and Point Collision
 impl Collide<Point> for AABB {
     fn collide_with(&self, _other: &Point) -> bool {
         self.min.x < _other.x && _other.x < self.max.x &&
@@ -146,6 +155,7 @@ impl Collide<Point> for AABB {
     }
 }
 
+/// AABB and Circle Collision
 impl Collide<Circle> for AABB {
     fn collide_with(&self, _other: &Circle) -> bool {
         let mut closest: Point = _other.origin;
@@ -156,6 +166,7 @@ impl Collide<Circle> for AABB {
     }
 }
 
+/// Circle and Circle Collision
 impl Collide<Circle> for Circle {
     fn collide_with(&self, _other: &Circle) -> bool {
         let radii_sum = self.radius + _other.radius;
@@ -164,6 +175,7 @@ impl Collide<Circle> for Circle {
     }
 }
 
+/// Circle and Point Collision
 impl Collide<Point> for Circle {
     fn collide_with(&self, _other: &Point) -> bool {
         let distance: Point = _other - self.origin;
@@ -171,6 +183,7 @@ impl Collide<Point> for Circle {
     }
 }
 
+/// Circle and AABB Collision
 impl Collide<AABB> for Circle {
     fn collide_with(&self, _other: &AABB) -> bool {
         _other.collide_with(self)
