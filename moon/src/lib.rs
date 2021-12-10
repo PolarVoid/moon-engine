@@ -9,15 +9,23 @@ pub mod object;
 pub mod collider;
 mod utils;
 
-use nalgebra::UnitQuaternion;
-use nalgebra::Matrix4;
-use nalgebra::Vector3;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::HtmlCanvasElement as Canvas;
-use web_sys::WebGl2RenderingContext as GL;
-use web_sys::HtmlImageElement;
-use web_sys::WebGlUniformLocation;
+use {
+    nalgebra::{
+        UnitQuaternion, 
+        Matrix4, 
+        Vector3
+    },
+    wasm_bindgen::{
+        prelude::*, 
+        JsCast
+    },
+    web_sys::{
+        HtmlCanvasElement,
+        WebGl2RenderingContext,
+        HtmlImageElement,
+        WebGlUniformLocation
+    }
+};
 
 pub use camera::Camera;
 pub use input::InputManager;
@@ -34,6 +42,9 @@ pub use collider::Circle;
 pub use collider::Collide;
 pub use obj::load_model;
 use utils::set_panic_hook;
+
+type Canvas = HtmlCanvasElement;
+type GL = WebGl2RenderingContext;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
