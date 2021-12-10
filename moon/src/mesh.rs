@@ -1,9 +1,5 @@
-use web_sys::WebGl2RenderingContext;
-use web_sys::WebGlBuffer;
-use web_sys::WebGlVertexArrayObject;
+use web_sys::{WebGl2RenderingContext, WebGlBuffer, WebGlVertexArrayObject};
 
-/// The `Vertex` struct
-///
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
 #[repr(C)]
