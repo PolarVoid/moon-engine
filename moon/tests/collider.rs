@@ -18,7 +18,6 @@ fn point_and_point() {
 fn point_at_circle_origin() {
     let p = Point::zeros();
     let c = Circle::new_size(1.0);
-
     assert!(c.collide_with(&p))
 }
 
@@ -26,7 +25,6 @@ fn point_at_circle_origin() {
 fn point_in_circle() {
     let p = Point::new(0.9, 0.0);
     let c = Circle::new_size(1.0);
-
     assert!(c.collide_with(&p))
 }
 
@@ -34,7 +32,6 @@ fn point_in_circle() {
 fn point_not_in_circle() {
     let p = Point::new(0.9, 0.9);
     let c = Circle::new_size(1.0);
-
     assert_eq!(c.collide_with(&p), false)
 }
 
@@ -42,7 +39,6 @@ fn point_not_in_circle() {
 fn point_in_circle_edge() {
     let p = Point::new(1.0, 0.0);
     let c = Circle::new_size(1.0);
-
     assert_eq!(c.collide_with(&p), false)
 }
 
