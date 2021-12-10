@@ -14,10 +14,7 @@ pub struct Vertex {
 }
 pub enum Shape {
     Quad(f32),
-    Cube(f32),
-    Sphere(f32),
     Pyramid(f32, f32),
-    Complex,
 }
 
 pub struct Mesh {
@@ -47,8 +44,7 @@ impl Mesh {
     pub fn primitive(gl: &WebGl2RenderingContext, shape: Shape) -> Self {
         match shape {
             Shape::Quad(side) => Self::quad_with_side(gl, side),
-            Shape::Pyramid(base, height) => Self::pyramid_with_base_and_height(gl, base, height),
-            _ => Self::quad(gl),
+            Shape::Pyramid(base, height) => Self::pyramid_with_base_and_height(gl, base, height)
         }
     }
     /// Create a new Quad mesh with a side length of 1m
