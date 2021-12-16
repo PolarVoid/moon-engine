@@ -58,6 +58,13 @@ impl Camera {
     pub fn projection(&self) -> &[f32] {
         self.orthographic.as_matrix().as_slice()
     }
+
+    pub fn screen_to_world_coordinates(&self, screen_x: f32, screen_y: f32) -> (f32, f32) {
+        let clipped_x = (screen_x / self.width - 0.5) * 2.0;
+        let clipped_y = (screen_y / self.height - 0.5) * 2.0;
+
+        (clipped_x * FIXED_WIDTH, clipped_y * HEIGHT)
+    }
 }
 
 impl Default for Camera {
