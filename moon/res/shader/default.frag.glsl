@@ -31,5 +31,10 @@ vec4 pointLight(vec3 light, float ambient, float specularIntensity, float specul
 }
 
 void main() {
-    color = texture(uTex0, vTexCoord) * uColor * pointLight(vec3(0.0, 100.0, 0.0), 0.3, 1.5, 8.0);
+    bool isCircle = true;
+    if (!isCircle || length(vTexCoord * 2.0 - 1.0) < 1.0) {
+        color = texture(uTex0, vTexCoord) * uColor * pointLight(vec3(0.0, 100.0, 0.0), 0.3, 1.5, 8.0);
+    } else {
+        discard;
+    }
 }
