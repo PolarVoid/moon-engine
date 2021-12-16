@@ -283,21 +283,9 @@ impl Application {
     }
 
     #[wasm_bindgen]
-    pub fn mouse_move(&mut self, _mouse_x: i32, _mouse_y: i32) {
-        // let sensitivity: f32 = 1.0;
-        // let move_x = mouse_x as f32 / self.camera.width * sensitivity;
-        // let move_y = mouse_y as f32 / self.camera.height * sensitivity;
-        // self.x_rotation = nalgebra::clamp(
-        //     self.x_rotation + move_y,
-        //     -std::f32::consts::FRAC_PI_4,
-        //     std::f32::consts::FRAC_PI_4,
-        // );
-        // self.camera.transform.rotation =
-        //     UnitQuaternion::from_euler_angles(self.x_rotation, 0.0, 0.0);
-        // self.y_rotation += move_x;
-        // self.y_rotation = self.y_rotation % (2.0 * std::f32::consts::PI);
-        // self.camera.transform.rotation *=
-        //     UnitQuaternion::from_euler_angles(0.0, self.y_rotation, 0.0);
+    pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
+        let (x, y) = self.camera.screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
+        self.objects[1].transform.position = Vector3::new(x, 0.0, y);
     }
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
