@@ -13,41 +13,17 @@ function init() {
         return;
     }
     app.init();
-    canvas.onclick = function () {
-        canvas.requestPointerLock();
-    };
+
     canvas.addEventListener("keydown", event => {
         app.input(event.which, true);
     });
     canvas.addEventListener("keyup", event => {
         app.input(event.which, false);
     });
-    
-    document.onpointerlockchange = function () {
-        if (document.pointerLockElement === canvas) {
-            canvas.addEventListener("keydown", event => {
-                app.input(event.which, true);
-            });
-            canvas.addEventListener("keyup", event => {
-                app.input(event.which, false);
-            });
-            canvas.addEventListener("mousemove", event => {
-                if (document.pointerLockElement !== canvas) return
-                app.mouse_move(event.movementX, event.movementY);
-            }, false);
-        } else {
-            canvas.removeEventListener("keydown", event => {
-                app.input(event.which, true);
-            });
-            canvas.removeEventListener("keyup", event => {
-                app.input(event.which, false);
-            });
-            canvas.removeEventListener("mousemove", event => {
-                if (document.pointerLockElement !== canvas) return
-                app.mouse_move(event.movementX, event.movementY);
-            }, false);
-        }
-    };
+    canvas.addEventListener("mousemove", event => {
+        app.mouse_move(event.clientX, event.clientY);
+    }, false);
+
     app.resize(window.innerWidth, window.innerHeight);
     let startTime = performance.now();
     function render() {
