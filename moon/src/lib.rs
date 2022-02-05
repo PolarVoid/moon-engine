@@ -40,7 +40,6 @@ pub use transform::Transform;
 pub use collider::AABB;
 pub use collider::Circle;
 pub use collider::Collide;
-pub use obj::load_model;
 use utils::set_panic_hook;
 
 type Canvas = HtmlCanvasElement;
