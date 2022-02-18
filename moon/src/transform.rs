@@ -1,12 +1,11 @@
 use nalgebra::Matrix4;
-use nalgebra::UnitQuaternion;
-use nalgebra::Vector3;
+use nalgebra::Vector2;
 
 pub struct Transform {
     matrix: Matrix4<f32>,
-    pub position: Vector3<f32>,
-    pub rotation: UnitQuaternion<f32>,
-    pub scale: Vector3<f32>,
+    pub position: Vector2<f32>,
+    pub rotation: f32,
+    pub scale: Vector2<f32>,
 }
 
 impl Transform {
@@ -14,13 +13,13 @@ impl Transform {
     pub fn new() -> Self {
         Self {
             matrix: Matrix4::identity(),
-            position: Vector3::zeros(),
-            rotation: UnitQuaternion::identity(),
-            scale: Vector3::from_element(1.0),
+            position: Vector2::zeros(),
+            rotation: 0.0f32,
+            scale: Vector2::from_element(1.0),
         }
     }
     /// Create a new `Transform` with an initial position.
-    pub fn new_with_position(position: Vector3<f32>) -> Self {
+    pub fn new_with_position(position: Vector2<f32>) -> Self {
         Self {
             position,
             matrix: Matrix4::identity(),
@@ -29,10 +28,6 @@ impl Transform {
     }
     /// Get the `Matrix4` representing the transform as a slice of `f32` to use with WebGL.
     pub fn matrix(&mut self) -> &[f32] {
-        self.matrix = self
-            .rotation
-            .to_homogeneous()
-            .prepend_translation(&self.position);
         self.matrix.as_slice()
     }
     pub fn get_position(&self) -> &[f32] {
@@ -40,11 +35,5 @@ impl Transform {
     }
     pub fn get_scale(&self) -> &[f32] {
         self.scale.as_slice()
-    }
-    pub fn front(&self) -> Vector3<f32> {
-        self.rotation.inverse_transform_vector(&Vector3::z())
-    }
-    pub fn right(&self) -> Vector3<f32> {
-        self.rotation.inverse_transform_vector(&Vector3::x())
     }
 }
