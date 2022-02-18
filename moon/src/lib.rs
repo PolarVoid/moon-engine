@@ -1,11 +1,9 @@
 pub mod camera;
 pub mod input;
 pub mod mesh;
-pub mod obj;
 pub mod shader;
 pub mod texture;
 pub mod transform;
-pub mod object;
 pub mod collider;
 mod utils;
 
@@ -32,7 +30,6 @@ pub use input::InputManager;
 pub use mesh::Mesh;
 pub use mesh::Shape;
 pub use mesh::Vertex;
-pub use object::Object;
 pub use shader::create_program;
 pub use shader::create_shader;
 pub use texture::create_texture;
@@ -84,7 +81,6 @@ pub struct Application {
     gl: GL,
     camera: Camera,
     input: InputManager,
-    objects: Vec<Object>,
     u_time: Option<WebGlUniformLocation>,
     u_color: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -101,7 +97,6 @@ impl Application {
             gl: get_gl_context().unwrap(),
             camera: Camera::new(),
             input: InputManager::new(),
-            objects: Vec::new(),
             u_time: None,
             u_color: None,
             u_model_matrix: None,
@@ -156,72 +151,18 @@ impl Application {
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
 
-        // let models = load_model(include_bytes!("../res/model/matilda/matilda.obj"));
-        // let position_only = false;
-        // for model in models.iter() {
-        //     let mesh = &model.mesh;
-        //     let indices = mesh.indices.clone();
-        //     let mut vertices = Vec::<Vertex>::new();
-        //     for i in 0..(mesh.positions.len() / 3) {
-        //         vertices.push(Vertex {
-        //             position: [
-        //                 mesh.positions[i * 3],
-        //                 mesh.positions[i * 3 + 1],
-        //                 mesh.positions[i * 3 + 2],
-        //             ],
-        //             color: {
-        //                 if position_only || mesh.vertex_color.is_empty() {
-        //                     [1.0, 1.0, 1.0]
-        //                 } else {
-        //                     [
-        //                         mesh.vertex_color[i * 3],
-        //                         mesh.vertex_color[i * 3 + 1],
-        //                         mesh.vertex_color[i * 3 + 2],
-        //                     ]
-        //                 }
-        //             },
-        //             uv: {
-        //                 if position_only || mesh.texcoords.is_empty() {
-        //                     [0.0, 0.0]
-        //                 } else {
-        //                     [mesh.texcoords[i * 2], mesh.texcoords[i * 2 + 1]]
-        //                 }
-        //             },
-        //             normal: {
-        //                 if position_only || mesh.normals.is_empty() {
-        //                     [0.0, 1.0, 0.0]
-        //                 } else {
-        //                     [
-        //                         mesh.normals[i * 3],
-        //                         mesh.normals[i * 3 + 1],
-        //                         mesh.normals[i * 3 + 2],
-        //                     ]
-        //                 }
-        //             },
-        //         });
-        //     }
-        //     let mesh = Mesh::new(gl, vertices, indices);
-        //     mesh.setup(gl);
-        //     gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        //     gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        //     gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-        //     self.meshes.push(mesh);
-        // }
+       
         let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         mesh.setup(gl);
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-        let spaceship = Object::new_with_mesh(Some(mesh));
-        self.objects.push(spaceship);
         
         let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         mesh.setup(gl);
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-        let spaceship = Object::new_with_mesh(Some(mesh));
-        self.objects.push(spaceship);
 
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let img1 = document
@@ -257,7 +198,6 @@ impl Application {
             self.camera.projection(),
         );
         self.u_color = u_color;
-        //gl.enable(GL::DEPTH_TEST);
         gl.enable(GL::CULL_FACE);
     }
 
@@ -284,7 +224,7 @@ impl Application {
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
         let (x, y) = self.camera.screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
-        self.objects[1].transform.position = Vector3::new(x, 0.0, y);
+        //self.objects[1].transform.position = Vector3::new(x, 0.0, y);
     }
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
@@ -304,17 +244,17 @@ impl Application {
         if self.input.get_key_state('S' as u8) {
             vertical_axis -= 1.0;
         }
-        self.objects[0].transform.position.y = 0.0;
-        self.objects[0].transform.position -= (Vector3::x() * horizontal_axis + Vector3::z() * vertical_axis) * speed * (delta_time as f32 / 1000.0);
-        self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
-        let box1 = Circle::new_position(self.objects[0].transform.position.x, self.objects[0].transform.position.z);
-        let box2 = Circle::new_position(self.objects[1].transform.position.x, self.objects[1].transform.position.z);
-        if box2.collide_with(&box1) {
-            gl.uniform4f(self.u_color.as_ref(), 1.0, 0.0, 0.0, 1.0);
-        } else {
-            gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
-        }
-        gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
+        // self.objects[0].transform.position.y = 0.0;
+        // self.objects[0].transform.position -= (Vector3::x() * horizontal_axis + Vector3::z() * vertical_axis) * speed * (delta_time as f32 / 1000.0);
+        // self.objects[0].transform.position.x = nalgebra::clamp(self.objects[0].transform.position.x, -5.0, 5.0);
+        // let box1 = Circle::new_position(self.objects[0].transform.position.x, self.objects[0].transform.position.z);
+        // let box2 = Circle::new_position(self.objects[1].transform.position.x, self.objects[1].transform.position.z);
+        // if box2.collide_with(&box1) {
+        //     gl.uniform4f(self.u_color.as_ref(), 1.0, 0.0, 0.0, 1.0);
+        // } else {
+        //     gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
+        // }
+        gl.clear(GL::COLOR_BUFFER_BIT);
         gl.uniform3fv_with_f32_array(
             self.u_camera_position.as_ref(),
             self.camera.transform.get_position(),
@@ -325,17 +265,6 @@ impl Application {
             self.camera.transform.matrix(),
         );
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        for object in self.objects.iter_mut() {
-            if let Some(mesh) = &object.mesh {
-                gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, object.transform.matrix());
-                mesh.bind(gl);
-                gl.draw_elements_with_i32(
-                    GL::TRIANGLES,
-                    mesh.indices.len() as i32,
-                    GL::UNSIGNED_INT,
-                    0,
-                );
-            }
-        }
+        
     }
 }
