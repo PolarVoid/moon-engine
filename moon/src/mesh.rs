@@ -6,11 +6,9 @@ use web_sys::{WebGl2RenderingContext, WebGlBuffer, WebGlVertexArrayObject};
 pub struct Vertex {
     pub position: [f32; 3],
     pub uv: [f32; 2],
-    pub normal: [f32; 3],
 }
 pub enum Shape {
     Quad(f32),
-    Pyramid(f32, f32),
 }
 
 pub struct Mesh {
@@ -40,7 +38,6 @@ impl Mesh {
     pub fn primitive(gl: &WebGl2RenderingContext, shape: Shape) -> Self {
         match shape {
             Shape::Quad(side) => Self::quad_with_side(gl, side),
-            Shape::Pyramid(base, height) => Self::pyramid_with_base_and_height(gl, base, height)
         }
     }
     /// Create a new Quad mesh with a side length of 1m
@@ -54,127 +51,25 @@ impl Mesh {
             Vertex {
                 position: [-half, 0.0, half],
                 uv: [0.0, 0.0],
-                normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [-half, 0.0, -half],
                 uv: [0.0, 1.0],
-                normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, -half],
                 uv: [1.0, 1.0],
-                normal: [0.0, 1.0, 0.0],
             },
             Vertex {
                 position: [half, 0.0, half],
                 uv: [1.0, 0.0],
-                normal: [0.0, 1.0, 0.0],
             },
         ];
         let indices: Vec<u32> = vec![0, 2, 1, 0, 3, 2];
         Self::new(gl, vertices, indices)
     }
-    pub fn pyramid(gl: &WebGl2RenderingContext) -> Self {
-        Self::pyramid_with_base_and_height(gl, 1.0, 0.8)
-    }
-    pub fn pyramid_with_base_and_height(
-        gl: &WebGl2RenderingContext,
-        base: f32,
-        height: f32,
-    ) -> Self {
-        let half = base / 2.0;
-        let vertices = vec![
-            // Bottom Side
-            Vertex {
-                position: [-half, 0.0, half],
-                uv: [0.0, 0.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            Vertex {
-                position: [-half, 0.0, -half],
-                uv: [0.0, 1.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            Vertex {
-                position: [half, 0.0, -half],
-                uv: [1.0, 1.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            Vertex {
-                position: [half, 0.0, half],
-                uv: [1.0, 0.0],
-                normal: [0.0, -1.0, 0.0],
-            },
-            // Left Side
-            Vertex {
-                position: [-half, 0.0, half],
-                uv: [0.0, 0.0],
-                normal: [-0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [-half, 0.0, -half],
-                uv: [1.0, 0.0],
-                normal: [-0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [0.0, height, 0.0],
-                uv: [0.5, 1.0],
-                normal: [-0.8, 0.5, 0.0],
-            },
-            // Back Side
-            Vertex {
-                position: [-half, 0.0, -half],
-                uv: [1.0, 0.0],
-                normal: [0.0, 0.5, -0.8],
-            },
-            Vertex {
-                position: [half, 0.0, -half],
-                uv: [0.0, 0.0],
-                normal: [0.0, 0.5, -0.8],
-            },
-            Vertex {
-                position: [0.0, height, 0.0],
-                uv: [0.5, 1.0],
-                normal: [0.0, 0.5, -0.8],
-            },
-            // Right Side
-            Vertex {
-                position: [half, 0.0, -half],
-                uv: [0.0, 0.0],
-                normal: [0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [half, 0.0, half],
-                uv: [1.0, 0.0],
-                normal: [0.8, 0.5, 0.0],
-            },
-            Vertex {
-                position: [0.0, height, 0.0],
-                uv: [0.5, 1.0],
-                normal: [0.8, 0.5, 0.0],
-            },
-            // Front Side
-            Vertex {
-                position: [half, 0.0, half],
-                uv: [1.0, 0.0],
-                normal: [0.0, 0.5, 0.8],
-            },
-            Vertex {
-                position: [-half, 0.0, half],
-                uv: [0.0, 0.0],
-                normal: [0.0, 0.5, 0.8],
-            },
-            Vertex {
-                position: [0.0, height, 0.0],
-                uv: [0.5, 1.0],
-                normal: [0.0, 0.5, 0.8],
-            },
-        ];
-        let indices: Vec<u32> = vec![0, 1, 2, 0, 2, 3, 4, 6, 5, 7, 9, 8, 10, 12, 11, 13, 15, 14];
-        Self::new(gl, vertices, indices)
-    }
-    /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
+
+   /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
     pub fn setup(&self, gl: &WebGl2RenderingContext) {
         self.bind(gl);
         gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));
@@ -207,9 +102,8 @@ impl Mesh {
             WebGl2RenderingContext::STATIC_DRAW,
         );
 
-        gl.vertex_attrib_pointer_with_i32(0, 3, WebGl2RenderingContext::FLOAT, false, 8 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 8 * 4, 12);
-        gl.vertex_attrib_pointer_with_i32(2, 3, WebGl2RenderingContext::FLOAT, false, 8 * 4, 20);
+        gl.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 8 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 8 * 4, 8);
     }
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     pub fn bind(&self, gl: &WebGl2RenderingContext) {
