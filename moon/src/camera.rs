@@ -1,6 +1,6 @@
 use crate::transform::Transform;
 use nalgebra::Orthographic3;
-use nalgebra::Vector3;
+use nalgebra::Vector2;
 
 /// The 'X' component at the left and right edges of the screen
 const FIXED_WIDTH: f32 = 5.0; 
@@ -25,7 +25,7 @@ impl Camera {
         Default::default()
     }
     /// Create a new `Camera` with an initial position.
-    pub fn with_position(position: Vector3<f32>) -> Self {
+    pub fn with_position(position: Vector2<f32>) -> Self {
         Self {
             transform: Transform::new_with_position(position),
             ..Default::default()
