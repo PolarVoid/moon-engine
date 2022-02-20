@@ -20,6 +20,7 @@ use {
     web_sys::{
         HtmlCanvasElement,
         WebGl2RenderingContext,
+        WebGlProgram,
         HtmlImageElement,
         WebGlUniformLocation
     }
@@ -86,7 +87,6 @@ pub struct Application {
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
-    u_camera_position: Option<WebGlUniformLocation>,
 }
 
 #[wasm_bindgen]
@@ -102,16 +102,29 @@ impl Application {
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
-            u_camera_position: None,
         }
+    }
+
+    #[allow(dead_code)]
+    fn setup_uniforms(&mut self, program: &WebGlProgram) {
+        let gl = &self.gl;
+
+        // TODO: Move function to material/shader module, and make it more flexible
+    
+        self.u_time = gl.get_uniform_location(&program, "uTime");
+
+        self.u_color = gl.get_uniform_location(&program, "uColor");
+
+        self.u_model_matrix = gl.get_uniform_location(&program, "uModel");
+        self.u_view_matrix = gl.get_uniform_location(&program, "uView");
+        self.u_projection_matrix = gl.get_uniform_location(&program, "uProj");
     }
 
     #[wasm_bindgen]
     pub fn init(&mut self) {
-        console_log!("Hello, world!");
         let gl = &self.gl;
-        gl.clear_color(0.0, 0.11, 0.2, 1.0);
-        gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
+        gl.clear_color(0.0, 0.51, 0.2, 1.0);
+        gl.clear(GL::COLOR_BUFFER_BIT);
 
         let vertex_shader = create_shader(
             gl,
@@ -130,29 +143,27 @@ impl Application {
             .expect("Failed while creating Program!");
         gl.use_program(Some(&program));
 
+        // Delete shaders after program has been succesfully created
         gl.delete_shader(Some(&vertex_shader));
         gl.delete_shader(Some(&fragment_shader));
 
-        let u_time = gl.get_uniform_location(&program, "uTime");
-        self.u_time = u_time;
+        self.u_time = gl.get_uniform_location(&program, "uTime");
+
+        self.u_color = gl.get_uniform_location(&program, "uColor");
+
+        self.u_model_matrix = gl.get_uniform_location(&program, "uModel");
+        self.u_view_matrix = gl.get_uniform_location(&program, "uView");
+        self.u_projection_matrix = gl.get_uniform_location(&program, "uProj");
+
+        // TODO: Use setup uniforms here instead
+
         let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
         let u_texture_1 = gl.get_uniform_location(&program, "uTex1");
-        let u_color = gl.get_uniform_location(&program, "uColor");
-        let u_model_matrix = gl.get_uniform_location(&program, "uModel");
-        self.u_model_matrix = u_model_matrix;
-        let u_view_matrix = gl.get_uniform_location(&program, "uView");
-        self.u_view_matrix = u_view_matrix;
-        let u_projection_matrix = gl.get_uniform_location(&program, "uProj");
-        self.u_projection_matrix = u_projection_matrix;
-
-        let u_camera_position = gl.get_uniform_location(&program, "uCamPos");
-        self.u_camera_position = u_camera_position;
 
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
         let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
 
-       
         let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         mesh.setup(gl);
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
@@ -179,14 +190,13 @@ impl Application {
             .unwrap();
         let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
 
-        let mut initial_camera_transform = Transform::new_with_position(-Vector2::y() * 1.0);
+        let mut initial_camera_transform = Transform::default();
         initial_camera_transform.rotation = 0.0;
         self.camera = Camera::with_transform(initial_camera_transform);
         let model: Matrix4<f32> = Matrix4::identity();
-
         gl.uniform1i(u_texture_0.as_ref(), 0);
         gl.uniform1i(u_texture_1.as_ref(), 0);
-        gl.uniform4f(u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
+        gl.uniform4f(self.u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
         gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
@@ -198,8 +208,9 @@ impl Application {
             false,
             self.camera.projection(),
         );
-        self.u_color = u_color;
         gl.enable(GL::CULL_FACE);
+
+        console_log!("Wow, that took us to {}", web::now_sec());
     }
 
     #[wasm_bindgen]
@@ -222,11 +233,13 @@ impl Application {
         }
     }
 
+    #[allow(dead_code, unused_variables)]
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
         let (x, y) = self.camera.screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
         //self.objects[1].transform.position = Vector3::new(x, 0.0, y);
     }
+    #[allow(dead_code, unused_variables, unused_assignments)]
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
         let speed = 5f32;
@@ -256,10 +269,6 @@ impl Application {
         //     gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
         // }
         gl.clear(GL::COLOR_BUFFER_BIT);
-        gl.uniform3fv_with_f32_array(
-            self.u_camera_position.as_ref(),
-            self.camera.transform.get_position(),
-        );
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
             false,
