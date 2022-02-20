@@ -209,8 +209,6 @@ impl Application {
             self.camera.projection(),
         );
         gl.enable(GL::CULL_FACE);
-
-        console_log!("Wow, that took us to {}", web::now_sec());
     }
 
     #[wasm_bindgen]
