@@ -1,4 +1,5 @@
 pub mod camera;
+pub mod web;
 pub mod input;
 pub mod mesh;
 pub mod shader;
@@ -9,9 +10,8 @@ mod utils;
 
 use {
     nalgebra::{
-        UnitQuaternion, 
-        Matrix4, 
-        Vector3
+        Matrix4,
+        Vector2
     },
     wasm_bindgen::{
         prelude::*, 
@@ -108,6 +108,7 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn init(&mut self) {
+        console_log!("Hello, world!");
         let gl = &self.gl;
         gl.clear_color(0.0, 0.11, 0.2, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
@@ -178,8 +179,8 @@ impl Application {
             .unwrap();
         let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
 
-        let mut initial_camera_transform = Transform::new_with_position(-Vector3::y() * 1.0);
-        initial_camera_transform.rotation = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 3.14/2.0);
+        let mut initial_camera_transform = Transform::new_with_position(-Vector2::y() * 1.0);
+        initial_camera_transform.rotation = 0.0;
         self.camera = Camera::with_transform(initial_camera_transform);
         let model: Matrix4<f32> = Matrix4::identity();
 
