@@ -8,9 +8,8 @@ pub struct Transform {
     pub scale: Vector2<f32>,
 }
 
-impl Transform {
-    /// Create a new `Transform` with default values.
-    pub fn new() -> Self {
+impl Default for Transform {
+    fn default() -> Self {
         Self {
             matrix: Matrix4::identity(),
             position: Vector2::zeros(),
@@ -18,12 +17,19 @@ impl Transform {
             scale: Vector2::from_element(1.0),
         }
     }
+}
+
+impl Transform {
+    /// Create a new `Transform` with default values.
+    pub fn new() -> Self {
+        Self::default()
+    }
     /// Create a new `Transform` with an initial position.
     pub fn new_with_position(position: Vector2<f32>) -> Self {
         Self {
             position,
             matrix: Matrix4::identity(),
-            ..Transform::new()
+            ..Self::default()
         }
     }
     /// Get the `Matrix4` representing the transform as a slice of `f32` to use with WebGL.
