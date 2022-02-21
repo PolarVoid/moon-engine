@@ -246,7 +246,7 @@ impl Application {
         gl.clear(GL::COLOR_BUFFER_BIT);
 
         self.mesh.as_ref().unwrap().bind(gl);
-        gl.draw_arrays(GL::TRIANGLES, 0, 3);
+        gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_INT, 0);
 
         let speed = 5f32;
         let mut horizontal_axis = 0.0f32;
