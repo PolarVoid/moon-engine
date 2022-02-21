@@ -4,7 +4,7 @@ use web_sys::{WebGl2RenderingContext, WebGlBuffer, WebGlVertexArrayObject};
 /// It consists of position and color vectors, and UV co-ordinates.
 #[repr(C)]
 pub struct Vertex {
-    pub position: [f32; 3],
+    pub position: [f32; 2],
     pub uv: [f32; 2],
 }
 
@@ -41,19 +41,19 @@ impl Mesh {
         let half = side / 2.0;
         let vertices = vec![
             Vertex {
-                position: [-half, 0.0, half],
+                position: [-half, half],
                 uv: [0.0, 0.0],
             },
             Vertex {
-                position: [-half, 0.0, -half],
+                position: [-half, -half],
                 uv: [0.0, 1.0],
             },
             Vertex {
-                position: [half, 0.0, -half],
+                position: [half, -half],
                 uv: [1.0, 1.0],
             },
             Vertex {
-                position: [half, 0.0, half],
+                position: [half, half],
                 uv: [1.0, 0.0],
             },
         ];
@@ -96,6 +96,9 @@ impl Mesh {
 
         gl.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 4 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 4 * 4, 8);
+
+        gl.enable_vertex_attrib_array(0 as u32);
+        gl.enable_vertex_attrib_array(1 as u32);
     }
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     pub fn bind(&self, gl: &WebGl2RenderingContext) {
