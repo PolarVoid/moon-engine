@@ -7,9 +7,6 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub uv: [f32; 2],
 }
-pub enum Shape {
-    Quad(f32),
-}
 
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
@@ -33,11 +30,6 @@ impl Mesh {
             },
             vbo: gl.create_buffer().expect("Could not create Buffer."),
             ibo: gl.create_buffer().expect("Could not create Buffer."),
-        }
-    }
-    pub fn primitive(gl: &WebGl2RenderingContext, shape: Shape) -> Self {
-        match shape {
-            Shape::Quad(side) => Self::quad_with_side(gl, side),
         }
     }
     /// Create a new Quad mesh with a side length of 1m
@@ -102,8 +94,8 @@ impl Mesh {
             WebGl2RenderingContext::STATIC_DRAW,
         );
 
-        gl.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 8 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 8 * 4, 8);
+        gl.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 4 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 4 * 4, 8);
     }
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     pub fn bind(&self, gl: &WebGl2RenderingContext) {
