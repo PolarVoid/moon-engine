@@ -14,8 +14,7 @@ default = ["console_error_panic_hook"]
 wasm-bindgen = "0.2.63"
 js-sys = "0.3.55"
 nalgebra = "0.29.0"
-tobj = "3.2.0"
-egui_web = "0.15.0"
+hecs = "0.7.6"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
@@ -36,6 +35,7 @@ features = [
     'Document',
     'Element',
     'Window',
+    'Performance',
     'HtmlCanvasElement',
     'HtmlImageElement',
     'WebGl2RenderingContext',
