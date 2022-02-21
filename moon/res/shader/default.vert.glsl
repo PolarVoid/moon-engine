@@ -2,7 +2,6 @@
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aTexCoord;
-layout (location = 2) in vec3 aNormal;
 
 uniform float uTime;
 uniform mat4 uModel;
@@ -11,7 +10,6 @@ uniform mat4 uProj;
 uniform vec4 uColor;
 
 out vec2 vTexCoord;
-out vec3 vNormal;
 out vec3 vPosition;
 
 mat4 rotateY(float deg) {
@@ -19,9 +17,13 @@ mat4 rotateY(float deg) {
 }
 
 void main() {
-    gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
-    vPosition = vec3(uModel * vec4(aPosition, 1.0f));
-    vTexCoord = aTexCoord;
-    vTexCoord.y = 1.0 - vTexCoord.y;
-    vNormal = normalize(mat3(uModel) * aNormal);
+    if (gl_VertexID == 0) {
+        gl_Position = vec4(-0.5, -0.5, 0.0, 1.0);
+    } else if (gl_VertexID == 1) {
+        gl_Position = vec4(-0.5, 0.5, 0.0, 1.0);
+    } else if (gl_VertexID == 2) {
+        gl_Position = vec4(0.5, 0.5, 0.0, 1.0);
+    } else if (gl_VertexID == 3) {
+        gl_Position = vec4(0.5, -0.5, 0.0, 1.0);
+    }
 }
