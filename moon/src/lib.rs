@@ -23,7 +23,7 @@ use {
         WebGlProgram,
         HtmlImageElement,
         WebGlUniformLocation
-    }
+    },
 };
 
 pub use camera::Camera;
@@ -86,7 +86,6 @@ pub struct Application {
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
-    mesh: Option<Mesh>,
 }
 
 #[wasm_bindgen]
@@ -102,7 +101,6 @@ impl Application {
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
-            mesh: None,
         }
     }
 
@@ -167,9 +165,6 @@ impl Application {
         
         let mesh = Mesh::quad(gl);
         mesh.setup(gl);
-        gl.enable_vertex_attrib_array(0 as u32);
-        gl.enable_vertex_attrib_array(1 as u32);
-        self.mesh = Some(mesh);
 
         // let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         // mesh.setup(gl);
@@ -245,7 +240,6 @@ impl Application {
         gl.clear_color(0.5, 0.51, 0.2, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT);
 
-        self.mesh.as_ref().unwrap().bind(gl);
         gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_INT, 0);
 
         let speed = 5f32;
