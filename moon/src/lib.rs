@@ -29,7 +29,6 @@ use {
 pub use camera::Camera;
 pub use input::InputManager;
 pub use mesh::Mesh;
-pub use mesh::Shape;
 pub use mesh::Vertex;
 pub use shader::create_program;
 pub use shader::create_shader;
@@ -87,6 +86,7 @@ pub struct Application {
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
+    mesh: Option<Mesh>,
 }
 
 #[wasm_bindgen]
@@ -102,6 +102,7 @@ impl Application {
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
+            mesh: None,
         }
     }
 
@@ -123,9 +124,10 @@ impl Application {
     #[wasm_bindgen]
     pub fn init(&mut self) {
         let gl = &self.gl;
-        gl.clear_color(0.0, 0.51, 0.2, 1.0);
+        gl.clear_color(0.0, 0.31, 0.2, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT);
 
+        // Shader setup
         let vertex_shader = create_shader(
             gl,
             GL::VERTEX_SHADER,
@@ -162,53 +164,51 @@ impl Application {
 
         let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
         let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
-        let normal_attrib_location = gl.get_attrib_location(&program, "aNormal");
-
-        let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
-        mesh.setup(gl);
-        gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         
-        let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
+        let mesh = Mesh::quad(gl);
         mesh.setup(gl);
-        gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
+        gl.enable_vertex_attrib_array(0 as u32);
+        gl.enable_vertex_attrib_array(1 as u32);
+        self.mesh = Some(mesh);
 
-        let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
-        let img1 = document
-            .get_element_by_id("texture0")
-            .unwrap()
-            .dyn_into::<HtmlImageElement>()
-            .unwrap();
-        let _texture_alb = create_texture(gl, &img1, 0).expect("Failed to create Texture");
-        let img2 = document
-            .get_element_by_id("texture1")
-            .unwrap()
-            .dyn_into::<HtmlImageElement>()
-            .unwrap();
-        let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
+        // let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
+        // mesh.setup(gl);
+        // gl.enable_vertex_attrib_array(position_attrib_location as u32);
+        // gl.enable_vertex_attrib_array(uv_attrib_location as u32);
+        // gl.enable_vertex_attrib_array(normal_attrib_location as u32);
 
-        let mut initial_camera_transform = Transform::default();
-        initial_camera_transform.rotation = 0.0;
-        self.camera = Camera::with_transform(initial_camera_transform);
-        let model: Matrix4<f32> = Matrix4::identity();
-        gl.uniform1i(u_texture_0.as_ref(), 0);
-        gl.uniform1i(u_texture_1.as_ref(), 0);
-        gl.uniform4f(self.u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
-        gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
-        gl.uniform_matrix4fv_with_f32_array(
-            self.u_view_matrix.as_ref(),
-            false,
-            self.camera.transform.matrix(),
-        );
-        gl.uniform_matrix4fv_with_f32_array(
-            self.u_projection_matrix.as_ref(),
-            false,
-            self.camera.projection(),
-        );
-        gl.enable(GL::CULL_FACE);
+        // let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
+        // let img1 = document
+        //     .get_element_by_id("texture0")
+        //     .unwrap()
+        //     .dyn_into::<HtmlImageElement>()
+        //     .unwrap();
+        // let _texture_alb = create_texture(gl, &img1, 0).expect("Failed to create Texture");
+        // let img2 = document
+        //     .get_element_by_id("texture1")
+        //     .unwrap()
+        //     .dyn_into::<HtmlImageElement>()
+        //     .unwrap();
+        // let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
+
+        // let mut initial_camera_transform = Transform::default();
+        // initial_camera_transform.rotation = 0.0;
+        // self.camera = Camera::with_transform(initial_camera_transform);
+        // let model: Matrix4<f32> = Matrix4::identity();
+        // gl.uniform1i(u_texture_0.as_ref(), 0);
+        // gl.uniform1i(u_texture_1.as_ref(), 0);
+        // gl.uniform4f(self.u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
+        // gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
+        // gl.uniform_matrix4fv_with_f32_array(
+        //     self.u_view_matrix.as_ref(),
+        //     false,
+        //     self.camera.transform.matrix(),
+        // );
+        // gl.uniform_matrix4fv_with_f32_array(
+        //     self.u_projection_matrix.as_ref(),
+        //     false,
+        //     self.camera.projection(),
+        // );
     }
 
     #[wasm_bindgen]
@@ -240,8 +240,15 @@ impl Application {
     #[allow(dead_code, unused_variables, unused_assignments)]
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
-        let speed = 5f32;
         let gl = &self.gl;
+
+        gl.clear_color(0.5, 0.51, 0.2, 1.0);
+        gl.clear(GL::COLOR_BUFFER_BIT);
+
+        self.mesh.as_ref().unwrap().bind(gl);
+        gl.draw_arrays(GL::TRIANGLES, 0, 3);
+
+        let speed = 5f32;
         let mut horizontal_axis = 0.0f32;
         let mut vertical_axis = 0.0f32;
         if self.input.get_key_state('A' as u8) {
@@ -266,7 +273,8 @@ impl Application {
         // } else {
         //     gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
         // }
-        gl.clear(GL::COLOR_BUFFER_BIT);
+        // gl.clear(GL::COLOR_BUFFER_BIT);
+        
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
             false,
