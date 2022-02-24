@@ -36,9 +36,13 @@ impl Transform {
     pub fn matrix(&mut self) -> &[f32] {
         self.matrix.as_slice()
     }
+
+    /// Get the position as a slice
     pub fn get_position(&self) -> &[f32] {
         self.position.as_slice()
     }
+
+    /// Get the scale as a slice
     pub fn get_scale(&self) -> &[f32] {
         self.scale.as_slice()
     }
