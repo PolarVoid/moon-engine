@@ -14,7 +14,6 @@ default = ["console_error_panic_hook"]
 wasm-bindgen = "0.2.63"
 js-sys = "0.3.55"
 nalgebra = "0.29.0"
-hecs = "0.7.6"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
