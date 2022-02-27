@@ -1,9 +1,9 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct InputManager {
-    keyboard_states: HashSet<u8>,
+    keyboard_states: BTreeSet<u8>,
     pub mouse_x: f32,
     pub mouse_y: f32,
 }
@@ -13,7 +13,7 @@ impl InputManager {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            keyboard_states: HashSet::new(),
+            keyboard_states: BTreeSet::new(),
             mouse_x: 0.0,
             mouse_y: 0.0,
         }
