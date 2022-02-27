@@ -2,6 +2,22 @@ use web_sys::WebGl2RenderingContext;
 use web_sys::HtmlImageElement;
 use web_sys::WebGlTexture;
 
+pub struct Texture {
+    raw: Option<WebGlTexture>,
+    width: i32,
+    height: i32,
+}
+
+impl Default for Texture {
+    fn default() -> Self {
+        Self { 
+            raw: None, 
+            width: 1, 
+            height: 1
+        }
+    }
+}
+
 pub fn create_texture(
     gl: &WebGl2RenderingContext,
     image: &HtmlImageElement,
