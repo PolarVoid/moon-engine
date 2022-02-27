@@ -10,13 +10,23 @@ pub enum ShaderType {
 }
 
 pub struct Shader {
+    pub name: &'static str,
     program: Option<WebGlProgram>,
 }
 
+impl Default for Shader {
+    fn default() -> Self {
+        Self { 
+            name: "Uninitialized Shader",
+            program: None
+        }
+    }
+}
 
 impl Shader {
     /// Create a new Shader Program with default Vertex and Fragment shaders
     pub fn new(gl: &WebGl2RenderingContext) -> Self {
+        let name = "Default Shader";
         let vertex_shader = Shader::create_vertex(
             gl,
             include_str!("../res/shader/default.vert.glsl"),
@@ -30,7 +40,9 @@ impl Shader {
         .expect("Could not create Fragment Shader!");
 
         let program = Shader::program_with_vertex_and_fragment(gl, &vertex_shader, &fragment_shader).ok();
+
         Self {
+            name,
             program
         }
     }
