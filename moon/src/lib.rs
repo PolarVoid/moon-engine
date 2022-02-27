@@ -122,7 +122,7 @@ impl Application {
     #[wasm_bindgen]
     pub fn init(&mut self) {
         let gl = &self.gl;
-        gl.clear_color(0.0, 0.31, 0.2, 1.0);
+        gl.clear_color(0.43, 0.21, 0.76, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT);
 
         // Shader setup
@@ -237,9 +237,7 @@ impl Application {
     pub fn render(&mut self, delta_time: u32) {
         let gl = &self.gl;
 
-        gl.clear_color(0.5, 0.51, 0.2, 1.0);
         gl.clear(GL::COLOR_BUFFER_BIT);
-
         gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_INT, 0);
 
         let speed = 5f32;

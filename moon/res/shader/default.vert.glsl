@@ -13,5 +13,5 @@ out vec2 vTexCoord;
 out vec3 vPosition;
 
 void main() {
-    gl_Position = vec4(aPosition, 0.0, 1.0);
+    gl_Position = uProj * vec4(aPosition, 0.0, 1.0);
 }
