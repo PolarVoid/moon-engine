@@ -3,6 +3,7 @@ pub mod web;
 pub mod input;
 pub mod mesh;
 pub mod shader;
+pub mod material;
 pub mod texture;
 pub mod transform;
 pub mod collider;
@@ -30,8 +31,7 @@ pub use camera::Camera;
 pub use input::InputManager;
 pub use mesh::Mesh;
 pub use mesh::Vertex;
-pub use shader::create_program;
-pub use shader::create_shader;
+use shader::Shader;
 pub use texture::create_texture;
 pub use transform::Transform;
 pub use collider::AABB;
@@ -126,28 +126,9 @@ impl Application {
         gl.clear(GL::COLOR_BUFFER_BIT);
 
         // Shader setup
-        let vertex_shader = create_shader(
-            gl,
-            GL::VERTEX_SHADER,
-            include_str!("../res/shader/default.vert.glsl"),
-        )
-        .expect("Could not create Vertex Shader!");
-        let fragment_shader = create_shader(
-            gl,
-            GL::FRAGMENT_SHADER,
-            include_str!("../res/shader/default.frag.glsl"),
-        )
-        .expect("Could not create Fragment Shader!");
+        let program = Shader::new(gl);
 
-        let program = create_program(gl, &vertex_shader, &fragment_shader)
-            .expect("Failed while creating Program!");
-        gl.use_program(Some(&program));
-
-        // Delete shaders after program has been succesfully created
-        gl.delete_shader(Some(&vertex_shader));
-        gl.delete_shader(Some(&fragment_shader));
-
-        self.u_time = gl.get_uniform_location(&program, "uTime");
+        self.u_time = program.get_uniform_location(gl, "uTime");
 
         self.u_color = gl.get_uniform_location(&program, "uColor");
 
