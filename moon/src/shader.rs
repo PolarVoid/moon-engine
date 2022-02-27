@@ -86,13 +86,24 @@ impl Shader {
         }
     }
     
+    /// Bind the `Shader`
     pub fn bind(&self, gl: &WebGl2RenderingContext) {
         gl.use_program(self.program.as_ref());
     }
+
     /// Get the location of a uniform on the `Shader`
     pub fn get_uniform_location(&self, gl: &WebGl2RenderingContext, name: &str) -> Option<WebGlUniformLocation> {
-        if let program =  self.program.as_ref().unwrap() {
+        if let Some(program) = self.program.as_ref()  {
             gl.get_uniform_location(program, name)
+        } else {
+            None
+        }
+    }
+
+    /// Get the location of an attribute on the `Shader`
+    pub fn get_attrib_location(&self, gl: &WebGl2RenderingContext, name: &str) -> Option<i32> {
+        if let Some(program) = self.program.as_ref() {
+            Some(gl.get_attrib_location(program, name))
         } else {
             None
         }
