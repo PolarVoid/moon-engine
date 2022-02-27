@@ -10,10 +10,6 @@ pub mod collider;
 mod utils;
 
 use {
-    nalgebra::{
-        Matrix4,
-        Vector2
-    },
     wasm_bindgen::{
         prelude::*, 
         JsCast
@@ -22,7 +18,6 @@ use {
         HtmlCanvasElement,
         WebGl2RenderingContext,
         WebGlProgram,
-        HtmlImageElement,
         WebGlUniformLocation
     },
 };
