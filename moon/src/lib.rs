@@ -130,20 +130,21 @@ impl Application {
 
         self.u_time = program.get_uniform_location(gl, "uTime");
 
-        self.u_color = gl.get_uniform_location(&program, "uColor");
-
-        self.u_model_matrix = gl.get_uniform_location(&program, "uModel");
-        self.u_view_matrix = gl.get_uniform_location(&program, "uView");
-        self.u_projection_matrix = gl.get_uniform_location(&program, "uProj");
+        self.u_color = program.get_uniform_location(gl, "uColor");
+        self.u_model_matrix = program.get_uniform_location(gl, "uModel");
+        self.u_view_matrix = program.get_uniform_location(gl, "uView");
+        self.u_projection_matrix = program.get_uniform_location(gl, "uProj");
 
         // TODO: Use setup uniforms here instead
 
-        let u_texture_0 = gl.get_uniform_location(&program, "uTex0");
-        let u_texture_1 = gl.get_uniform_location(&program, "uTex1");
+        let u_texture_0 = program.get_uniform_location(gl, "uTex0");
+        let u_texture_1 = program.get_uniform_location(gl, "uTex1");
 
-        let position_attrib_location = gl.get_attrib_location(&program, "aPosition");
-        let uv_attrib_location = gl.get_attrib_location(&program, "aTexCoord");
+        let position_attrib_location = program.get_attrib_location(gl, "aPosition");
+        let uv_attrib_location = program.get_attrib_location(gl, "aTexCoord");
         
+        program.bind(gl);
+
         let mesh = Mesh::quad(gl);
         mesh.setup(gl);
 
