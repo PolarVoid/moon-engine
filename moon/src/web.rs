@@ -14,8 +14,5 @@ macro_rules! console_log {
 
 // Get the time in seconds
 pub fn now_sec() -> f64 {
-    web_sys::window().unwrap()
-        .performance().unwrap()
-        .now() / 1000.0
+    web_sys::window().unwrap().performance().unwrap().now() / 1000.0
 }
-

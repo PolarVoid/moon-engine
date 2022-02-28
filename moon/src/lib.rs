@@ -1,37 +1,29 @@
 pub mod camera;
-pub mod web;
+pub mod collider;
 pub mod input;
+pub mod material;
 pub mod mesh;
 pub mod shader;
-pub mod material;
 pub mod texture;
 pub mod transform;
-pub mod collider;
 mod utils;
+pub mod web;
 
 use {
-    wasm_bindgen::{
-        prelude::*, 
-        JsCast
-    },
-    web_sys::{
-        HtmlCanvasElement,
-        WebGl2RenderingContext,
-        WebGlProgram,
-        WebGlUniformLocation
-    },
+    wasm_bindgen::{prelude::*, JsCast},
+    web_sys::{HtmlCanvasElement, WebGl2RenderingContext, WebGlProgram, WebGlUniformLocation},
 };
 
 pub use camera::Camera;
+pub use collider::Circle;
+pub use collider::Collide;
+pub use collider::AABB;
 pub use input::InputManager;
 pub use mesh::Mesh;
 pub use mesh::Vertex;
 use shader::Shader;
 pub use texture::create_texture;
 pub use transform::Transform;
-pub use collider::AABB;
-pub use collider::Circle;
-pub use collider::Collide;
 use utils::set_panic_hook;
 
 type Canvas = HtmlCanvasElement;
@@ -104,7 +96,7 @@ impl Application {
         let gl = &self.gl;
 
         // TODO: Move function to material/shader module, and make it more flexible
-    
+
         self.u_time = gl.get_uniform_location(&program, "uTime");
 
         self.u_color = gl.get_uniform_location(&program, "uColor");
@@ -137,7 +129,7 @@ impl Application {
 
         let position_attrib_location = program.get_attrib_location(gl, "aPosition");
         let uv_attrib_location = program.get_attrib_location(gl, "aTexCoord");
-        
+
         program.bind(gl);
 
         let mesh = Mesh::quad(gl);
@@ -206,7 +198,9 @@ impl Application {
     #[allow(dead_code, unused_variables)]
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-        let (x, y) = self.camera.screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
+        let (x, y) = self
+            .camera
+            .screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
         //self.objects[1].transform.position = Vector3::new(x, 0.0, y);
     }
     #[allow(dead_code, unused_variables, unused_assignments)]
@@ -243,13 +237,12 @@ impl Application {
         //     gl.uniform4f(self.u_color.as_ref(), 0.0, 1.0, 0.0, 1.0);
         // }
         // gl.clear(GL::COLOR_BUFFER_BIT);
-        
+
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
             false,
             self.camera.transform.matrix(),
         );
         gl.uniform1f(self.u_time.as_ref(), delta_time as f32 * 0.001);
-        
     }
 }

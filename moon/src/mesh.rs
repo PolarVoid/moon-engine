@@ -61,7 +61,7 @@ impl Mesh {
         Self::new(gl, vertices, indices)
     }
 
-   /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
+    /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
     pub fn setup(&self, gl: &WebGl2RenderingContext) {
         self.bind(gl);
         gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));

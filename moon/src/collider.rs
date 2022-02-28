@@ -1,4 +1,4 @@
-use nalgebra::{Vector2, clamp};
+use nalgebra::{clamp, Vector2};
 
 /// Default bounding box size for a `Point`
 const POINT_BOUNDING_SIZE: f32 = 0.1;
@@ -68,13 +68,13 @@ impl Circle {
     pub fn new_size(radius: f32) -> Self {
         Self {
             origin: Point::zeros(),
-            radius
+            radius,
         }
     }
     pub fn new_position_and_size(x: f32, y: f32, radius: f32) -> Self {
         Self {
             origin: Point::new(x, y),
-            radius
+            radius,
         }
     }
 }
@@ -94,9 +94,7 @@ impl Collider for Point {
 impl Collider for AABB {
     /// Return the tight bounding box of the `AABB`, as a copy of itself
     fn get_bounding_box(&self) -> AABB {
-        AABB { 
-            ..*self
-        }
+        AABB { ..*self }
     }
 
     /// Get the center of the AABB Collider
@@ -107,7 +105,7 @@ impl Collider for AABB {
 
 impl Collider for Circle {
     fn get_bounding_box(&self) -> AABB {
-        AABB { 
+        AABB {
             min: self.origin - Point::from_element(1.0),
             max: self.origin + Point::from_element(1.0),
         }
@@ -142,16 +140,20 @@ impl Collide<Circle> for Point {
 /// AABB and AABB Collison
 impl Collide<AABB> for AABB {
     fn collide_with(&self, _other: &AABB) -> bool {
-        self.min.x < _other.max.x && _other.min.x < self.max.x &&
-            self.min.y < _other.max.y && _other.min.y < self.max.y
+        self.min.x < _other.max.x
+            && _other.min.x < self.max.x
+            && self.min.y < _other.max.y
+            && _other.min.y < self.max.y
     }
 }
 
 /// AABB and Point Collision
 impl Collide<Point> for AABB {
     fn collide_with(&self, _other: &Point) -> bool {
-        self.min.x < _other.x && _other.x < self.max.x &&
-            self.min.y < _other.y && _other.y < self.max.y
+        self.min.x < _other.x
+            && _other.x < self.max.x
+            && self.min.y < _other.y
+            && _other.y < self.max.y
     }
 }
 
@@ -161,7 +163,7 @@ impl Collide<Circle> for AABB {
         let mut closest: Point = _other.origin;
         closest.x = clamp(closest.x, self.min.x, self.max.x);
         closest.y = clamp(closest.y, self.min.y, self.max.y);
-        
+
         _other.collide_with(&closest)
     }
 }

@@ -3,9 +3,9 @@ use nalgebra::Orthographic3;
 use nalgebra::Vector2;
 
 /// The 'X' component at the left and right edges of the screen
-const FIXED_WIDTH: f32 = 5.0; 
+const FIXED_WIDTH: f32 = 5.0;
 /// Calculate the height from the `FIXED_WIDTH` to maintain 16:9 Aspect ratio
-const HEIGHT: f32 = FIXED_WIDTH/1.77; 
+const HEIGHT: f32 = FIXED_WIDTH / 1.77;
 
 /// A `Camera` represents a Virtual Camera, that has a view and Orthographic projection matrices
 #[allow(dead_code)]
@@ -75,7 +75,14 @@ impl Default for Camera {
             height: 1080.0,
             znear: 0.0f32,
             zfar: 1000.0f32,
-            orthographic: Orthographic3::new(-FIXED_WIDTH, FIXED_WIDTH, -HEIGHT, HEIGHT, 0f32, 1000.0f32),
+            orthographic: Orthographic3::new(
+                -FIXED_WIDTH,
+                FIXED_WIDTH,
+                -HEIGHT,
+                HEIGHT,
+                0f32,
+                1000.0f32,
+            ),
         }
     }
 }

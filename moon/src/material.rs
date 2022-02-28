@@ -9,12 +9,10 @@ pub struct Material {
 
 impl Default for Material {
     fn default() -> Self {
-        Self { 
-            shader: Default::default()
+        Self {
+            shader: Default::default(),
         }
     }
 }
 
-impl Material {
-
-}
+impl Material {}
