@@ -1,3 +1,5 @@
+use std::fmt;
+
 use web_sys::WebGl2RenderingContext;
 use web_sys::WebGlProgram;
 use web_sys::WebGlShader;
@@ -19,6 +21,16 @@ impl Default for Shader {
         Self {
             name: "Uninitialized Shader",
             program: None,
+        }
+    }
+}
+
+impl fmt::Display for Shader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.program.is_some() {
+            write!(f, "{}", self.name)
+        } else {
+            write!(f, "{} (SHADER PROGRAM MISSING)", self.name)
         }
     }
 }
