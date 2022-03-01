@@ -1,5 +1,8 @@
+use wasm_bindgen::JsCast;
 #[allow(dead_code)]
 use wasm_bindgen::prelude::*;
+
+use crate::InputManager;
 
 #[wasm_bindgen]
 extern "C" {
@@ -15,4 +18,21 @@ macro_rules! console_log {
 // Get the time in seconds
 pub fn now_sec() -> f64 {
     web_sys::window().unwrap().performance().unwrap().now() / 1000.0
+}
+
+pub fn setup_document_events() -> Result<(), JsValue> {
+    let document = web_sys::window().unwrap().document().unwrap();
+    {
+        let closure = Closure::wrap(
+            Box::new(move |event: web_sys::KeyboardEvent| {
+                if event.is_composing() || event.key_code() == 229 {
+                    return;
+                }
+                panic!("Key was pressed {}", event.key());
+            }) as Box<dyn FnMut(_)>
+        );
+        document.add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref())?;
+        closure.forget();
+    }
+    Ok(())
 }
