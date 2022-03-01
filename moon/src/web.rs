@@ -2,8 +2,6 @@ use wasm_bindgen::JsCast;
 #[allow(dead_code)]
 use wasm_bindgen::prelude::*;
 
-use crate::InputManager;
-
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace=console)]
