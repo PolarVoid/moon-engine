@@ -1,4 +1,6 @@
-use web_sys::{WebGl2RenderingContext, WebGlBuffer, WebGlVertexArrayObject};
+use web_sys::{WebGlBuffer, WebGlVertexArrayObject};
+
+use crate::GL;
 
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
@@ -17,7 +19,7 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    pub fn new(gl: &WebGl2RenderingContext, vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
+    pub fn new(gl: &GL, vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
         Self {
             vertices,
             indices,
@@ -33,11 +35,11 @@ impl Mesh {
         }
     }
     /// Create a new Quad mesh with a side length of 1m
-    pub fn quad(gl: &WebGl2RenderingContext) -> Self {
+    pub fn quad(gl: &GL) -> Self {
         Self::quad_with_side(gl, 1.0)
     }
     /// Create a new Quad mesh with a given side length
-    pub fn quad_with_side(gl: &WebGl2RenderingContext, side: f32) -> Self {
+    pub fn quad_with_side(gl: &GL, side: f32) -> Self {
         let half = side / 2.0;
         let vertices = vec![
             Vertex {
@@ -62,11 +64,11 @@ impl Mesh {
     }
 
     /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
-    pub fn setup(&self, gl: &WebGl2RenderingContext) {
+    pub fn setup(&self, gl: &GL) {
         self.bind(gl);
-        gl.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&self.vbo));
+        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.vbo));
         gl.bind_buffer(
-            WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+            GL::ELEMENT_ARRAY_BUFFER,
             Some(&self.ibo),
         );
 
@@ -84,24 +86,24 @@ impl Mesh {
         };
 
         gl.buffer_data_with_u8_array(
-            WebGl2RenderingContext::ARRAY_BUFFER,
+            GL::ARRAY_BUFFER,
             vertex_slice,
-            WebGl2RenderingContext::STATIC_DRAW,
+            GL::STATIC_DRAW,
         );
         gl.buffer_data_with_u8_array(
-            WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+            GL::ELEMENT_ARRAY_BUFFER,
             index_slice,
-            WebGl2RenderingContext::STATIC_DRAW,
+            GL::STATIC_DRAW,
         );
 
-        gl.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 4 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 2, WebGl2RenderingContext::FLOAT, false, 4 * 4, 8);
+        gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 4 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 2, GL::FLOAT, false, 4 * 4, 8);
 
         gl.enable_vertex_attrib_array(0 as u32);
         gl.enable_vertex_attrib_array(1 as u32);
     }
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
-    pub fn bind(&self, gl: &WebGl2RenderingContext) {
+    pub fn bind(&self, gl: &GL) {
         gl.bind_vertex_array(Some(&self.vao));
     }
 }

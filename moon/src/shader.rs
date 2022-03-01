@@ -1,14 +1,15 @@
 use std::fmt;
 
-use web_sys::WebGl2RenderingContext;
 use web_sys::WebGlProgram;
 use web_sys::WebGlShader;
 use web_sys::WebGlUniformLocation;
+use crate::gl::Bind;
+use crate::GL;
 
 #[repr(u32)]
 pub enum ShaderType {
-    VERTEX = WebGl2RenderingContext::VERTEX_SHADER,
-    FRAGMENT = WebGl2RenderingContext::FRAGMENT_SHADER,
+    VERTEX = GL::VERTEX_SHADER,
+    FRAGMENT = GL::FRAGMENT_SHADER,
 }
 
 pub struct Shader {
@@ -35,9 +36,16 @@ impl fmt::Display for Shader {
     }
 }
 
+impl Bind for Shader {
+    /// Bind the `Shader`
+    fn bind(&self, gl: &GL) {
+        gl.use_program(self.program.as_ref());
+    }
+}
+
 impl Shader {
     /// Create a new Shader Program with default Vertex and Fragment shaders
-    pub fn new(gl: &WebGl2RenderingContext) -> Self {
+    pub fn new(gl: &GL) -> Self {
         let name = "Default Shader";
         let vertex_shader =
             Shader::create_vertex(gl, include_str!("../res/shader/default.vert.glsl"))
@@ -55,7 +63,7 @@ impl Shader {
 
     /// Create a new Shader with default Fragment Shader and a custom Vertex Shader
     pub fn new_with_vertex(
-        gl: &WebGl2RenderingContext,
+        gl: &GL,
         vertex_shader: WebGlShader,
         name: Option<&'static str>,
     ) -> Self {
@@ -73,20 +81,20 @@ impl Shader {
 
     /// Create a fragment `WebGlShader`
     pub fn create_fragment(
-        gl: &WebGl2RenderingContext,
+        gl: &GL,
         source: &str,
     ) -> Result<WebGlShader, String> {
         Self::create_with_type(gl, ShaderType::FRAGMENT, source)
     }
 
     /// Create a vertex `WebGlShader`
-    pub fn create_vertex(gl: &WebGl2RenderingContext, source: &str) -> Result<WebGlShader, String> {
+    pub fn create_vertex(gl: &GL, source: &str) -> Result<WebGlShader, String> {
         Self::create_with_type(gl, ShaderType::VERTEX, source)
     }
 
     /// Create a new `WebGlShader` with a given `ShaderType`
     pub fn create_with_type(
-        gl: &WebGl2RenderingContext,
+        gl: &GL,
         shader_type: ShaderType,
         source: &str,
     ) -> Result<WebGlShader, String> {
@@ -97,7 +105,7 @@ impl Shader {
         gl.compile_shader(&shader);
 
         if gl
-            .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
+            .get_shader_parameter(&shader, GL::COMPILE_STATUS)
             .as_bool()
             .unwrap_or(false)
         {
@@ -109,7 +117,7 @@ impl Shader {
         }
     }
     pub fn program_with_vertex_and_fragment(
-        gl: &WebGl2RenderingContext,
+        gl: &GL,
         vertex_shader: &WebGlShader,
         fragment_shader: &WebGlShader,
     ) -> Result<WebGlProgram, String> {
@@ -121,7 +129,7 @@ impl Shader {
         gl.link_program(&program);
 
         if gl
-            .get_program_parameter(&program, WebGl2RenderingContext::LINK_STATUS)
+            .get_program_parameter(&program, GL::LINK_STATUS)
             .as_bool()
             .unwrap_or(false)
         {
@@ -135,15 +143,10 @@ impl Shader {
         }
     }
 
-    /// Bind the `Shader`
-    pub fn bind(&self, gl: &WebGl2RenderingContext) {
-        gl.use_program(self.program.as_ref());
-    }
-
     /// Get the location of a uniform on the `Shader`
     pub fn get_uniform_location(
         &self,
-        gl: &WebGl2RenderingContext,
+        gl: &GL,
         name: &str,
     ) -> Option<WebGlUniformLocation> {
         if let Some(program) = self.program.as_ref() {
@@ -154,7 +157,7 @@ impl Shader {
     }
 
     /// Get the location of an attribute on the `Shader`
-    pub fn get_attrib_location(&self, gl: &WebGl2RenderingContext, name: &str) -> Option<i32> {
+    pub fn get_attrib_location(&self, gl: &GL, name: &str) -> Option<i32> {
         if let Some(program) = self.program.as_ref() {
             Some(gl.get_attrib_location(program, name))
         } else {

@@ -12,7 +12,7 @@ pub mod gl;
 
 use {
     wasm_bindgen::{prelude::*, JsCast},
-    web_sys::{HtmlCanvasElement, WebGl2RenderingContext, WebGlProgram, WebGlUniformLocation},
+    web_sys::{HtmlCanvasElement, WebGlProgram, WebGlUniformLocation},
 };
 
 pub use camera::Camera;
@@ -27,9 +27,10 @@ use texture::Texture;
 pub use texture::create_texture;
 pub use transform::Transform;
 use utils::set_panic_hook;
+use gl::GL;
+use gl::Bind;
 
 type Canvas = HtmlCanvasElement;
-type GL = WebGl2RenderingContext;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -126,11 +127,11 @@ impl Application {
 
         // TODO: Use setup uniforms here instead
 
-        let u_texture_0 = program.get_uniform_location(gl, "uTex0");
-        let u_texture_1 = program.get_uniform_location(gl, "uTex1");
+        let _u_texture_0 = program.get_uniform_location(gl, "uTex0");
+        let _u_texture_1 = program.get_uniform_location(gl, "uTex1");
 
-        let position_attrib_location = program.get_attrib_location(gl, "aPosition");
-        let uv_attrib_location = program.get_attrib_location(gl, "aTexCoord");
+        let _position_attrib_location = program.get_attrib_location(gl, "aPosition");
+        let _uv_attrib_location = program.get_attrib_location(gl, "aTexCoord");
 
         program.bind(gl);
 
