@@ -8,6 +8,7 @@ pub mod texture;
 pub mod transform;
 mod utils;
 pub mod web;
+pub mod gl;
 
 use {
     wasm_bindgen::{prelude::*, JsCast},
@@ -22,6 +23,7 @@ pub use input::InputManager;
 pub use mesh::Mesh;
 pub use mesh::Vertex;
 use shader::Shader;
+use texture::Texture;
 pub use texture::create_texture;
 pub use transform::Transform;
 use utils::set_panic_hook;
@@ -132,7 +134,7 @@ impl Application {
 
         program.bind(gl);
 
-        let mesh = Mesh::quad(gl);
+        let mesh = Mesh::quad_with_side(gl, 1.0);
         mesh.setup(gl);
 
         // let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
@@ -141,14 +143,16 @@ impl Application {
         // gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         // gl.enable_vertex_attrib_array(normal_attrib_location as u32);
 
-        // let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
-        // let img1 = document
-        //     .get_element_by_id("texture0")
-        //     .unwrap()
-        //     .dyn_into::<HtmlImageElement>()
-        //     .unwrap();
-        // let _texture_alb = create_texture(gl, &img1, 0).expect("Failed to create Texture");
-        // let img2 = document
+        let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
+        let image = document
+            .get_element_by_id("texture0")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlImageElement>()
+            .unwrap();
+        let texture = Texture::new(gl, &image);
+
+        texture.bind(gl);
+            // let img2 = document
         //     .get_element_by_id("texture1")
         //     .unwrap()
         //     .dyn_into::<HtmlImageElement>()
