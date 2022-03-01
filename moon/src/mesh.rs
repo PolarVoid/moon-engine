@@ -1,6 +1,6 @@
 use web_sys::{WebGlBuffer, WebGlVertexArrayObject};
 
-use crate::GL;
+use crate::{gl, GL};
 
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
@@ -16,6 +16,13 @@ pub struct Mesh {
     vao: WebGlVertexArrayObject,
     vbo: WebGlBuffer,
     ibo: WebGlBuffer,
+}
+
+impl gl::Bind for Mesh {
+    /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
+    fn bind(&self, gl: &GL) {
+        gl.bind_vertex_array(Some(&self.vao));
+    }
 }
 
 impl Mesh {
@@ -65,12 +72,11 @@ impl Mesh {
 
     /// Set up the vertex (vbo) and index (ibo) `WebGlBuffer` and send their data to the GPU.
     pub fn setup(&self, gl: &GL) {
+        use gl::Bind;
         self.bind(gl);
+
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.vbo));
-        gl.bind_buffer(
-            GL::ELEMENT_ARRAY_BUFFER,
-            Some(&self.ibo),
-        );
+        gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&self.ibo));
 
         let vertex_slice = unsafe {
             std::slice::from_raw_parts(
@@ -85,25 +91,13 @@ impl Mesh {
             )
         };
 
-        gl.buffer_data_with_u8_array(
-            GL::ARRAY_BUFFER,
-            vertex_slice,
-            GL::STATIC_DRAW,
-        );
-        gl.buffer_data_with_u8_array(
-            GL::ELEMENT_ARRAY_BUFFER,
-            index_slice,
-            GL::STATIC_DRAW,
-        );
+        gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, vertex_slice, GL::STATIC_DRAW);
+        gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, index_slice, GL::STATIC_DRAW);
 
         gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 4 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 2, GL::FLOAT, false, 4 * 4, 8);
 
         gl.enable_vertex_attrib_array(0 as u32);
         gl.enable_vertex_attrib_array(1 as u32);
-    }
-    /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
-    pub fn bind(&self, gl: &GL) {
-        gl.bind_vertex_array(Some(&self.vao));
     }
 }

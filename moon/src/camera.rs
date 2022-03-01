@@ -43,7 +43,14 @@ impl Camera {
         Self {
             width,
             height,
-            orthographic: Orthographic3::new(-width/2.0, width/2.0, height/2.0, -height/2.0, 0f32, 1000.0f32),
+            orthographic: Orthographic3::new(
+                -width / 2.0,
+                width / 2.0,
+                height / 2.0,
+                -height / 2.0,
+                0f32,
+                1000.0f32,
+            ),
             ..Default::default()
         }
     }
@@ -74,10 +81,10 @@ impl Default for Camera {
             znear: 0.0f32,
             zfar: 1000.0f32,
             orthographic: Orthographic3::new(
-                -FIXED_WIDTH/2.0,
-                FIXED_WIDTH/2.0,
-                HEIGHT/2.0,
-                -HEIGHT/2.0,
+                -FIXED_WIDTH / 2.0,
+                FIXED_WIDTH / 2.0,
+                HEIGHT / 2.0,
+                -HEIGHT / 2.0,
                 0f32,
                 1000.0f32,
             ),

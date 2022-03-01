@@ -1,10 +1,9 @@
 use std::fmt;
-
 use web_sys::WebGlProgram;
 use web_sys::WebGlShader;
 use web_sys::WebGlUniformLocation;
-use crate::gl::Bind;
-use crate::GL;
+
+use crate::{gl, GL};
 
 #[repr(u32)]
 pub enum ShaderType {
@@ -36,7 +35,7 @@ impl fmt::Display for Shader {
     }
 }
 
-impl Bind for Shader {
+impl gl::Bind for Shader {
     /// Bind the `Shader`
     fn bind(&self, gl: &GL) {
         gl.use_program(self.program.as_ref());
@@ -80,10 +79,7 @@ impl Shader {
     }
 
     /// Create a fragment `WebGlShader`
-    pub fn create_fragment(
-        gl: &GL,
-        source: &str,
-    ) -> Result<WebGlShader, String> {
+    pub fn create_fragment(gl: &GL, source: &str) -> Result<WebGlShader, String> {
         Self::create_with_type(gl, ShaderType::FRAGMENT, source)
     }
 
@@ -144,11 +140,7 @@ impl Shader {
     }
 
     /// Get the location of a uniform on the `Shader`
-    pub fn get_uniform_location(
-        &self,
-        gl: &GL,
-        name: &str,
-    ) -> Option<WebGlUniformLocation> {
+    pub fn get_uniform_location(&self, gl: &GL, name: &str) -> Option<WebGlUniformLocation> {
         if let Some(program) = self.program.as_ref() {
             gl.get_uniform_location(program, name)
         } else {

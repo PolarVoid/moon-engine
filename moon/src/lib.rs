@@ -1,5 +1,6 @@
 pub mod camera;
 pub mod collider;
+pub mod gl;
 pub mod input;
 pub mod material;
 pub mod mesh;
@@ -8,7 +9,6 @@ pub mod texture;
 pub mod transform;
 mod utils;
 pub mod web;
-pub mod gl;
 
 use {
     wasm_bindgen::{prelude::*, JsCast},
@@ -19,16 +19,14 @@ pub use camera::Camera;
 pub use collider::Circle;
 pub use collider::Collide;
 pub use collider::AABB;
+use gl::Bind;
+use gl::GL;
 pub use input::InputManager;
 pub use mesh::Mesh;
-pub use mesh::Vertex;
-use shader::Shader;
-use texture::Texture;
-pub use texture::create_texture;
+pub use shader::Shader;
+pub use texture::Texture;
 pub use transform::Transform;
 use utils::set_panic_hook;
-use gl::GL;
-use gl::Bind;
 
 type Canvas = HtmlCanvasElement;
 
@@ -153,7 +151,7 @@ impl Application {
         let texture = Texture::new(gl, &image);
 
         texture.bind(gl);
-            // let img2 = document
+        // let img2 = document
         //     .get_element_by_id("texture1")
         //     .unwrap()
         //     .dyn_into::<HtmlImageElement>()

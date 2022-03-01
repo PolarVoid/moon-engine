@@ -1,6 +1,6 @@
-use wasm_bindgen::JsCast;
 #[allow(dead_code)]
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
 
 #[wasm_bindgen]
 extern "C" {
@@ -21,14 +21,12 @@ pub fn now_sec() -> f64 {
 pub fn setup_document_events() -> Result<(), JsValue> {
     let document = web_sys::window().unwrap().document().unwrap();
     {
-        let closure = Closure::wrap(
-            Box::new(move |event: web_sys::KeyboardEvent| {
-                if event.is_composing() || event.key_code() == 229 {
-                    return;
-                }
-                panic!("Key was pressed {}", event.key());
-            }) as Box<dyn FnMut(_)>
-        );
+        let closure = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
+            if event.is_composing() || event.key_code() == 229 {
+                return;
+            }
+            panic!("Key was pressed {}", event.key());
+        }) as Box<dyn FnMut(_)>);
         document.add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref())?;
         closure.forget();
     }
