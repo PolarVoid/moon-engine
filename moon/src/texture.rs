@@ -25,6 +25,9 @@ impl gl::Bind for Texture {
     fn bind(&self, gl: &GL) {
         gl.bind_texture(GL::TEXTURE_2D, self.texture.as_ref());
     }
+    fn unbind(&self, _gl: &GL) {
+        _gl.bind_texture(GL::TEXTURE_2D, None);
+    }
 }
 
 impl Texture {

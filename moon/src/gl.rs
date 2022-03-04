@@ -4,4 +4,5 @@ pub type GL = WebGl2RenderingContext;
 
 pub trait Bind {
     fn bind(&self, gl: &GL);
+    fn unbind(&self, _gl: &GL) {}
 }

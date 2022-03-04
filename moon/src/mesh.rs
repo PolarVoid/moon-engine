@@ -23,6 +23,9 @@ impl gl::Bind for Mesh {
     fn bind(&self, gl: &GL) {
         gl.bind_vertex_array(Some(&self.vao));
     }
+    fn unbind(&self, _gl: &GL) {
+        _gl.bind_vertex_array(None);
+    }
 }
 
 impl Mesh {
