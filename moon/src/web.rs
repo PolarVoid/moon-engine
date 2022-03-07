@@ -2,6 +2,8 @@
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
+pub type Canvas = web_sys::HtmlCanvasElement;
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace=console)]

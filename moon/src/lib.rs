@@ -12,7 +12,7 @@ pub mod web;
 
 use {
     wasm_bindgen::{prelude::*, JsCast},
-    web_sys::{HtmlCanvasElement, WebGlProgram, WebGlUniformLocation},
+    web_sys::{WebGlProgram, WebGlUniformLocation},
 };
 
 pub use camera::Camera;
@@ -21,14 +21,14 @@ pub use collider::Collide;
 pub use collider::AABB;
 use gl::Bind;
 use gl::GL;
+use web::Canvas;
 pub use input::InputManager;
 pub use mesh::Mesh;
+use nalgebra::Vector3;
 pub use shader::Shader;
 pub use texture::Texture;
 pub use transform::Transform;
 use utils::set_panic_hook;
-
-type Canvas = HtmlCanvasElement;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -151,6 +151,8 @@ impl Application {
         let texture = Texture::new(gl, &image);
 
         texture.bind(gl);
+
+        self.camera.transform.set_scale(Vector3::new(1.0, 1.5, 0.0));
         // let img2 = document
         //     .get_element_by_id("texture1")
         //     .unwrap()
@@ -166,16 +168,16 @@ impl Application {
         // gl.uniform1i(u_texture_1.as_ref(), 0);
         // gl.uniform4f(self.u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
         // gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
-        // gl.uniform_matrix4fv_with_f32_array(
-        //     self.u_view_matrix.as_ref(),
-        //     false,
-        //     self.camera.transform.matrix(),
-        // );
-        // gl.uniform_matrix4fv_with_f32_array(
-        //     self.u_projection_matrix.as_ref(),
-        //     false,
-        //     self.camera.projection(),
-        // );
+        gl.uniform_matrix4fv_with_f32_array(
+            self.u_view_matrix.as_ref(),
+            false,
+            self.camera.transform.matrix(),
+        );
+        gl.uniform_matrix4fv_with_f32_array(
+            self.u_projection_matrix.as_ref(),
+            false,
+            self.camera.projection(),
+        );
     }
 
     #[wasm_bindgen]
