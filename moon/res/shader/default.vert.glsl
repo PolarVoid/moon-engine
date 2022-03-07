@@ -13,6 +13,6 @@ out vec2 vTexCoord;
 out vec2 vPosition;
 
 void main() {
-    gl_Position = uProj * vec4(aPosition, 0.0, 1.0);
+    gl_Position = uProj * uView * vec4(aPosition, 0.0, 1.0);
     vTexCoord = aTexCoord;
 }
