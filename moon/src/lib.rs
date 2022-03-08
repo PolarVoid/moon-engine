@@ -36,34 +36,6 @@ use utils::set_panic_hook;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-pub fn check_gl_error(gl: &GL) -> bool {
-    let mut found_error = false;
-    let mut gl_error = gl.get_error();
-    while gl_error != GL::NO_ERROR {
-        println!("OpenGL Error {}", gl_error);
-        found_error = true;
-        gl_error = gl.get_error();
-    }
-    found_error
-}
-
-pub fn get_gl_context() -> Result<GL, String> {
-    set_panic_hook();
-    let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
-    let canvas: Canvas = document
-        .get_element_by_id("canvas")
-        .unwrap()
-        .dyn_into::<Canvas>()
-        .unwrap();
-    let context: GL = canvas
-        .get_context("webgl2")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<GL>()
-        .unwrap();
-    Ok(context)
-}
-
 #[wasm_bindgen]
 pub struct Application {
     gl: GL,
@@ -80,8 +52,10 @@ pub struct Application {
 impl Application {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
+        // Initialize the JS panic hook
+        set_panic_hook();
         Self {
-            gl: get_gl_context().unwrap(),
+            gl: gl::get_context(),
             camera: Camera::new(),
             input: InputManager::new(),
             u_time: None,
