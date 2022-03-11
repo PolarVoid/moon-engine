@@ -9,6 +9,7 @@ pub mod texture;
 pub mod transform;
 mod utils;
 pub mod web;
+pub mod particle;
 
 use {
     wasm_bindgen::{prelude::*, JsCast},
