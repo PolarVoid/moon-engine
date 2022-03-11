@@ -1,4 +1,5 @@
 use nalgebra::Matrix4;
+use nalgebra::Vector2;
 use nalgebra::Vector3;
 
 pub struct Transform {
@@ -70,5 +71,21 @@ impl Transform {
     /// Get the scale as a slice
     pub fn get_scale(&self) -> &[f32] {
         self.scale.as_slice()
+    }
+}
+
+pub struct Transform2D {
+    pub position: Vector2<f32>,
+    pub rotation: f32,
+    pub scale: Vector2<f32>,
+}
+
+impl Default for Transform2D {
+    fn default() -> Self {
+        Self {
+            position: Vector2::zeros(),
+            rotation: 0.0f32,
+            scale: Vector2::from_element(1.0),
+        }
     }
 }
