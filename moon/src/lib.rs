@@ -36,6 +36,26 @@ use utils::set_panic_hook;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+struct Object {
+    pub transform: Transform,
+    mesh: Mesh,
+}
+
+impl Object {
+    pub fn new(gl: &GL, mesh: Mesh, transform: Transform) -> Self {
+        mesh.setup(gl);
+        Self {
+            transform,
+            mesh,
+        }
+    }
+    pub fn display(&mut self, gl: &GL, u_model_matrix: Option<&WebGlUniformLocation>) {
+        self.mesh.bind(gl);
+        gl.uniform_matrix4fv_with_f32_array(u_model_matrix, false, self.transform.matrix());
+        gl.draw_elements_with_i32(GL::TRIANGLES, self.mesh.indices.len() as i32, GL::UNSIGNED_INT, 0);
+    }
+}
+
 #[wasm_bindgen]
 pub struct Application {
     gl: GL,
@@ -46,6 +66,7 @@ pub struct Application {
     u_model_matrix: Option<WebGlUniformLocation>,
     u_view_matrix: Option<WebGlUniformLocation>,
     u_projection_matrix: Option<WebGlUniformLocation>,
+    objects: Vec<Object>,
 }
 
 #[wasm_bindgen]
@@ -63,6 +84,7 @@ impl Application {
             u_model_matrix: None,
             u_view_matrix: None,
             u_projection_matrix: None,
+            objects: Vec::new(),
         }
     }
 
@@ -107,8 +129,15 @@ impl Application {
 
         program.bind(gl);
 
-        let mesh = Mesh::quad_with_side(gl, 1.0);
-        mesh.setup(gl);
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 1.0), Transform::new_with_position(Vector3::new(0.0, 0.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 2.0), Transform::new_with_position(Vector3::new(2.0, -0.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 1.0), Transform::new_with_position(Vector3::new(-1.0, -0.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 1.0), Transform::new_with_position(Vector3::new(4.0, 0.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 2.0), Transform::new_with_position(Vector3::new(5.0, -0.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 1.0), Transform::new_with_position(Vector3::new(-8.0, -0.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 1.0), Transform::new_with_position(Vector3::new(4.0, 5.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 2.0), Transform::new_with_position(Vector3::new(2.0, -6.5, 0.0))));
+        self.objects.push(Object::new(gl, Mesh::quad_with_side(gl, 1.0), Transform::new_with_position(Vector3::new(-8.0, -0.5, 0.0))));
 
         // let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
         // mesh.setup(gl);
@@ -188,7 +217,10 @@ impl Application {
         let gl = &self.gl;
 
         gl.clear(GL::COLOR_BUFFER_BIT);
-        gl.draw_elements_with_i32(GL::TRIANGLES, 6, GL::UNSIGNED_INT, 0);
+
+        for object in self.objects.iter_mut() {
+            object.display(gl, self.u_model_matrix.as_ref());
+        }
 
         let speed = 5f32;
         let mut horizontal_axis = 0.0f32;
