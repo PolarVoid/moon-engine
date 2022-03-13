@@ -11,6 +11,7 @@ pub enum ShaderType {
     FRAGMENT = GL::FRAGMENT_SHADER,
 }
 
+#[derive(Debug)]
 pub struct Shader {
     pub name: &'static str,
     program: Option<WebGlProgram>,
