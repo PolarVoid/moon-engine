@@ -1,7 +1,7 @@
 use crate::transform::Transform;
+use nalgebra::Matrix4;
 use nalgebra::Orthographic3;
 use nalgebra::Vector3;
-use nalgebra::Matrix4;
 
 /// The 'X' component at the left and right edges of the screen
 const FIXED_WIDTH: f32 = 20.0;
@@ -10,6 +10,7 @@ const HEIGHT: f32 = FIXED_WIDTH / 1.77;
 
 /// A `Camera` represents a Virtual Camera, that has a view and Orthographic projection matrices
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct Camera {
     pub transform: Transform,
     pub orthographic: Orthographic3<f32>,
@@ -75,13 +76,13 @@ impl Camera {
             ..Default::default()
         }
     }
-    
+
     /// Set the width and height of the camera plane, and update the Projection Matrix to match.
     pub fn set_width_and_height(&mut self, width: f32, height: f32) {
         self.width = width;
         self.height = height;
     }
-    
+
     /// Return the Projection Matrix of the `Camera` as a slice of `f32` so it can be used by WebGL.
     pub fn projection(&self) -> &[f32] {
         self.orthographic.as_matrix().as_slice()
