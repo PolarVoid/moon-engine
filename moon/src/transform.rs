@@ -2,6 +2,7 @@ use nalgebra::Matrix4;
 use nalgebra::Vector2;
 use nalgebra::Vector3;
 
+#[derive(Debug)]
 pub struct Transform {
     pub matrix: Matrix4<f32>,
     pub position: Vector3<f32>,
@@ -39,7 +40,9 @@ impl Transform {
     }
 
     fn recalculate_matrix(&mut self) {
-        self.matrix = Matrix4::new_translation(&self.position) * Matrix4::new_rotation(self.rotation) * Matrix4::new_nonuniform_scaling(&self.scale);
+        self.matrix = Matrix4::new_translation(&self.position)
+            * Matrix4::new_rotation(self.rotation)
+            * Matrix4::new_nonuniform_scaling(&self.scale);
     }
 
     /// Set the positon of the Transform
