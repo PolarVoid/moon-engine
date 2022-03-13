@@ -2,14 +2,20 @@ use web_sys::{WebGlBuffer, WebGlVertexArrayObject};
 
 use crate::{gl, GL};
 
+pub const MAX_BATCH_QUADS: i32 = 1000;
+pub const MAX_BATCH_VERTICES: i32 = MAX_BATCH_QUADS * 4;
+pub const MAX_BATCH_INDICES: i32 = MAX_BATCH_QUADS * 6;
+
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
+#[derive(Debug)]
 #[repr(C)]
 pub struct Vertex {
     pub position: [f32; 2],
     pub uv: [f32; 2],
 }
 
+#[derive(Debug)]
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>,
@@ -94,8 +100,8 @@ impl Mesh {
             )
         };
 
-        gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, vertex_slice, GL::STATIC_DRAW);
-        gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, index_slice, GL::STATIC_DRAW);
+        gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, vertex_slice, GL::DYNAMIC_DRAW);
+        gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, index_slice, GL::DYNAMIC_DRAW);
 
         gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 4 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 2, GL::FLOAT, false, 4 * 4, 8);
