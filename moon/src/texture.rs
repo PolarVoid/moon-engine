@@ -1,8 +1,10 @@
+use wasm_bindgen::JsCast;
 use web_sys::HtmlImageElement;
 use web_sys::WebGlTexture;
 
 use crate::{gl, GL};
 
+#[derive(Debug)]
 pub struct Texture {
     texture: Option<WebGlTexture>,
     pub width: u32,
@@ -60,5 +62,72 @@ impl Texture {
             texture,
             _slot: 0,
         }
+    }
+    pub fn new_with_element_id(gl: &GL, image_src: &str) -> Self {
+        let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
+        let image = document
+            .get_element_by_id(image_src)
+            .unwrap()
+            .dyn_into::<web_sys::HtmlImageElement>()
+            .unwrap();
+        Self::new(gl, &image)
+    }
+    
+    /// Create a new `Texture` from an `HtmlImageElement` with an element ID in the format **textureXX** where *XX* is a number
+    pub fn new_with_texture_id(gl: &GL, count: u32) -> Self {
+        Self::new_with_element_id(gl, &format!("texture{}", count))
+    }
+}
+
+#[derive(Debug)]
+pub struct SubTexture {
+    texture: Option<Box<Texture>>,
+    min: [f32; 2],
+    max: [f32; 2],
+}
+
+impl Default for SubTexture {
+    fn default() -> Self {
+        Self { 
+            texture: None,
+            min: [0.0, 0.0],
+            max: [1.0, 1.0]
+        }
+    }
+}
+
+impl SubTexture {
+    pub fn new(texture: Box<Texture>) -> Self {
+        Self {
+            texture: Some(texture),
+            ..Default::default()
+        }
+    }
+    pub fn new_with_coords(texture: Box<Texture>, uv: [f32; 4]) -> Self {
+        Self {
+            texture: Some(texture),
+            min: [uv[0], uv[2]],
+            max: [uv[1], uv[3]],
+        }
+    }
+    pub fn get_uv_coords(&self) -> [[f32; 2]; 4] {
+        let (min, max) = (self.min, self.max);
+        [
+            [min[0], min[1]],
+            [min[0], max[1]],
+            [max[0], max[1]],
+            [max[0], min[1]],
+        ]
+    }
+}
+
+impl gl::Bind for SubTexture {
+    fn bind(&self, gl: &GL) {
+        if let Some(texture) = &self.texture {
+            texture.bind(gl);
+        }
+    }
+    fn unbind(&self, _gl: &GL) {
+        _gl.bind_texture(GL::TEXTURE_2D, None);
     }
 }
