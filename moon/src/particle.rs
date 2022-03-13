@@ -1,4 +1,4 @@
-use nalgebra::{Vector4, Vector2};
+use nalgebra::{Vector2, Vector4};
 
 use crate::transform::Transform2D;
 
@@ -10,13 +10,13 @@ pub enum ParticleValue<T: Copy> {
     Random(T, T),
 }
 
-impl <T: Default + Copy> Default for ParticleValue<T> {
+impl<T: Default + Copy> Default for ParticleValue<T> {
     fn default() -> Self {
         ParticleValue::Constant(T::default())
     }
 }
 
-impl <T: Copy> ParticleValue<T> {
+impl<T: Copy> ParticleValue<T> {
     pub fn get_value(&self, _time: f32) -> T {
         match self {
             ParticleValue::Constant(value) => *value,
@@ -35,11 +35,11 @@ pub struct ParticleProps {
 
 impl Default for ParticleProps {
     fn default() -> Self {
-        Self { 
-            lifetime: ParticleValue::Constant(10.0), 
-            velocity: ParticleValue::Constant(Vector2::new(0.0, -1.0)), 
-            color: ParticleValue::Constant(Vector4::new(1.0, 1.0, 1.0, 1.0)), 
-            size: ParticleValue::Constant(1.0)
+        Self {
+            lifetime: ParticleValue::Constant(10.0),
+            velocity: ParticleValue::Constant(Vector2::new(0.0, -1.0)),
+            color: ParticleValue::Constant(Vector4::new(1.0, 1.0, 1.0, 1.0)),
+            size: ParticleValue::Constant(1.0),
         }
     }
 }
@@ -50,14 +50,14 @@ pub struct Particle {
     lifetime: f32,
     velocity: Vector2<f32>,
     age: f32,
-    alive: bool
+    alive: bool,
 }
 
 impl Default for Particle {
     fn default() -> Self {
-        Self { 
-            transform: Default::default(), 
-            properties: Default::default(), 
+        Self {
+            transform: Default::default(),
+            properties: Default::default(),
             lifetime: 10.0,
             velocity: Vector2::new(0.0, -1.0),
             age: 0.0,
@@ -78,14 +78,5 @@ impl Particle {
 }
 
 struct ParticleSystem {
-    particles: [Particle; MAX_PARTICLES]
-}
-
-impl ParticleSystem {
-    pub fn new(properties: ParticleProps) -> Self {
-
-    }
-    pub fn emit() {
-
-    }
+    particles: [Particle; MAX_PARTICLES],
 }
