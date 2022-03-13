@@ -12,7 +12,7 @@ extern "C" {
 
 #[macro_export]
 macro_rules! console_log {
-    ($($t:tt)*) => (web::log(&format_args!($($t)*).to_string()))
+    ($($t:tt)*) => (crate::web::log(&format_args!($($t)*).to_string()))
 }
 
 // Get the time in seconds
