@@ -1,7 +1,7 @@
 use crate::transform::Transform;
-use nalgebra::Matrix4;
-use nalgebra::Orthographic3;
-use nalgebra::Vector3;
+use crate::Mat4;
+use crate::Ortho;
+use crate::Vec3;
 
 /// The 'X' component at the left and right edges of the screen
 const FIXED_WIDTH: f32 = 20.0;
@@ -13,7 +13,7 @@ const HEIGHT: f32 = FIXED_WIDTH / 1.77;
 #[derive(Debug)]
 pub struct Camera {
     pub transform: Transform,
-    pub orthographic: Orthographic3<f32>,
+    pub orthographic: Ortho,
     pub width: f32,
     pub height: f32,
     znear: f32,
@@ -28,7 +28,7 @@ impl Default for Camera {
             height: 1080.0,
             znear: 0.0f32,
             zfar: 1000.0f32,
-            orthographic: Orthographic3::new(
+            orthographic: Ortho::new(
                 -FIXED_WIDTH / 2.0,
                 FIXED_WIDTH / 2.0,
                 HEIGHT / 2.0,
@@ -47,7 +47,7 @@ impl Camera {
         Default::default()
     }
     /// Create a new `Camera` with an initial position.
-    pub fn with_position(position: Vector3<f32>) -> Self {
+    pub fn with_position(position: Vec3) -> Self {
         Self {
             transform: Transform::new_with_position(position),
             ..Default::default()
@@ -65,7 +65,7 @@ impl Camera {
         Self {
             width,
             height,
-            orthographic: Orthographic3::new(
+            orthographic: Ortho::new(
                 -width / 2.0,
                 width / 2.0,
                 height / 2.0,
@@ -88,7 +88,7 @@ impl Camera {
         self.orthographic.as_matrix().as_slice()
     }
 
-    pub fn view_projection_matrix(&self) -> Matrix4<f32> {
+    pub fn view_projection_matrix(&self) -> Mat4 {
         self.transform.matrix * self.orthographic.as_matrix()
     }
 
