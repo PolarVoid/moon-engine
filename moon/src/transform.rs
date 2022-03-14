@@ -1,22 +1,22 @@
-use nalgebra::Matrix4;
-use nalgebra::Vector2;
-use nalgebra::Vector3;
+use crate::Mat4;
+use crate::Vec2;
+use crate::Vec3;
 
 #[derive(Debug)]
 pub struct Transform {
-    pub matrix: Matrix4<f32>,
-    pub position: Vector3<f32>,
-    pub rotation: Vector3<f32>,
-    pub scale: Vector3<f32>,
+    pub matrix: Mat4,
+    pub position: Vec3,
+    pub rotation: Vec3,
+    pub scale: Vec3,
 }
 
 impl Default for Transform {
     fn default() -> Self {
         Self {
-            matrix: Matrix4::identity(),
-            position: Vector3::zeros(),
-            rotation: Vector3::zeros(),
-            scale: Vector3::from_element(1.0),
+            matrix: Mat4::identity(),
+            position: Vec3::zeros(),
+            rotation: Vec3::zeros(),
+            scale: Vec3::from_element(1.0),
         }
     }
 }
@@ -27,10 +27,10 @@ impl Transform {
         Self::default()
     }
     /// Create a new `Transform` with an initial position.
-    pub fn new_with_position(position: Vector3<f32>) -> Self {
+    pub fn new_with_position(position: Vec3) -> Self {
         Self {
             position,
-            matrix: Matrix4::new_translation(&position),
+            matrix: Mat4::new_translation(&position),
             ..Self::default()
         }
     }
@@ -40,23 +40,23 @@ impl Transform {
     }
 
     fn recalculate_matrix(&mut self) {
-        self.matrix = Matrix4::new_translation(&self.position)
-            * Matrix4::new_rotation(self.rotation)
-            * Matrix4::new_nonuniform_scaling(&self.scale);
+        self.matrix = Mat4::new_translation(&self.position)
+            * Mat4::new_rotation(self.rotation)
+            * Mat4::new_nonuniform_scaling(&self.scale);
     }
 
     /// Set the positon of the Transform
-    pub fn set_position(&mut self, position: Vector3<f32>) {
+    pub fn set_position(&mut self, position: Vec3) {
         self.position = position;
         self.recalculate_matrix();
     }
 
     pub fn set_rotation(&mut self, rotation: f32) {
-        self.rotation = Vector3::z() * rotation;
+        self.rotation = Vec3::z() * rotation;
         self.recalculate_matrix();
     }
 
-    pub fn set_scale(&mut self, scale: Vector3<f32>) {
+    pub fn set_scale(&mut self, scale: Vec3) {
         self.scale = scale;
         self.recalculate_matrix();
     }
@@ -78,17 +78,17 @@ impl Transform {
 }
 
 pub struct Transform2D {
-    pub position: Vector2<f32>,
+    pub position: Vec2,
     pub rotation: f32,
-    pub scale: Vector2<f32>,
+    pub scale: Vec2,
 }
 
 impl Default for Transform2D {
     fn default() -> Self {
         Self {
-            position: Vector2::zeros(),
+            position: Vec2::zeros(),
             rotation: 0.0f32,
-            scale: Vector2::from_element(1.0),
+            scale: Vec2::from_element(1.0),
         }
     }
 }
