@@ -10,9 +10,9 @@ pub mod transform;
 pub mod utils;
 pub mod web;
 
-use {
-    wasm_bindgen::{prelude::*},
-};
+use wasm_bindgen::prelude::*;
+
+use std::rc::Rc;
 
 pub use camera::Camera;
 pub use collider::Circle;
@@ -34,10 +34,12 @@ use web::Canvas;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+#[derive(Default)]
 #[wasm_bindgen]
 pub struct Application {
     renderer: Renderer,
     input: InputManager,
+    texture1: Option<Rc<Texture>>,
 }
 
 #[wasm_bindgen]
@@ -49,44 +51,44 @@ impl Application {
         Self {
             renderer: Renderer::default(),
             input: InputManager::new(),
+            texture1: None,
         }
     }
 
     #[wasm_bindgen]
     pub fn init(&mut self) {
+        use crate::gl::Bind;
         self.renderer.init_shader();
-        // let mesh = Mesh::primitive(gl, Shape::Quad(1.0));
-        // mesh.setup(gl);
-        // gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        // gl.enable_vertex_attrib_array(uv_attrib_location as u32);
-        // gl.enable_vertex_attrib_array(normal_attrib_location as u32);
-
-        // let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
-        // let image = document
-        //     .get_element_by_id("texture0")
-        //     .unwrap()
-        //     .dyn_into::<web_sys::HtmlImageElement>()
-        //     .unwrap();
-        // let texture = Texture::new(gl, &image);
-
-        // texture.bind(gl);
-
-        // let img2 = document
-        //     .get_element_by_id("texture1")
-        //     .unwrap()
-        //     .dyn_into::<HtmlImageElement>()
-        //     .unwrap();
-        // let _texture_spec = create_texture(gl, &img2, 1).expect("Failed to create Texture");
-
-        // let mut initial_camera_transform = Transform::default();
-        // initial_camera_transform.rotation = 0.0;
-        // self.camera = Camera::with_transform(initial_camera_transform);
-        // let model: Matrix4<f32> = Matrix4::identity();
-        // gl.uniform1i(u_texture_0.as_ref(), 0);
-        // gl.uniform1i(u_texture_1.as_ref(), 0);
-        // gl.uniform4f(self.u_color.as_ref(), 1.0, 1.0, 1.0, 1.0);
-        // gl.uniform_matrix4fv_with_f32_array(self.u_model_matrix.as_ref(), false, model.as_slice());
-        
+        let u_tex0 = self
+            .renderer
+            .program
+            .get_uniform_location(&self.renderer.gl, "uTex0");
+        self.renderer.gl.uniform1i(u_tex0.as_ref(), 0);
+        self.renderer.begin_draw();
+        self.texture1 = Some(Rc::new(Texture::new_with_texture_id(&self.renderer.gl, 0)));
+        let texture2 = Rc::new(Texture::new_with_texture_id(&self.renderer.gl, 0));
+        for x_offset in -100..100 {
+            for y_offset in -60..60 {
+                let mut transform = Transform::new_with_position(
+                    nalgebra::Vector3::new(x_offset as f32, y_offset as f32, 0.0) / 10.0,
+                );
+                transform.set_scale(nalgebra::Vector3::new(0.1, 0.1, 1.0));
+                let mut quad = gl::Quad::new_from_transform(transform);
+                if (x_offset + y_offset) % 2 == 0 {
+                    quad.sprite = texture::SubTexture::new_with_coords(
+                        Rc::clone(self.texture1.as_ref().unwrap()),
+                        [0.0, 0.387, 0.0, 0.5],
+                    );
+                } else {
+                    quad.sprite = texture::SubTexture::new_with_coords(
+                        Rc::clone(&texture2),
+                        [0.4, 1.0, 0.0, 0.85],
+                    );
+                }
+                quad.sprite.bind(&self.renderer.gl);
+                self.renderer.add_quad(quad);
+            }
+        }
     }
 
     #[wasm_bindgen]
@@ -106,20 +108,26 @@ impl Application {
     #[allow(dead_code, unused_variables)]
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-    //     let (x, y) = self
-    //         .camera
-    //         .screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
-    //     //self.objects[1].transform.position = Vector3::new(x, 0.0, y);
+        //     let (x, y) = self
+        //         .camera
+        //         .screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
+        //     //self.objects[1].transform.position = Vector3::new(x, 0.0, y);
     }
-    #[allow(dead_code, unused_variables, unused_assignments)]
     #[wasm_bindgen]
-    pub fn render(&mut self, delta_time: u32) {
+    pub fn render(&mut self, _delta_time: u32) {
+        use nalgebra::Vector3;
         self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
-        self.renderer.begin_draw();
-        self.renderer.add_quad(gl::Quad::new_from_transform(Transform::new_with_position(nalgebra::Vector3::new(0.0, 0.0, 0.0))));
-        self.renderer.add_quad(gl::Quad::new_from_transform(Transform::new_with_position(nalgebra::Vector3::new(2.0, 3.0, 0.0))));
-        self.renderer.add_quad(gl::Quad::new_from_transform(Transform::new_with_position(nalgebra::Vector3::new(2.0, 3.0, 0.0))));
-        self.renderer.add_quad(gl::Quad::new_from_transform(Transform::new_with_position(nalgebra::Vector3::new(2.0, 3.0, 0.0))));
+        let position = [
+            self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32,
+            self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32,
+        ];
+        let position = Vector3::new(position[0] as f32, position[1] as f32, 0.0)
+            / (_delta_time as f32 * 100.0)
+            * 15.0;
+        self.renderer
+            .camera
+            .transform
+            .set_position(self.renderer.camera.transform.position + position);
         self.renderer.end_draw();
     }
 }
