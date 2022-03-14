@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
