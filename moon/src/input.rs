@@ -8,6 +8,12 @@ pub struct InputManager {
     pub mouse_y: f32,
 }
 
+impl Default for InputManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[wasm_bindgen]
 impl InputManager {
     #[wasm_bindgen(constructor)]
@@ -18,15 +24,15 @@ impl InputManager {
             mouse_y: 0.0,
         }
     }
-    #[wasm_bindgen]
+
     pub fn key_down(&mut self, key_code: u8) {
         self.keyboard_states.insert(key_code);
     }
-    #[wasm_bindgen]
+
     pub fn key_up(&mut self, key_code: u8) {
         self.keyboard_states.remove(&key_code);
     }
-    #[wasm_bindgen]
+
     pub fn get_key_state(&self, key_code: u8) -> bool {
         self.keyboard_states.contains(&key_code)
     }
