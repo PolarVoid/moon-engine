@@ -1,4 +1,9 @@
-use crate::{Canvas, Camera, Shader, Mesh, mesh::{MAX_BATCH_VERTICES, Vertex, MAX_BATCH_INDICES}, Transform, console_log, texture::SubTexture};
+use crate::{
+    console_log,
+    mesh::{Vertex, MAX_BATCH_INDICES, MAX_BATCH_VERTICES},
+    texture::SubTexture,
+    Camera, Canvas, Mesh, Shader, Transform,
+};
 use nalgebra::Matrix4;
 use wasm_bindgen::JsCast;
 use web_sys::{WebGl2RenderingContext, WebGlUniformLocation};
@@ -54,7 +59,7 @@ impl Default for Renderer {
     fn default() -> Self {
         let gl = get_context();
         let program = Shader::new(&gl);
-        Self { 
+        Self {
             camera: Camera::default(),
             batches: Vec::new(),
             u_time: program.get_uniform_location(&gl, "uTime"),
@@ -76,14 +81,9 @@ pub struct Quad {
 
 impl Default for Quad {
     fn default() -> Self {
-        Self { 
-            points: [
-                [-0.5, 0.5],
-                [-0.5, -0.5],
-                [0.5, -0.5],
-                [0.5, 0.5],
-            ],
-            sprite: SubTexture::default()
+        Self {
+            points: [[-0.5, 0.5], [-0.5, -0.5], [0.5, -0.5], [0.5, 0.5]],
+            sprite: SubTexture::default(),
         }
     }
 }
@@ -91,7 +91,7 @@ impl Default for Quad {
 impl Quad {
     pub fn new_from_transform(transform: Transform) -> Self {
         let origin: [f32; 2] = [transform.position.x, transform.position.y];
-        let offset: [f32; 2] = [transform.scale.x, transform.scale.y];
+        let offset: [f32; 2] = [transform.scale.x / 2.0, transform.scale.y / 2.0];
         Self {
             points: [
                 [origin[0] - offset[0], origin[1] + offset[1]],
@@ -104,12 +104,9 @@ impl Quad {
     }
     pub fn get_vertices(&self) -> Vec<Vertex> {
         let vertices = std::iter::zip(self.points, self.sprite.get_uv_coords());
-        vertices.map(|(position, uv)| {
-            Vertex {
-                position,
-                uv,
-            }
-        }).collect()
+        vertices
+            .map(|(position, uv)| Vertex { position, uv })
+            .collect()
     }
 }
 
@@ -123,7 +120,7 @@ impl Renderer {
     pub fn new_with_camera_and_program(camera: Camera, program: Shader) -> Self {
         let gl = get_context();
         program.bind(&gl);
-        
+
         Self {
             camera,
             u_time: program.get_uniform_location(&gl, "uTime"),
@@ -148,7 +145,6 @@ impl Renderer {
         self.u_view_matrix = program.get_uniform_location(gl, "uView");
         self.u_projection_matrix = program.get_uniform_location(gl, "uProj");
         self.program = program;
-        
     }
     pub fn resize(&mut self, width: f32, height: f32) {
         self.camera.set_width_and_height(width, height);
@@ -186,7 +182,11 @@ impl Renderer {
 
         self.batches.clear();
 
-        let mesh = Mesh::new(gl, Vec::with_capacity(MAX_BATCH_VERTICES as usize), Vec::with_capacity(MAX_BATCH_INDICES as usize));
+        let mesh = Mesh::new(
+            gl,
+            Vec::with_capacity(MAX_BATCH_VERTICES as usize),
+            Vec::with_capacity(MAX_BATCH_INDICES as usize),
+        );
 
         self.batches.push(mesh);
     }
@@ -194,7 +194,10 @@ impl Renderer {
         let gl = &self.gl;
 
         // Get last batch. This should never be empty becase begin_draw should have been called before.
-        let mut batch = self.batches.last_mut().expect("Batch list empty. Check if begin_draw was called before.");
+        let mut batch = self
+            .batches
+            .last_mut()
+            .expect("Batch list empty. Check if begin_draw was called before.");
         if batch.vertices.len() + 4 > MAX_BATCH_VERTICES as usize {
             let mesh = Mesh::new(gl, Vec::new(), Vec::new());
             self.batches.push(mesh);
@@ -206,17 +209,25 @@ impl Renderer {
         batch.vertices.append(&mut quad.get_vertices());
         let mut indices = vec![last, last + 2, last + 1, last, last + 3, last + 2];
         batch.indices.append(&mut indices);
-        
     }
     pub fn end_draw(&mut self) {
         let gl = &self.gl;
+        gl.uniform_matrix4fv_with_f32_array(
+            self.u_view_matrix.as_ref(),
+            false,
+            self.camera.transform.matrix(),
+        );
         self.program.bind(gl);
-        let mut draw_call = 0;
-        for batch in self.batches.iter() {
+        for (draw_call, batch) in self.batches.iter().enumerate() {
             batch.setup(gl);
-            console_log!("Draw call {}", draw_call);
-            draw_call += 1;
-            gl.draw_elements_with_i32(GL::TRIANGLES, batch.indices.len() as i32, GL::UNSIGNED_INT, 0);
+            let color = draw_call as f32 / self.batches.len() as f32;
+            gl.uniform4f(self.u_color.as_ref(), 0.2, color, 0.2, 1.0);
+            gl.draw_elements_with_i32(
+                GL::TRIANGLES,
+                batch.indices.len() as i32,
+                GL::UNSIGNED_INT,
+                0,
+            );
         }
     }
     pub fn clear(&mut self, color: [f32; 4]) {
