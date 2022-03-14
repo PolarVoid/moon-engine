@@ -1,7 +1,10 @@
+use std::rc::Rc;
+
 use wasm_bindgen::JsCast;
 use web_sys::HtmlImageElement;
 use web_sys::WebGlTexture;
 
+use crate::gl::Bind;
 use crate::{gl, GL};
 
 #[derive(Debug)]
@@ -23,12 +26,20 @@ impl Default for Texture {
     }
 }
 
-impl gl::Bind for Texture {
+impl Bind for Texture {
     fn bind(&self, gl: &GL) {
         gl.bind_texture(GL::TEXTURE_2D, self.texture.as_ref());
     }
     fn unbind(&self, _gl: &GL) {
         _gl.bind_texture(GL::TEXTURE_2D, None);
+    }
+}
+
+impl Drop for Texture {
+    fn drop(&mut self) {
+        let gl = gl::get_context();
+
+        gl.delete_texture(self.texture.as_ref());
     }
 }
 
@@ -51,7 +62,7 @@ impl Texture {
             GL::RGBA as i32,
             GL::RGBA,
             GL::UNSIGNED_BYTE,
-            &image,
+            image,
         )
         .expect("Failed to load texture");
         gl.generate_mipmap(GL::TEXTURE_2D);
@@ -72,7 +83,7 @@ impl Texture {
             .unwrap();
         Self::new(gl, &image)
     }
-    
+
     /// Create a new `Texture` from an `HtmlImageElement` with an element ID in the format **textureXX** where *XX* is a number
     pub fn new_with_texture_id(gl: &GL, count: u32) -> Self {
         Self::new_with_element_id(gl, &format!("texture{}", count))
@@ -81,29 +92,29 @@ impl Texture {
 
 #[derive(Debug)]
 pub struct SubTexture {
-    texture: Option<Box<Texture>>,
+    texture: Option<Rc<Texture>>,
     min: [f32; 2],
     max: [f32; 2],
 }
 
 impl Default for SubTexture {
     fn default() -> Self {
-        Self { 
+        Self {
             texture: None,
             min: [0.0, 0.0],
-            max: [1.0, 1.0]
+            max: [1.0, 1.0],
         }
     }
 }
 
 impl SubTexture {
-    pub fn new(texture: Box<Texture>) -> Self {
+    pub fn new(texture: Rc<Texture>) -> Self {
         Self {
             texture: Some(texture),
             ..Default::default()
         }
     }
-    pub fn new_with_coords(texture: Box<Texture>, uv: [f32; 4]) -> Self {
+    pub fn new_with_coords(texture: Rc<Texture>, uv: [f32; 4]) -> Self {
         Self {
             texture: Some(texture),
             min: [uv[0], uv[2]],
@@ -121,7 +132,7 @@ impl SubTexture {
     }
 }
 
-impl gl::Bind for SubTexture {
+impl Bind for SubTexture {
     fn bind(&self, gl: &GL) {
         if let Some(texture) = &self.texture {
             texture.bind(gl);
