@@ -1,10 +1,10 @@
+use std::collections::BTreeMap;
+
 use crate::{
-    console_log,
     mesh::{Vertex, MAX_BATCH_INDICES, MAX_BATCH_VERTICES},
     texture::SubTexture,
-    Camera, Canvas, Mesh, Shader, Transform,
+    Camera, Canvas, Mesh, Shader, Texture, Transform, Vec2,
 };
-use nalgebra::Matrix4;
 use wasm_bindgen::JsCast;
 use web_sys::{WebGl2RenderingContext, WebGlUniformLocation};
 
@@ -48,6 +48,7 @@ pub struct Renderer {
     pub program: Shader,
     pub camera: Camera,
     batches: Vec<Mesh>,
+    textures: BTreeMap<&'static str, Texture>,
     u_time: Option<WebGlUniformLocation>,
     u_color: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -68,6 +69,13 @@ impl Default for Renderer {
             u_view_matrix: program.get_uniform_location(&gl, "uView"),
             u_projection_matrix: program.get_uniform_location(&gl, "uProj"),
             program,
+            textures: {
+                let mut textues = BTreeMap::<&str, Texture>::new();
+                textues.insert("WHITE", Texture::white(&gl));
+                textues.insert("MAGENTA", Texture::colored(&gl, crate::MAGENTA));
+                textues.insert("CHECKERBOARD", Texture::checkerboard(&gl));
+                textues
+            },
             gl,
         }
     }
@@ -75,14 +83,19 @@ impl Default for Renderer {
 
 #[derive(Debug)]
 pub struct Quad {
-    pub points: [[f32; 2]; 4],
+    pub points: [Vec2; 4],
     pub sprite: SubTexture,
 }
 
 impl Default for Quad {
     fn default() -> Self {
         Self {
-            points: [[-0.5, 0.5], [-0.5, -0.5], [0.5, -0.5], [0.5, 0.5]],
+            points: [
+                Vec2::new(-0.5, 0.5),
+                Vec2::new(-0.5, -0.5),
+                Vec2::new(0.5, -0.5),
+                Vec2::new(0.5, 0.5),
+            ],
             sprite: SubTexture::default(),
         }
     }
@@ -94,10 +107,10 @@ impl Quad {
         let offset: [f32; 2] = [transform.scale.x / 2.0, transform.scale.y / 2.0];
         Self {
             points: [
-                [origin[0] - offset[0], origin[1] + offset[1]],
-                [origin[0] - offset[0], origin[1] - offset[1]],
-                [origin[0] + offset[0], origin[1] - offset[1]],
-                [origin[0] + offset[0], origin[1] + offset[1]],
+                Vec2::new(origin[0] - offset[0], origin[1] + offset[1]),
+                Vec2::new(origin[0] - offset[0], origin[1] - offset[1]),
+                Vec2::new(origin[0] + offset[0], origin[1] - offset[1]),
+                Vec2::new(origin[0] + offset[0], origin[1] + offset[1]),
             ],
             ..Default::default()
         }
@@ -105,7 +118,10 @@ impl Quad {
     pub fn get_vertices(&self) -> Vec<Vertex> {
         let vertices = std::iter::zip(self.points, self.sprite.get_uv_coords());
         vertices
-            .map(|(position, uv)| Vertex { position, uv })
+            .map(|(position, uv)| Vertex {
+                position: [position.x, position.y],
+                uv,
+            })
             .collect()
     }
 }
@@ -164,7 +180,7 @@ impl Renderer {
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
             false,
-            Matrix4::<f32>::identity().as_slice(),
+            crate::Mat4::identity().as_slice(),
         );
         gl.uniform_matrix4fv_with_f32_array(
             self.u_view_matrix.as_ref(),
@@ -176,6 +192,17 @@ impl Renderer {
             false,
             self.camera.projection(),
         );
+    }
+    pub fn add_texture(&mut self, key: &'static str, texture: Texture) {
+        self.textures.insert(key, texture);
+    }
+    pub fn use_texture(&mut self, key: &str) {
+        let gl = &self.gl;
+        if let Some(texture) = self.textures.get(key) {
+            texture.bind(gl);
+        } else {
+            self.textures.get("MAGENTA").unwrap().bind(gl);
+        }
     }
     pub fn begin_draw(&mut self) {
         let gl = &self.gl;
