@@ -124,8 +124,8 @@ impl Shader {
         let program = gl
             .create_program()
             .ok_or_else(|| String::from("Unable to create Program object."))?;
-        gl.attach_shader(&program, &vertex_shader);
-        gl.attach_shader(&program, &fragment_shader);
+        gl.attach_shader(&program, vertex_shader);
+        gl.attach_shader(&program, fragment_shader);
         gl.link_program(&program);
 
         if gl
@@ -133,8 +133,8 @@ impl Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            gl.delete_shader(Some(&vertex_shader));
-            gl.delete_shader(Some(&fragment_shader));
+            gl.delete_shader(Some(vertex_shader));
+            gl.delete_shader(Some(fragment_shader));
             Ok(program)
         } else {
             Err(gl
@@ -145,19 +145,16 @@ impl Shader {
 
     /// Get the location of a uniform on the `Shader`
     pub fn get_uniform_location(&self, gl: &GL, name: &str) -> Option<WebGlUniformLocation> {
-        if let Some(program) = self.program.as_ref() {
-            gl.get_uniform_location(program, name)
-        } else {
-            None
-        }
+        self.program
+            .as_ref()
+            .map(|program| gl.get_uniform_location(program, name))
+            .unwrap()
     }
 
     /// Get the location of an attribute on the `Shader`
     pub fn get_attrib_location(&self, gl: &GL, name: &str) -> Option<i32> {
-        if let Some(program) = self.program.as_ref() {
-            Some(gl.get_attrib_location(program, name))
-        } else {
-            None
-        }
+        self.program
+            .as_ref()
+            .map(|program| gl.get_attrib_location(program, name))
     }
 }
