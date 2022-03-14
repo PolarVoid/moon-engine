@@ -132,12 +132,11 @@ impl Texture {
         let mut pixels = Vec::<u8>::with_capacity(size * size);
         for x_offset in 0..size {
             for y_offset in 0..size {
-                let color: Color32;
-                if (x_offset + y_offset) % 2 == 0 {
-                    color = color1;
-                } else {
-                    color = color2;
-                }
+                let color = if (x_offset + y_offset) % 2 == 0 {
+                        color1
+                    } else {
+                        color2
+                    };
                 pixels.append(&mut Vec::from(color));
             }
         }
