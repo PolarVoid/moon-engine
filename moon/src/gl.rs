@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, rc::Rc};
 
 use crate::{
     mesh::{Vertex, MAX_BATCH_INDICES, MAX_BATCH_VERTICES},
@@ -48,7 +48,7 @@ pub struct Renderer {
     pub program: Shader,
     pub camera: Camera,
     batches: Vec<Mesh>,
-    textures: BTreeMap<&'static str, Texture>,
+    textures: BTreeMap<&'static str, Rc<Texture>>,
     u_time: Option<WebGlUniformLocation>,
     u_color: Option<WebGlUniformLocation>,
     u_model_matrix: Option<WebGlUniformLocation>,
@@ -70,10 +70,10 @@ impl Default for Renderer {
             u_projection_matrix: program.get_uniform_location(&gl, "uProj"),
             program,
             textures: {
-                let mut textues = BTreeMap::<&str, Texture>::new();
-                textues.insert("WHITE", Texture::white(&gl));
-                textues.insert("MAGENTA", Texture::colored(&gl, crate::MAGENTA));
-                textues.insert("CHECKERBOARD", Texture::checkerboard(&gl));
+                let mut textues = BTreeMap::<&str, Rc<Texture>>::new();
+                textues.insert("WHITE", Rc::new(Texture::white(&gl)));
+                textues.insert("MAGENTA", Rc::new(Texture::colored(&gl, crate::MAGENTA)));
+                textues.insert("CHECKERBOARD", Rc::new(Texture::checkerboard(&gl)));
                 textues
             },
             gl,
@@ -194,15 +194,22 @@ impl Renderer {
         );
     }
     pub fn add_texture(&mut self, key: &'static str, texture: Texture) {
-        self.textures.insert(key, texture);
+        self.textures.insert(key, Rc::new(texture));
     }
-    pub fn use_texture(&mut self, key: &str) {
+    pub fn use_texture(&self, key: &str) {
         let gl = &self.gl;
         if let Some(texture) = self.textures.get(key) {
             texture.bind(gl);
         } else {
             self.textures.get("MAGENTA").unwrap().bind(gl);
         }
+    }
+    pub fn get_texture(&mut self, key: &str) -> Rc<Texture> {
+        Rc::clone(
+            self.textures
+                .get(key)
+                .unwrap_or_else(|| self.textures.get("MAGENTA").unwrap()),
+        )
     }
     pub fn begin_draw(&mut self) {
         let gl = &self.gl;
@@ -237,6 +244,31 @@ impl Renderer {
         let mut indices = vec![last, last + 2, last + 1, last, last + 3, last + 2];
         batch.indices.append(&mut indices);
     }
+    pub fn begin_layer(&mut self) {
+        let gl = &self.gl;
+        let mesh = Mesh::new(
+            gl,
+            Vec::with_capacity(MAX_BATCH_VERTICES as usize),
+            Vec::with_capacity(MAX_BATCH_INDICES as usize),
+        );
+
+        self.batches.push(mesh);
+    }
+    pub fn delete_layer(&mut self) -> Option<Mesh> {
+        self.batches.pop()
+    }
+    pub fn draw_layer(&self) {
+        let gl = &self.gl;
+        if let Some(batch) = self.batches.last() {
+            batch.setup(gl);
+            gl.draw_elements_with_i32(
+                GL::TRIANGLES,
+                batch.indices.len() as i32,
+                GL::UNSIGNED_INT,
+                0,
+            );
+        }
+    }
     pub fn end_draw(&mut self) {
         let gl = &self.gl;
         gl.uniform_matrix4fv_with_f32_array(
@@ -245,10 +277,8 @@ impl Renderer {
             self.camera.transform.matrix(),
         );
         self.program.bind(gl);
-        for (draw_call, batch) in self.batches.iter().enumerate() {
+        for batch in self.batches.iter() {
             batch.setup(gl);
-            let color = draw_call as f32 / self.batches.len() as f32;
-            gl.uniform4f(self.u_color.as_ref(), 0.2, color, 0.2, 1.0);
             gl.draw_elements_with_i32(
                 GL::TRIANGLES,
                 batch.indices.len() as i32,
