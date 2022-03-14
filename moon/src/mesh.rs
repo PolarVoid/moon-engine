@@ -24,6 +24,20 @@ pub struct Mesh {
     ibo: WebGlBuffer,
 }
 
+impl Drop for Mesh {
+    fn drop(&mut self) {
+        use gl::Bind;
+        let gl = gl::get_context();
+        self.unbind(&gl);
+
+        gl.delete_buffer(Some(&self.vbo));
+        gl.delete_buffer(Some(&self.ibo));
+        self.vertices.clear();
+        self.indices.clear();
+        gl.delete_vertex_array(Some(&self.vao));
+    }
+}
+
 impl gl::Bind for Mesh {
     /// Bind the `WebGlVertexArrayObject` of the `Mesh`.
     fn bind(&self, gl: &GL) {
@@ -106,7 +120,7 @@ impl Mesh {
         gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 4 * 4, 0);
         gl.vertex_attrib_pointer_with_i32(1, 2, GL::FLOAT, false, 4 * 4, 8);
 
-        gl.enable_vertex_attrib_array(0 as u32);
-        gl.enable_vertex_attrib_array(1 as u32);
+        gl.enable_vertex_attrib_array(0);
+        gl.enable_vertex_attrib_array(1);
     }
 }
