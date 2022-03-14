@@ -11,7 +11,6 @@ pub mod transform;
 pub mod utils;
 pub mod web;
 
-use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
 use camera::Camera;
@@ -37,7 +36,6 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub struct Application {
     renderer: Renderer,
     input: InputManager,
-    texture1: Option<Rc<Texture>>,
 }
 
 #[wasm_bindgen]
@@ -49,7 +47,6 @@ impl Application {
         Self {
             renderer: Renderer::default(),
             input: InputManager::new(),
-            texture1: None,
         }
     }
 
@@ -62,33 +59,19 @@ impl Application {
             .get_uniform_location(&self.renderer.gl, "uTex0");
         self.renderer.gl.uniform1i(u_tex0.as_ref(), 0);
         self.renderer.begin_draw();
-        self.texture1 = Some(Rc::new(Texture::new_with_texture_id(&self.renderer.gl, 0)));
-        let texture2 = Rc::new(Texture::new_with_texture_id(&self.renderer.gl, 0));
 
-        self.renderer.use_texture("CHECKERBARD");
-
-        for x_offset in -100..100 {
-            for y_offset in -60..60 {
-                let mut transform = Transform::new_with_position(
-                    nalgebra::Vector3::new(x_offset as f32, y_offset as f32, 0.0) / 10.0,
-                );
-                transform.set_scale(nalgebra::Vector3::new(0.1, 0.1, 1.0));
-                let mut quad = gl::Quad::new_from_transform(transform);
-                if (x_offset + y_offset) % 2 == 0 {
-                    quad.sprite = texture::SubTexture::new_with_coords(
-                        Rc::clone(self.texture1.as_ref().unwrap()),
-                        Color32::from(&[0.0, 1.0, 0.0, 1.0]),
-                    );
-                } else {
-                    quad.sprite = texture::SubTexture::new_with_coords(
-                        Rc::clone(&texture2),
-                        Color32::from(&[0.0, 1.0, 0.0, 1.0]),
-                    );
-                }
+        for x_offset in -10..=10 {
+            for y_offset in -6..=6 {
+                let mut transform = Transform::new_with_position(nalgebra::Vector3::new(
+                    x_offset as f32,
+                    y_offset as f32,
+                    0.0,
+                ));
+                transform.set_scale(nalgebra::Vector3::new(1.0, 1.0, 1.0));
+                let quad = gl::Quad::new_from_transform(transform);
                 self.renderer.add_quad(quad);
             }
         }
-        self.renderer.add_quad(gl::Quad::default());
     }
 
     #[wasm_bindgen]
@@ -117,6 +100,7 @@ impl Application {
     pub fn render(&mut self, _delta_time: u32) {
         use nalgebra::Vector3;
         self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
+
         let position = [
             self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32,
             self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32,
@@ -124,10 +108,19 @@ impl Application {
         let position = Vector3::new(position[0] as f32, position[1] as f32, 0.0)
             / (_delta_time as f32 * 100.0)
             * 15.0;
+
         self.renderer
             .camera
             .transform
             .set_position(self.renderer.camera.transform.position + position);
+
+        self.renderer.use_texture("CHECKERBOARD");
         self.renderer.end_draw();
+        self.renderer.begin_layer();
+        self.renderer.add_quad(gl::Quad::default());
+        self.renderer.use_texture("MAGENTA");
+        self.renderer.draw_layer();
+        self.renderer.delete_layer();
+        //self.renderer.end_draw();
     }
 }
