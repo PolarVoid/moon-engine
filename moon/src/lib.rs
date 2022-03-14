@@ -2,6 +2,7 @@ pub mod camera;
 pub mod collider;
 pub mod gl;
 pub mod input;
+pub mod math;
 pub mod mesh;
 pub mod particle;
 pub mod shader;
@@ -10,21 +11,18 @@ pub mod transform;
 pub mod utils;
 pub mod web;
 
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
-use std::rc::Rc;
-
-pub use camera::Camera;
-pub use collider::Circle;
-pub use collider::Collide;
-pub use collider::AABB;
+use camera::Camera;
 use gl::Renderer;
 use gl::GL;
-pub use input::InputManager;
-pub use mesh::Mesh;
-pub use shader::Shader;
-pub use texture::Texture;
-pub use transform::Transform;
+use input::InputManager;
+pub use math::*;
+use mesh::Mesh;
+use shader::Shader;
+use texture::Texture;
+use transform::Transform;
 use utils::set_panic_hook;
 use web::Canvas;
 
@@ -57,7 +55,6 @@ impl Application {
 
     #[wasm_bindgen]
     pub fn init(&mut self) {
-        use crate::gl::Bind;
         self.renderer.init_shader();
         let u_tex0 = self
             .renderer
@@ -67,6 +64,9 @@ impl Application {
         self.renderer.begin_draw();
         self.texture1 = Some(Rc::new(Texture::new_with_texture_id(&self.renderer.gl, 0)));
         let texture2 = Rc::new(Texture::new_with_texture_id(&self.renderer.gl, 0));
+
+        self.renderer.use_texture("CHECKERBARD");
+
         for x_offset in -100..100 {
             for y_offset in -60..60 {
                 let mut transform = Transform::new_with_position(
@@ -77,18 +77,18 @@ impl Application {
                 if (x_offset + y_offset) % 2 == 0 {
                     quad.sprite = texture::SubTexture::new_with_coords(
                         Rc::clone(self.texture1.as_ref().unwrap()),
-                        [0.0, 0.387, 0.0, 0.5],
+                        Color32::from(&[0.0, 1.0, 0.0, 1.0]),
                     );
                 } else {
                     quad.sprite = texture::SubTexture::new_with_coords(
                         Rc::clone(&texture2),
-                        [0.4, 1.0, 0.0, 0.85],
+                        Color32::from(&[0.0, 1.0, 0.0, 1.0]),
                     );
                 }
-                quad.sprite.bind(&self.renderer.gl);
                 self.renderer.add_quad(quad);
             }
         }
+        self.renderer.add_quad(gl::Quad::default());
     }
 
     #[wasm_bindgen]
