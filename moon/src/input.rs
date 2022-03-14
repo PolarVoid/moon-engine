@@ -1,28 +1,15 @@
 use std::collections::BTreeSet;
-use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[derive(Default)]
 pub struct InputManager {
     keyboard_states: BTreeSet<u8>,
     pub mouse_x: f32,
     pub mouse_y: f32,
 }
 
-impl Default for InputManager {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[wasm_bindgen]
 impl InputManager {
-    #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        Self {
-            keyboard_states: BTreeSet::new(),
-            mouse_x: 0.0,
-            mouse_y: 0.0,
-        }
+        Default::default()
     }
 
     pub fn key_down(&mut self, key_code: u8) {
