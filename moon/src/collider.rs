@@ -1,4 +1,5 @@
-use nalgebra::{clamp, Vector2};
+use crate::clamp;
+use crate::Point;
 
 /// Default bounding box size for a `Point`
 const POINT_BOUNDING_SIZE: f32 = 0.1;
@@ -16,9 +17,6 @@ pub trait Collider {
 pub trait Collide<T: Collider> {
     fn collide_with(&self, _other: &T) -> bool;
 }
-
-/// A `Point` is an alias for `nalgebra::Vector2<f32>`
-pub type Point = Vector2<f32>;
 
 /// Axis-Aligned Bounding Box (AABB)
 #[derive(Debug, Default)]
