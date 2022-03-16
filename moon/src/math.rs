@@ -5,21 +5,12 @@ pub type Vec4 = nalgebra::Vector4<f32>;
 pub type Mat4 = nalgebra::Matrix4<f32>;
 pub type Ortho = nalgebra::Orthographic3<f32>;
 
-#[derive(Clone, Copy)]
-pub struct Color32(f32, f32, f32, f32);
+#[derive(Clone, Copy, Debug)]
+pub struct Color32(pub f32, pub f32, pub f32, pub f32);
 
-#[derive(Clone, Copy)]
-pub struct Color8(u8, u8, u8, u8);
-
-impl From<&[u8; 4]> for Color8 {
-    fn from(slice: &[u8; 4]) -> Self {
-        Self(slice[0], slice[1], slice[2], slice[3])
-    }
-}
-
-impl From<Color8> for [u8; 4] {
-    fn from(color: Color8) -> Self {
-        [color.0, color.1, color.2, color.3]
+impl Default for Color32 {
+    fn default() -> Self {
+        Self(1.0, 1.0, 1.0, 1.0)
     }
 }
 
@@ -48,14 +39,10 @@ impl From<Color32> for [u8; 4] {
     }
 }
 
-impl From<Color32> for Color8 {
+impl From<Color32> for Vec<u8> {
     fn from(color: Color32) -> Self {
-        Self(
-            (color.0 * 255.0) as u8,
-            (color.1 * 255.0) as u8,
-            (color.2 * 255.0) as u8,
-            (color.3 * 255.0) as u8,
-        )
+        let color = Color8::from(color);
+        vec![color.0, color.1, color.2, color.3]
     }
 }
 
@@ -70,12 +57,32 @@ impl From<Color8> for Color32 {
     }
 }
 
-impl From<Color32> for Vec<u8> {
-    fn from(color: Color32) -> Self {
-        let color = Color8::from(color);
-        vec![color.0, color.1, color.2, color.3]
+#[derive(Clone, Copy)]
+pub struct Color8(u8, u8, u8, u8);
+
+impl From<&[u8; 4]> for Color8 {
+    fn from(slice: &[u8; 4]) -> Self {
+        Self(slice[0], slice[1], slice[2], slice[3])
     }
 }
+
+impl From<Color8> for [u8; 4] {
+    fn from(color: Color8) -> Self {
+        [color.0, color.1, color.2, color.3]
+    }
+}
+
+impl From<Color32> for Color8 {
+    fn from(color: Color32) -> Self {
+        Self(
+            (color.0 * 255.0) as u8,
+            (color.1 * 255.0) as u8,
+            (color.2 * 255.0) as u8,
+            (color.3 * 255.0) as u8,
+        )
+    }
+}
+
 
 impl Color32 {
     pub const fn r(&self) -> f32 {
