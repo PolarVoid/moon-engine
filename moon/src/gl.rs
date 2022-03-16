@@ -3,7 +3,7 @@ use std::{collections::BTreeMap, rc::Rc};
 use crate::{
     mesh::{Vertex, MAX_BATCH_INDICES, MAX_BATCH_VERTICES},
     texture::SubTexture,
-    Camera, Canvas, Mesh, Shader, Texture, Transform, Vec2,
+    Camera, Canvas, Mesh, Shader, Texture, Transform, Vec2, Color32,
 };
 use wasm_bindgen::JsCast;
 use web_sys::{WebGl2RenderingContext, WebGlUniformLocation};
@@ -81,9 +81,24 @@ impl Default for Renderer {
     }
 }
 
+#[derive(Default, Debug, Clone, Copy)]
+pub struct QuadVertex {
+    pub position: Vec2,
+    pub color: Color32
+}
+
+impl QuadVertex {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self {
+            position: Vec2::new(x, y),
+            color: Color32(0.5, 0.4, 0.2, 1.0)
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Quad {
-    pub points: [Vec2; 4],
+    pub points: [QuadVertex; 4],
     pub sprite: SubTexture,
 }
 
@@ -91,10 +106,10 @@ impl Default for Quad {
     fn default() -> Self {
         Self {
             points: [
-                Vec2::new(-0.5, 0.5),
-                Vec2::new(-0.5, -0.5),
-                Vec2::new(0.5, -0.5),
-                Vec2::new(0.5, 0.5),
+                QuadVertex::new(-0.5, 0.5),
+                QuadVertex::new(-0.5, -0.5),
+                QuadVertex::new(0.5, -0.5),
+                QuadVertex::new(0.5, 0.5),
             ],
             sprite: SubTexture::default(),
         }
@@ -107,10 +122,10 @@ impl Quad {
         let offset: [f32; 2] = [transform.scale.x / 2.0, transform.scale.y / 2.0];
         Self {
             points: [
-                Vec2::new(origin[0] - offset[0], origin[1] + offset[1]),
-                Vec2::new(origin[0] - offset[0], origin[1] - offset[1]),
-                Vec2::new(origin[0] + offset[0], origin[1] - offset[1]),
-                Vec2::new(origin[0] + offset[0], origin[1] + offset[1]),
+                QuadVertex::new(origin[0] - offset[0], origin[1] + offset[1]),
+                QuadVertex::new(origin[0] - offset[0], origin[1] - offset[1]),
+                QuadVertex::new(origin[0] + offset[0], origin[1] - offset[1]),
+                QuadVertex::new(origin[0] + offset[0], origin[1] + offset[1]),
             ],
             ..Default::default()
         }
@@ -118,9 +133,10 @@ impl Quad {
     pub fn get_vertices(&self) -> Vec<Vertex> {
         let vertices = std::iter::zip(self.points, self.sprite.get_uv_coords());
         vertices
-            .map(|(position, uv)| Vertex {
-                position: [position.x, position.y],
+            .map(|(vertex, uv)| Vertex {
+                position: [vertex.position.x, vertex.position.y],
                 uv,
+                color: <[f32; 4]>::from(vertex.color)
             })
             .collect()
     }
