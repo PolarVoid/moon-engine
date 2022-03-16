@@ -12,9 +12,10 @@ uniform vec4 uColor;
 
 in vec2 vPosition;
 in vec2 vTexCoord;
+in vec4 vColor;
 
 out vec4 color;
 
 void main() {
-    color = texture(uTex0, vTexCoord) * uColor * vec4(1.0, 1.0, 1.0, 1.0);
+    color = texture(uTex0, vTexCoord) * vColor * uColor;
 }

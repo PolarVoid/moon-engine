@@ -6,6 +6,8 @@ pub const MAX_BATCH_QUADS: i32 = 1000;
 pub const MAX_BATCH_VERTICES: i32 = MAX_BATCH_QUADS * 4;
 pub const MAX_BATCH_INDICES: i32 = MAX_BATCH_QUADS * 6;
 
+const WHITE_F32: [f32; 4] = [0.0, 1.0, 0.40, 1.0];
+
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
 #[derive(Debug)]
@@ -13,6 +15,17 @@ pub const MAX_BATCH_INDICES: i32 = MAX_BATCH_QUADS * 6;
 pub struct Vertex {
     pub position: [f32; 2],
     pub uv: [f32; 2],
+    pub color: [f32; 4],
+}
+
+impl Default for Vertex {
+    fn default() -> Self {
+        Self { 
+            position: [0.0, 0.0], 
+            uv: [0.0, 0.0], 
+            color: WHITE_F32
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -75,18 +88,22 @@ impl Mesh {
             Vertex {
                 position: [-half, half],
                 uv: [0.0, 0.0],
+                ..Default::default()
             },
             Vertex {
                 position: [-half, -half],
                 uv: [0.0, 1.0],
+                ..Default::default()
             },
             Vertex {
                 position: [half, -half],
                 uv: [1.0, 1.0],
+                ..Default::default()
             },
             Vertex {
                 position: [half, half],
                 uv: [1.0, 0.0],
+                ..Default::default()
             },
         ];
         let indices: Vec<u32> = vec![0, 2, 1, 0, 3, 2];
@@ -117,10 +134,12 @@ impl Mesh {
         gl.buffer_data_with_u8_array(GL::ARRAY_BUFFER, vertex_slice, GL::DYNAMIC_DRAW);
         gl.buffer_data_with_u8_array(GL::ELEMENT_ARRAY_BUFFER, index_slice, GL::DYNAMIC_DRAW);
 
-        gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 4 * 4, 0);
-        gl.vertex_attrib_pointer_with_i32(1, 2, GL::FLOAT, false, 4 * 4, 8);
+        gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 8 * 4, 0);
+        gl.vertex_attrib_pointer_with_i32(1, 2, GL::FLOAT, false, 8 * 4, 8);
+        gl.vertex_attrib_pointer_with_i32(2, 4, GL::FLOAT, false, 8 * 4, 16);
 
         gl.enable_vertex_attrib_array(0);
         gl.enable_vertex_attrib_array(1);
+        gl.enable_vertex_attrib_array(2);
     }
 }
