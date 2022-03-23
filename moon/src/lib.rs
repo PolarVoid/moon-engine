@@ -41,6 +41,7 @@ use crate::texture::Texture;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+/// The [`Application`] struct acts as the communicator between the browser and the game logic. It consists of calls made from JavaScript.
 #[wasm_bindgen]
 pub struct Application {
     renderer: Renderer,
