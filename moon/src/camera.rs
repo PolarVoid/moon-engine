@@ -1,38 +1,37 @@
+//! The [`Camera`] struct.
+
 use crate::transform::Transform;
 use crate::Mat4;
 use crate::Ortho;
 use crate::Vec3;
 
 /// The 'X' component at the left and right edges of the screen
-const FIXED_WIDTH: f32 = 20.0;
+pub const FIXED_WIDTH: f32 = 20.0;
 /// Calculate the height from the `FIXED_WIDTH` to maintain 16:9 Aspect ratio
-const HEIGHT: f32 = FIXED_WIDTH / 1.77;
+pub const FIXED_HEIGHT: f32 = FIXED_WIDTH / 1.77;
 
-/// A `Camera` represents a Virtual Camera, that has a view and Orthographic projection matrices
-#[allow(dead_code)]
+/// A [`Camera`] represents a Virtual Camera, that has a view and Orthographic projection matrices
 #[derive(Debug)]
 pub struct Camera {
+    /// [`Transform`] for the Camera
     pub transform: Transform,
-    pub orthographic: Ortho,
-    pub width: f32,
-    pub height: f32,
-    znear: f32,
-    zfar: f32,
+    /// 
+    orthographic: Ortho,
+    width: f32,
+    height: f32,
 }
 
 impl Default for Camera {
     fn default() -> Self {
         Self {
             transform: Transform::new(),
-            width: 1920.0,
-            height: 1080.0,
-            znear: 0.0f32,
-            zfar: 1000.0f32,
+            width: FIXED_WIDTH,
+            height: FIXED_HEIGHT,
             orthographic: Ortho::new(
                 -FIXED_WIDTH / 2.0,
                 FIXED_WIDTH / 2.0,
-                HEIGHT / 2.0,
-                -HEIGHT / 2.0,
+                FIXED_HEIGHT / 2.0,
+                -FIXED_HEIGHT / 2.0,
                 0f32,
                 1000.0f32,
             ),
@@ -40,7 +39,6 @@ impl Default for Camera {
     }
 }
 
-#[allow(dead_code)]
 impl Camera {
     /// Create a new `Camera` with default values.
     pub fn new() -> Self {
@@ -88,14 +86,18 @@ impl Camera {
         self.orthographic.as_matrix().as_slice()
     }
 
+    /// Return the calculated and combined view-projection matrix as a [`Mat4`].
     pub fn view_projection_matrix(&self) -> Mat4 {
-        self.transform.matrix * self.orthographic.as_matrix()
+        self.transform.matrix() * self.orthographic.as_matrix()
     }
 
+    /// Get a position in screen co-ordinates to a range within the world.
+    /// 
+    /// This works by first converting it into a `-1.0 to 1.0` range, and then multiplying its components by the [`FIXED_WIDTH`] and [`FIXED_HEIGHT`].
     pub fn screen_to_world_coordinates(&self, screen_x: f32, screen_y: f32) -> (f32, f32) {
         let clipped_x = (screen_x / self.width - 0.5) * 2.0;
         let clipped_y = (screen_y / self.height - 0.5) * 2.0;
 
-        (clipped_x * FIXED_WIDTH, clipped_y * HEIGHT)
+        (clipped_x * FIXED_WIDTH, clipped_y * FIXED_HEIGHT)
     }
 }
