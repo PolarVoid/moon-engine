@@ -9,31 +9,30 @@ pub mod gl;
 pub mod input;
 pub mod math;
 pub mod mesh;
+pub mod renderer;
 pub mod shader;
 pub mod texture;
 pub mod transform;
 pub mod utils;
-pub mod renderer;
 pub mod web;
 
 use std::rc::Rc;
 
 use wasm_bindgen::prelude::*;
 
-use renderer::Renderer;
-use renderer::Quad;
 use camera::Camera;
-use shader::Shader;
 use gl::GL;
 use input::InputManager;
 pub use math::*;
+use renderer::Quad;
+use renderer::Renderer;
+use shader::Shader;
 use transform::Transform;
 use utils::set_panic_hook;
 use web::Canvas;
 
 use crate::texture::SubTexture;
 use crate::texture::Texture;
-
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -59,6 +58,7 @@ impl Default for Application {
     }
 }
 
+#[allow(clippy::unused_unit)]
 #[wasm_bindgen]
 impl Application {
     /// Initilize a default [`Application`].
@@ -71,22 +71,21 @@ impl Application {
     #[wasm_bindgen]
     pub fn init(&mut self) {
         let renderer = &mut self.renderer;
-        
-        renderer.gl.blend_func(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA);
+
+        renderer
+            .gl
+            .blend_func(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA);
         renderer.gl.enable(GL::BLEND);
         // Initialize the default Shader
         renderer.init_shader();
 
-        let u_tex0 =
-            renderer
-            .program
-            .get_uniform_location(&renderer.gl, "uTex0");
+        let u_tex0 = renderer.program.get_uniform_location(&renderer.gl, "uTex0");
         renderer.gl.uniform1i(u_tex0.as_ref(), 0);
 
         let spritesheet = Texture::new_with_texture_id(&renderer.gl, 0);
 
         renderer.add_texture("PLATFORMER", spritesheet);
-        
+
         renderer.use_texture("PLATFORMER");
     }
 
@@ -116,13 +115,13 @@ impl Application {
     }
 
     /// Renders a new frame.
-    /// 
+    ///
     /// Called every frame, and draws its output onto the [Canvas](web_sys::HtmlCanvasElement).
     #[wasm_bindgen]
     pub fn render(&mut self, _delta_time: u32) {
         use nalgebra::Vector3;
         self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
-        
+
         self.renderer.begin_draw();
 
         let position = [
@@ -147,7 +146,9 @@ impl Application {
                     x_offset as f32 - 5.0,
                     y_offset as f32 - 3.0,
                     1.0,
-                    1.0, tiles.get(index).unwrap());
+                    1.0,
+                    tiles.get(index).unwrap(),
+                );
                 self.renderer.add_quad(quad);
             }
         }

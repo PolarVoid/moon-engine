@@ -19,9 +19,9 @@ macro_rules! console_log {
 }
 
 /// Get the time in seconds using [`Performance`](web_sys::Performance)
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```no_run
 /// # use moon::web::now_sec;
 /// let time = now_sec();

@@ -19,10 +19,10 @@ pub struct Vertex {
 
 impl Default for Vertex {
     fn default() -> Self {
-        Self { 
-            position: [0.0, 0.0], 
-            uv: [0.0, 0.0], 
-            color: [1.0, 1.0, 1.0, 1.0]
+        Self {
+            position: [0.0, 0.0],
+            uv: [0.0, 0.0],
+            color: [1.0, 1.0, 1.0, 1.0],
         }
     }
 }
@@ -31,11 +31,11 @@ impl Default for Vertex {
 #[derive(Debug)]
 pub struct Mesh {
     /// Vertices of the Mesh.
-    /// 
+    ///
     /// Represented as a [`Vec`] of [`Vertex`]s.
     pub vertices: Vec<Vertex>,
     /// Indices of the Mesh.
-    /// 
+    ///
     /// Stored as a [`Vec`] of [`u32`].
     pub indices: Vec<u32>,
     vao: WebGlVertexArrayObject,

@@ -76,7 +76,6 @@ impl Texture {
             width,
             height,
             texture,
-            ..Default::default()
         }
     }
 
@@ -123,12 +122,11 @@ impl Texture {
             width,
             height,
             texture,
-            ..Default::default()
         }
     }
 
     /// A colored [`Texture`].
-    /// 
+    ///
     /// Create a single pixel sized [`Texture`] with the specified [`Color32`].
     pub fn colored(gl: &GL, color: Color32) -> Self {
         Self::new_from_pixels(gl, 1, 1, &<[u8; 4]>::from(color))
@@ -143,7 +141,7 @@ impl Texture {
     pub fn checkerboard(gl: &GL) -> Self {
         Self::checkerboard_colored(gl, crate::WHITE, crate::BLACK)
     }
-    
+
     /// A checkerboard [`Texture`] with two [`Color32`]s.
     pub fn checkerboard_colored(gl: &GL, color1: Color32, color2: Color32) -> Self {
         let size = 8;
@@ -151,10 +149,10 @@ impl Texture {
         for x_offset in 0..size {
             for y_offset in 0..size {
                 let color = if (x_offset + y_offset) % 2 == 0 {
-                        color1
-                    } else {
-                        color2
-                    };
+                    color1
+                } else {
+                    color2
+                };
                 pixels.append(&mut Vec::from(color));
             }
         }
@@ -163,7 +161,7 @@ impl Texture {
 }
 
 /// A [`SubTexture`] is a part of a full [`Texture`].
-/// 
+///
 /// It stores the UV co-ordinates of the part of the Texture it occupies.
 #[derive(Debug, Clone)]
 pub struct SubTexture {
@@ -212,11 +210,18 @@ impl SubTexture {
     }
 
     /// Create a [`Vec`] of [`SubTexture`]s from a sprite sheet.
-    /// 
+    ///
     /// Uses the number of cells horizontally and vertically to devide the cells.
-    pub fn create_tiles_from_spritesheet(texture: Rc<Texture>, horizontal_cells: u32, vertical_cells: u32) -> Vec<SubTexture> {
+    pub fn create_tiles_from_spritesheet(
+        texture: Rc<Texture>,
+        horizontal_cells: u32,
+        vertical_cells: u32,
+    ) -> Vec<SubTexture> {
         assert!(horizontal_cells > 0 && vertical_cells > 0);
-        let (cell_width, cell_height) = (texture.width / horizontal_cells, texture.height / vertical_cells);
+        let (cell_width, cell_height) = (
+            texture.width / horizontal_cells,
+            texture.height / vertical_cells,
+        );
         let (texture_width, texture_height) = (texture.width as f32, texture.height as f32);
         let mut tiles: Vec<SubTexture> = Vec::new();
         for cell_x in 0..horizontal_cells {
@@ -225,7 +230,8 @@ impl SubTexture {
                     (cell_x * cell_width) as f32 / texture_width,
                     ((cell_x + 1) * cell_width) as f32 / texture_width,
                     (cell_y * cell_height) as f32 / texture_height,
-                    ((cell_y + 1) * cell_height) as f32 / texture_height);
+                    ((cell_y + 1) * cell_height) as f32 / texture_height,
+                );
                 let tile = SubTexture::new_with_coords(Rc::clone(&texture), uv);
                 tiles.push(tile);
             }

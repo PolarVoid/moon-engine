@@ -18,17 +18,17 @@ pub trait Collider {
 /// The `Collide` trait is used to define collisions between two [Colliders](Collider).
 pub trait Collide<T: Collider> {
     /// Checks if two [Colliders](Collider) intersect.
-    /// 
+    ///
     /// Returns a `bool` indicating whether a collision occured.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use moon::Point;
     /// # use moon::collider::{Collide, Circle};
     /// let a = Point::new(0.0, 0.5);
     /// let b = Circle::new_size(0.1);
-    /// 
+    ///
     /// let collision: bool = a.collide_with(&b);
     /// ```
     fn collide_with(&self, _other: &T) -> bool;
@@ -45,9 +45,9 @@ pub struct AABB {
 
 impl Default for AABB {
     fn default() -> Self {
-        Self { 
+        Self {
             min: Point::new(-0.5, -0.5),
-            max: Point::new(0.5, 0.5)
+            max: Point::new(0.5, 0.5),
         }
     }
 }
@@ -85,7 +85,7 @@ pub struct Circle {
     /// The [`Point`] at which the [`Circle`] is centered.
     pub origin: Point,
     /// Radius of the Circle Collider.
-    /// 
+    ///
     /// The radius defines how far any given point on it's circumference is from it's center.
     pub radius: f32,
 }

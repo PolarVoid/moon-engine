@@ -15,7 +15,7 @@ pub const FIXED_HEIGHT: f32 = FIXED_WIDTH / 1.77;
 pub struct Camera {
     /// [`Transform`] for the Camera
     pub transform: Transform,
-    /// 
+    ///
     orthographic: Ortho,
     width: f32,
     height: f32,
@@ -92,7 +92,7 @@ impl Camera {
     }
 
     /// Get a position in screen co-ordinates to a range within the world.
-    /// 
+    ///
     /// This works by first converting it into a `-1.0 to 1.0` range, and then multiplying its components by the [`FIXED_WIDTH`] and [`FIXED_HEIGHT`].
     pub fn screen_to_world_coordinates(&self, screen_x: f32, screen_y: f32) -> (f32, f32) {
         let clipped_x = (screen_x / self.width - 0.5) * 2.0;

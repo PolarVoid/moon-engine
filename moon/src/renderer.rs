@@ -4,12 +4,12 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 use web_sys::WebGlUniformLocation;
 
-use crate::{gl, texture, mesh};
-use crate::{Shader, GL, Camera, Transform};
+use crate::{gl, mesh, texture};
+use crate::{Camera, Shader, Transform, GL};
 
 use gl::Bind;
-use texture::{Texture, SubTexture};
-use mesh::{Vertex, Mesh};
+use mesh::{Mesh, Vertex};
+use texture::{SubTexture, Texture};
 
 /// Maximum [`Quad`]s in a single batch.
 pub const MAX_BATCH_QUADS: i32 = 1000;
@@ -61,11 +61,11 @@ impl Default for Renderer {
 
 /// A [`Quad`] is a simple mesh definition with four [`Vertices`](Vertex).
 #[derive(Debug)]
-pub struct Quad ([Vertex; 4]);
+pub struct Quad([Vertex; 4]);
 
 impl Default for Quad {
     fn default() -> Self {
-        Self ([
+        Self([
             Vertex {
                 position: [-0.5, 0.5],
                 uv: [0.0, 0.0],
@@ -85,7 +85,7 @@ impl Default for Quad {
                 position: [0.5, 0.5],
                 uv: [1.0, 0.0],
                 ..Default::default()
-            }
+            },
         ])
     }
 }
@@ -95,7 +95,7 @@ impl Quad {
     pub fn new_from_position_and_size(pos_x: f32, pos_y: f32, size_x: f32, size_y: f32) -> Self {
         let size_x = size_x / 2.0;
         let size_y = size_y / 2.0;
-        Self ([
+        Self([
             Vertex {
                 position: [pos_x - size_x, pos_y + size_y],
                 uv: [0.0, 0.0],
@@ -120,11 +120,17 @@ impl Quad {
     }
 
     /// Create a new [`Quad`] from a given position, size, and a reference to a [`SubTexture`].
-    pub fn new_from_position_and_size_and_sprite(pos_x: f32, pos_y: f32, size_x: f32, size_y: f32, sprite: &SubTexture) -> Self {
+    pub fn new_from_position_and_size_and_sprite(
+        pos_x: f32,
+        pos_y: f32,
+        size_x: f32,
+        size_y: f32,
+        sprite: &SubTexture,
+    ) -> Self {
         let uv = sprite.get_uv_coords();
         let size_x = size_x / 2.0;
         let size_y = size_y / 2.0;
-        Self ([
+        Self([
             Vertex {
                 position: [pos_x - size_x, pos_y + size_y],
                 uv: uv[0],
@@ -151,21 +157,21 @@ impl Quad {
     /// Create a new [`Quad`] using a given [`Transform`] for its position and scale.
     pub fn new_from_transform(transform: Transform) -> Self {
         Self::new_from_position_and_size(
-            transform.position.x, 
-            transform.position.x, 
+            transform.position.x,
+            transform.position.x,
             transform.scale.x,
-             transform.scale.y
+            transform.scale.y,
         )
     }
 
     /// Create a new [`Quad`] using a given [`Transform`] for its position and scale, and a reference to [`SubTexture`].
     pub fn new_from_transform_and_sprite(transform: Transform, sprite: &SubTexture) -> Self {
         Self::new_from_position_and_size_and_sprite(
-            transform.position.x, 
-            transform.position.x, 
+            transform.position.x,
+            transform.position.x,
             transform.scale.x,
-             transform.scale.y,
-             sprite
+            transform.scale.y,
+            sprite,
         )
     }
 
@@ -255,14 +261,14 @@ impl Renderer {
     }
 
     /// Add a [`Texture`] to the [`Renderer`].
-    /// 
+    ///
     /// The renderer stores [`Texture`]s that can be retreived later, via a string slice.
     pub fn add_texture(&mut self, key: &'static str, texture: Texture) {
         self.textures.insert(key, Rc::new(texture));
     }
 
     /// Use the requested [`Texture`].
-    /// 
+    ///
     /// Sets the currently bound [`Texture`] to the one that matches the key. If no such texture is found, a default MAGENTA one is found.
     pub fn use_texture(&self, key: &str) {
         let gl = &self.gl;
@@ -320,7 +326,7 @@ impl Renderer {
     }
 
     /// Begin a new layer.
-    /// 
+    ///
     /// A new mesh is added to the batches and subsequent calls are made on this layer.
     pub fn begin_layer(&mut self) {
         let gl = &self.gl;

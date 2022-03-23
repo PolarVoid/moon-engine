@@ -17,7 +17,7 @@ pub enum ShaderType {
 }
 
 /// A program that is run on the GPU.
-/// 
+///
 /// A [Shader] contains a [`Program`](WebGlProgram), that can be bound and run on the GPU using [WebGL](GL).
 #[derive(Debug)]
 pub struct Shader {

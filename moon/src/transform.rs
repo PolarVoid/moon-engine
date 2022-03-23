@@ -5,7 +5,7 @@ use crate::Vec2;
 use crate::Vec3;
 
 /// A 3D representation of an entity's position, rotation and scale.
-/// 
+///
 /// A [`Transform`] contains [`Vec3`]s for Position, ROtation and Scale.
 #[derive(Debug)]
 pub struct Transform {
@@ -46,7 +46,7 @@ impl Transform {
 
     /// Get a clone of the [`Matrix4`].
     pub fn matrix(&self) -> Mat4 {
-        self.matrix.clone()
+        self.matrix
     }
 
     /// Get the [`Matrix4`] representing the transform as a slice of [`f32`] to use with WebGL.
@@ -60,7 +60,7 @@ impl Transform {
             * Mat4::new_rotation(self.rotation)
             * Mat4::new_nonuniform_scaling(&self.scale);
     }
-    
+
     /// Set the [`Transform`]'s position and calculate its matrix.
     pub fn set_position(&mut self, position: Vec3) {
         self.position = position;
@@ -96,7 +96,7 @@ impl Transform {
 }
 
 /// A 2D counterpart for the [`Transform`].
-/// 
+///
 /// A [`Transform2D`] contains Position and Scale [`Vec2`]s and a float for rotation.
 pub struct Transform2D {
     /// Position of the [`Transform2D`].
