@@ -20,8 +20,8 @@ impl<T: Copy> ParticleValue<T> {
     pub fn get_value(&self, _time: f32) -> T {
         match self {
             ParticleValue::Constant(value) => *value,
-            ParticleValue::Linear(min, max) => todo!(),
-            ParticleValue::Random(min, max) => *min,
+            ParticleValue::Linear(_min, _max) => todo!(),
+            ParticleValue::Random(_min, _max) => *_min,
         }
     }
 }

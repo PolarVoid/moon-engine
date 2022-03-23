@@ -1,3 +1,5 @@
+//! The [`Texture`] and [`SubTexture`] structs.
+
 use std::rc::Rc;
 
 use wasm_bindgen::JsCast;
@@ -8,12 +10,14 @@ use crate::gl::Bind;
 use crate::Color32;
 use crate::{gl, GL};
 
+/// A [`Texture`] stores an Image that can be used while rendering, or to store data.
 #[derive(Debug)]
 pub struct Texture {
     texture: Option<WebGlTexture>,
+    /// Width of the [`Texture`].
     pub width: u32,
+    /// Height of the [`Texture`].
     pub height: u32,
-    _slot: i32,
 }
 
 impl Default for Texture {
@@ -22,7 +26,6 @@ impl Default for Texture {
             texture: None,
             width: 1,
             height: 1,
-            _slot: 0,
         }
     }
 }
@@ -45,14 +48,15 @@ impl Drop for Texture {
 }
 
 impl Texture {
+    /// Create a new [`Texture`] using an [`HtmlImageElement`].
     pub fn new(gl: &GL, image: &HtmlImageElement) -> Self {
         let (width, height) = (image.width(), image.height());
 
         let texture = gl.create_texture();
         gl.active_texture(GL::TEXTURE0);
         gl.bind_texture(GL::TEXTURE_2D, texture.as_ref());
-        gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::LINEAR as i32);
-        gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL::LINEAR as i32);
+        gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::NEAREST as i32);
+        gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL::NEAREST as i32);
         gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::REPEAT as i32);
         gl.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::REPEAT as i32);
         // Flip the Y-axis so the image displays the right way up
@@ -75,6 +79,8 @@ impl Texture {
             ..Default::default()
         }
     }
+
+    /// Create a new [`Texture`] from an [`HtmlImageElement`] with an given element ID.
     pub fn new_with_element_id(gl: &GL, image_src: &str) -> Self {
         let document: web_sys::Document = web_sys::window().unwrap().document().unwrap();
         let image = document
@@ -85,10 +91,12 @@ impl Texture {
         Self::new(gl, &image)
     }
 
-    /// Create a new `Texture` from an `HtmlImageElement` with an element ID in the format **textureXX** where *XX* is a number
+    /// Create a new [`Texture`] from an [`HtmlImageElement`] with an element ID in the format **textureXX** where *XX* is a number.
     pub fn new_with_texture_id(gl: &GL, count: u32) -> Self {
         Self::new_with_element_id(gl, &format!("texture{}", count))
     }
+
+    /// Create a new [`Texture`] using a slice of [`u8`]s.
     pub fn new_from_pixels(gl: &GL, width: u32, height: u32, pixels: &[u8]) -> Self {
         assert!(pixels.len() == (width * height * 4) as usize);
         let texture = gl.create_texture();
@@ -118,15 +126,25 @@ impl Texture {
             ..Default::default()
         }
     }
+
+    /// A colored [`Texture`].
+    /// 
+    /// Create a single pixel sized [`Texture`] with the specified [`Color32`].
     pub fn colored(gl: &GL, color: Color32) -> Self {
         Self::new_from_pixels(gl, 1, 1, &<[u8; 4]>::from(color))
     }
+
+    /// A fully-white [`Texture`].
     pub fn white(gl: &GL) -> Self {
         Self::colored(gl, crate::WHITE)
     }
+
+    /// A black and white checkerboard [`Texture`].
     pub fn checkerboard(gl: &GL) -> Self {
         Self::checkerboard_colored(gl, crate::WHITE, crate::BLACK)
     }
+    
+    /// A checkerboard [`Texture`] with two [`Color32`]s.
     pub fn checkerboard_colored(gl: &GL, color1: Color32, color2: Color32) -> Self {
         let size = 8;
         let mut pixels = Vec::<u8>::with_capacity(size * size);
@@ -144,7 +162,10 @@ impl Texture {
     }
 }
 
-#[derive(Debug)]
+/// A [`SubTexture`] is a part of a full [`Texture`].
+/// 
+/// It stores the UV co-ordinates of the part of the Texture it occupies.
+#[derive(Debug, Clone)]
 pub struct SubTexture {
     texture: Option<Rc<Texture>>,
     min: [f32; 2],
@@ -162,12 +183,15 @@ impl Default for SubTexture {
 }
 
 impl SubTexture {
+    /// Create a new [`SubTexture`] with the full UV co-ordinates.
     pub fn new(texture: Rc<Texture>) -> Self {
         Self {
             texture: Some(texture),
             ..Default::default()
         }
     }
+
+    /// Create a new [`SubTexture`] with the given UV co-ordinates.
     pub fn new_with_coords(texture: Rc<Texture>, uv: Color32) -> Self {
         Self {
             texture: Some(texture),
@@ -175,6 +199,8 @@ impl SubTexture {
             max: [uv.y(), uv.w()],
         }
     }
+
+    /// Get the UV co-ordinates as an array of four two-component [`f32`].
     pub fn get_uv_coords(&self) -> [[f32; 2]; 4] {
         let (min, max) = (self.min, self.max);
         [
@@ -183,6 +209,28 @@ impl SubTexture {
             [max[0], max[1]],
             [max[0], min[1]],
         ]
+    }
+
+    /// Create a [`Vec`] of [`SubTexture`]s from a sprite sheet.
+    /// 
+    /// Uses the number of cells horizontally and vertically to devide the cells.
+    pub fn create_tiles_from_spritesheet(texture: Rc<Texture>, horizontal_cells: u32, vertical_cells: u32) -> Vec<SubTexture> {
+        assert!(horizontal_cells > 0 && vertical_cells > 0);
+        let (cell_width, cell_height) = (texture.width / horizontal_cells, texture.height / vertical_cells);
+        let (texture_width, texture_height) = (texture.width as f32, texture.height as f32);
+        let mut tiles: Vec<SubTexture> = Vec::new();
+        for cell_x in 0..horizontal_cells {
+            for cell_y in 0..vertical_cells {
+                let uv = Color32(
+                    (cell_x * cell_width) as f32 / texture_width,
+                    ((cell_x + 1) * cell_width) as f32 / texture_width,
+                    (cell_y * cell_height) as f32 / texture_height,
+                    ((cell_y + 1) * cell_height) as f32 / texture_height);
+                let tile = SubTexture::new_with_coords(Rc::clone(&texture), uv);
+                tiles.push(tile);
+            }
+        }
+        tiles
     }
 }
 

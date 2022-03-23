@@ -1,3 +1,5 @@
+//! The [`Shader`] struct, and [`ShaderType`] enum.
+
 use std::fmt;
 use web_sys::WebGlProgram;
 use web_sys::WebGlShader;
@@ -5,14 +7,21 @@ use web_sys::WebGlUniformLocation;
 
 use crate::{gl, GL};
 
+/// Type of Shader
 #[repr(u32)]
 pub enum ShaderType {
+    /// Vertex Shader.
     VERTEX = GL::VERTEX_SHADER,
+    /// Fragment Shader.
     FRAGMENT = GL::FRAGMENT_SHADER,
 }
 
+/// A program that is run on the GPU.
+/// 
+/// A [Shader] contains a [`Program`](WebGlProgram), that can be bound and run on the GPU using [WebGL](GL).
 #[derive(Debug)]
 pub struct Shader {
+    /// A name to refer to the shader with, and for debugging purposes.
     pub name: &'static str,
     program: Option<WebGlProgram>,
 }
@@ -47,7 +56,7 @@ impl gl::Bind for Shader {
 }
 
 impl Shader {
-    /// Create a new Shader Program with default Vertex and Fragment shaders
+    /// Create a new Shader Program with default Vertex and Fragment shaders.
     pub fn new(gl: &GL) -> Self {
         let name = "Default Shader";
         let vertex_shader =
@@ -64,7 +73,7 @@ impl Shader {
         Self { name, program }
     }
 
-    /// Create a new Shader with default Fragment Shader and a custom Vertex Shader
+    /// Create a new Shader with default Fragment Shader and a custom Vertex Shader.
     pub fn new_with_vertex(
         gl: &GL,
         vertex_shader: WebGlShader,
@@ -82,17 +91,17 @@ impl Shader {
         Self { name, program }
     }
 
-    /// Create a fragment `WebGlShader`
+    /// Create a fragment `WebGlShader`.
     pub fn create_fragment(gl: &GL, source: &str) -> Result<WebGlShader, String> {
         Self::create_with_type(gl, ShaderType::FRAGMENT, source)
     }
 
-    /// Create a vertex `WebGlShader`
+    /// Create a vertex `WebGlShader`.
     pub fn create_vertex(gl: &GL, source: &str) -> Result<WebGlShader, String> {
         Self::create_with_type(gl, ShaderType::VERTEX, source)
     }
 
-    /// Create a new `WebGlShader` with a given `ShaderType`
+    /// Create a new `WebGlShader` with a given `ShaderType`.
     pub fn create_with_type(
         gl: &GL,
         shader_type: ShaderType,
@@ -116,6 +125,8 @@ impl Shader {
                 .unwrap_or_else(|| String::from("Could not compile shader.")))
         }
     }
+
+    /// Create a new [`WebGlProgram`] with the given vertex and fragment [`shaders`](WebGlShader).
     pub fn program_with_vertex_and_fragment(
         gl: &GL,
         vertex_shader: &WebGlShader,
@@ -143,7 +154,7 @@ impl Shader {
         }
     }
 
-    /// Get the location of a uniform on the `Shader`
+    /// Get the location of a uniform on the `Shader`.
     pub fn get_uniform_location(&self, gl: &GL, name: &str) -> Option<WebGlUniformLocation> {
         self.program
             .as_ref()
@@ -151,7 +162,7 @@ impl Shader {
             .unwrap()
     }
 
-    /// Get the location of an attribute on the `Shader`
+    /// Get the location of an attribute on the `Shader`.
     pub fn get_attrib_location(&self, gl: &GL, name: &str) -> Option<i32> {
         self.program
             .as_ref()

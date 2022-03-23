@@ -1,20 +1,19 @@
+//! The definitions of [`Vertex`], [`Mesh`] and their implementations.
+
 use web_sys::{WebGlBuffer, WebGlVertexArrayObject};
 
 use crate::{gl, GL};
 
-pub const MAX_BATCH_QUADS: i32 = 1000;
-pub const MAX_BATCH_VERTICES: i32 = MAX_BATCH_QUADS * 4;
-pub const MAX_BATCH_INDICES: i32 = MAX_BATCH_QUADS * 6;
-
-const WHITE_F32: [f32; 4] = [0.0, 1.0, 0.40, 1.0];
-
 /// The `Vertex` struct holds the data that will be later sent to WebGL in a `GL::ARRAY_BUFFER`.
 /// It consists of position and color vectors, and UV co-ordinates.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 pub struct Vertex {
+    /// A two component array of [`f32`], representing the position of the [`Vertex`].
     pub position: [f32; 2],
+    /// A two component array of [`f32`], representing the UV co-ordinates of the [`Vertex`].
     pub uv: [f32; 2],
+    /// A four component array of [`f32`], representing the color of the [`Vertex`].
     pub color: [f32; 4],
 }
 
@@ -23,14 +22,21 @@ impl Default for Vertex {
         Self { 
             position: [0.0, 0.0], 
             uv: [0.0, 0.0], 
-            color: WHITE_F32
+            color: [1.0, 1.0, 1.0, 1.0]
         }
     }
 }
 
+/// An indiced [`Mesh`], stored along with it's vertex array, index array and vertex buffer.
 #[derive(Debug)]
 pub struct Mesh {
+    /// Vertices of the Mesh.
+    /// 
+    /// Represented as a [`Vec`] of [`Vertex`]s.
     pub vertices: Vec<Vertex>,
+    /// Indices of the Mesh.
+    /// 
+    /// Stored as a [`Vec`] of [`u32`].
     pub indices: Vec<u32>,
     vao: WebGlVertexArrayObject,
     vbo: WebGlBuffer,
@@ -62,6 +68,7 @@ impl gl::Bind for Mesh {
 }
 
 impl Mesh {
+    /// Create a new [`Mesh`] with the given [`vertices`](Vertex) and indices.
     pub fn new(gl: &GL, vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
         Self {
             vertices,

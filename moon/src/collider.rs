@@ -1,37 +1,66 @@
+//! Definition of the [`Collider`] and [`Collide`] traits, as well as simple Colliders.
+
 use crate::clamp;
 use crate::Point;
 
-/// Default bounding box size for a `Point`
-const POINT_BOUNDING_SIZE: f32 = 0.1;
+/// Default bounding box size for a [`Point`].
+pub const POINT_BOUNDING_SIZE: f32 = 0.1;
 
-/// The `Collider` trait is implemented by different Colliders
+/// The `Collider` trait is implemented by different Colliders.
 pub trait Collider {
-    /// Get the bounding box of a Collider as an `AABB`
+    /// Get the bounding box of a Collider as an `AABB`.
     fn get_bounding_box(&self) -> AABB;
 
-    /// Get the center of the Collider as a `Point`
+    /// Get the center of the Collider as a `Point`.
     fn get_center(&self) -> Point;
 }
 
-/// The `Collide` trait is used to define collisions between two Colliders
+/// The `Collide` trait is used to define collisions between two [Colliders](Collider).
 pub trait Collide<T: Collider> {
+    /// Checks if two [Colliders](Collider) intersect.
+    /// 
+    /// Returns a `bool` indicating whether a collision occured.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use moon::Point;
+    /// # use moon::collider::{Collide, Circle};
+    /// let a = Point::new(0.0, 0.5);
+    /// let b = Circle::new_size(0.1);
+    /// 
+    /// let collision: bool = a.collide_with(&b);
+    /// ```
     fn collide_with(&self, _other: &T) -> bool;
 }
 
-/// Axis-Aligned Bounding Box (AABB)
-#[derive(Debug, Default)]
+/// An Axis-Aligned Bounding Box (AABB).
+#[derive(Debug)]
 pub struct AABB {
+    /// The lowest point on the X and Y axes of the [`AABB`].
     pub min: Point,
+    /// The highest point on the X and Y axes of the [`AABB`].
     pub max: Point,
 }
 
+impl Default for AABB {
+    fn default() -> Self {
+        Self { 
+            min: Point::new(-0.5, -0.5),
+            max: Point::new(0.5, 0.5)
+        }
+    }
+}
+
 impl AABB {
+    /// Creates a new [`AABB`] with a size of 1 unit, centered at a given co-ordinates.
     pub fn new_position(x: f32, y: f32) -> Self {
         Self {
             min: Point::new(x - 0.5, y - 0.5),
             max: Point::new(x + 0.5, y + 0.5),
         }
     }
+    /// Creates a new [`AABB`] with a given width and height, centered at the origin (0, 0).
     pub fn new_size(width: f32, height: f32) -> Self {
         let half: Point = Point::new(width / 2.0, height / 2.0);
         Self {
@@ -39,6 +68,7 @@ impl AABB {
             max: half,
         }
     }
+    /// Creates a new [`AABB`] with a given width and height, centered at the given co-ordinates.
     pub fn new_position_and_size(x: f32, y: f32, width: f32, height: f32) -> Self {
         let position: Point = Point::new(x, y);
         let half: Point = Point::new(width / 2.0, height / 2.0);
@@ -49,26 +79,33 @@ impl AABB {
     }
 }
 
-/// Cicle
-#[derive(Debug, Default)]
+/// A Cicle Collider.
+#[derive(Debug)]
 pub struct Circle {
+    /// The [`Point`] at which the [`Circle`] is centered.
     pub origin: Point,
+    /// Radius of the Circle Collider.
+    /// 
+    /// The radius defines how far any given point on it's circumference is from it's center.
     pub radius: f32,
 }
 
 impl Circle {
+    /// Creates a new [`Circle`] with a radius of 0.5 unit, centered at the given co-ordinates.
     pub fn new_position(x: f32, y: f32) -> Self {
         Self {
             origin: Point::new(x, y),
             radius: 0.5,
         }
     }
+    /// Creates a new [`Circle`] with a given radius, centered at the origin (0, 0).
     pub fn new_size(radius: f32) -> Self {
         Self {
             origin: Point::zeros(),
             radius,
         }
     }
+    /// Creates a new [`Circle`] with a given radius, centered at the given co-ordinates.
     pub fn new_position_and_size(x: f32, y: f32, radius: f32) -> Self {
         Self {
             origin: Point::new(x, y),
@@ -78,12 +115,12 @@ impl Circle {
 }
 
 impl Collider for Point {
-    /// Get a bounding box for a `Point`, using `POINT_BOUNDING_SIZE` as its size
+    /// Get a bounding box for a [`Point`], using [`POINT_BOUNDING_SIZE`] as its size
     fn get_bounding_box(&self) -> AABB {
         AABB::new_position_and_size(self.x, self.y, POINT_BOUNDING_SIZE, POINT_BOUNDING_SIZE)
     }
 
-    /// Get the center of the Point Collider
+    /// Get the center of the [`Point`] Collider
     fn get_center(&self) -> Point {
         *self
     }
