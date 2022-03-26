@@ -15,7 +15,6 @@ pub const FIXED_HEIGHT: f32 = FIXED_WIDTH / 1.77;
 pub struct Camera {
     /// [`Transform`] for the Camera
     pub transform: Transform,
-    ///
     orthographic: Ortho,
     width: f32,
     height: f32,
