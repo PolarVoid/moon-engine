@@ -218,19 +218,14 @@ impl SubTexture {
         vertical_cells: u32,
     ) -> Vec<SubTexture> {
         assert!(horizontal_cells > 0 && vertical_cells > 0);
-        let (cell_width, cell_height) = (
-            texture.width / horizontal_cells,
-            texture.height / vertical_cells,
-        );
-        let (texture_width, texture_height) = (texture.width as f32, texture.height as f32);
         let mut tiles: Vec<SubTexture> = Vec::new();
         for cell_x in 0..horizontal_cells {
             for cell_y in 0..vertical_cells {
                 let uv = Color32(
-                    (cell_x * cell_width) as f32 / texture_width,
-                    ((cell_x + 1) * cell_width) as f32 / texture_width,
-                    (cell_y * cell_height) as f32 / texture_height,
-                    ((cell_y + 1) * cell_height) as f32 / texture_height,
+                    cell_x as f32 / horizontal_cells as f32,
+                    (cell_x + 1) as f32 / horizontal_cells as f32,
+                    cell_y as f32 / vertical_cells as f32,
+                    (cell_y + 1) as f32 / vertical_cells as f32,
                 );
                 let tile = SubTexture::new_with_coords(Rc::clone(&texture), uv);
                 tiles.push(tile);
