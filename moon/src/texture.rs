@@ -242,7 +242,7 @@ impl Bind for SubTexture {
             texture.bind(gl);
         }
     }
-    fn unbind(&self, _gl: &GL) {
-        _gl.bind_texture(GL::TEXTURE_2D, None);
+    fn unbind(&self, gl: &GL) {
+        gl.bind_texture(GL::TEXTURE_2D, None);
     }
 }
