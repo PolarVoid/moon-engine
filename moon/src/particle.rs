@@ -1,49 +1,26 @@
 //! THe [`Particle`] and [`ParticleSystem`].
 
-use nalgebra::{Vector2, Vector4};
-
+use crate::math::*;
 use crate::component::Component;
 use crate::transform::Transform2D;
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
 const MAX_PARTICLES: usize = 100;
 
-pub enum ParticleValue<T: Copy> {
-    Constant(T),
-    Linear(T, T),
-    Random(T, T),
-}
-
-impl<T: Default + Copy> Default for ParticleValue<T> {
-    fn default() -> Self {
-        ParticleValue::Constant(T::default())
-    }
-}
-
-impl<T: Copy> ParticleValue<T> {
-    pub fn get_value(&self, _time: f32) -> T {
-        match self {
-            ParticleValue::Constant(value) => *value,
-            ParticleValue::Linear(_min, _max) => todo!(),
-            ParticleValue::Random(_min, _max) => *_min,
-        }
-    }
-}
-
 pub struct ParticleProps {
-    pub lifetime: ParticleValue<f32>,
-    pub velocity: ParticleValue<Vector2<f32>>,
-    pub color: ParticleValue<Vector4<f32>>,
-    pub size: ParticleValue<f32>,
+    pub lifetime: f32,
+    pub velocity: Vec2,
+    pub color: Color32,
+    pub size: f32,
 }
 
 impl Default for ParticleProps {
     fn default() -> Self {
         Self {
-            lifetime: ParticleValue::Constant(10.0),
-            velocity: ParticleValue::Constant(Vector2::new(0.0, -1.0)),
-            color: ParticleValue::Constant(Vector4::new(1.0, 1.0, 1.0, 1.0)),
-            size: ParticleValue::Constant(1.0),
+            lifetime: 10.0,
+            velocity: Vec2::new(0.0, -1.0),
+            color: Color32::WHITE,
+            size: 1.0,
         }
     }
 }
@@ -52,7 +29,7 @@ impl Default for ParticleProps {
 pub struct Particle {
     transform: Transform2D,
     lifetime: f32,
-    velocity: Vector2<f32>,
+    velocity: Vec2,
     age: f32,
     alive: bool,
 }
@@ -62,7 +39,7 @@ impl Default for Particle {
         Self {
             transform: Default::default(),
             lifetime: 10.0,
-            velocity: Vector2::new(0.0, -1.0),
+            velocity: Vec2::new(0.0, -1.0),
             age: 0.0,
             alive: true,
         }
