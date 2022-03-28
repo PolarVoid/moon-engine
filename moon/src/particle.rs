@@ -2,8 +2,10 @@
 
 use nalgebra::{Vector2, Vector4};
 
+use crate::component::Component;
 use crate::transform::Transform2D;
 
+/// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
 const MAX_PARTICLES: usize = 100;
 
 pub enum ParticleValue<T: Copy> {
@@ -46,9 +48,9 @@ impl Default for ParticleProps {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Particle {
     transform: Transform2D,
-    properties: ParticleProps,
     lifetime: f32,
     velocity: Vector2<f32>,
     age: f32,
@@ -59,7 +61,6 @@ impl Default for Particle {
     fn default() -> Self {
         Self {
             transform: Default::default(),
-            properties: Default::default(),
             lifetime: 10.0,
             velocity: Vector2::new(0.0, -1.0),
             age: 0.0,
@@ -68,8 +69,8 @@ impl Default for Particle {
     }
 }
 
-impl Particle {
-    pub fn update(&mut self, delta_time: f32) {
+impl Component for Particle {
+    fn update(&mut self, delta_time: f32) {
         self.age += delta_time;
         if self.age > self.lifetime {
             self.alive = false;
@@ -79,6 +80,29 @@ impl Particle {
     }
 }
 
-struct ParticleSystem {
+/// A [`ParticleSystem`] deals with the emmision, and creation of [`Particles`](Particle).
+pub struct ParticleSystem {
     particles: Vec<Particle>,
+}
+
+impl Default for ParticleSystem {
+    fn default() -> Self {
+        Self { 
+            particles: Vec::with_capacity(MAX_PARTICLES)
+        }
+    }
+}
+
+impl Component for ParticleSystem {
+    fn init(&mut self) {
+        self.particles.fill(Particle::default())
+    }
+
+    fn update(&mut self, delta_time: f32) {
+        for particle in self.particles.iter_mut() {
+            if particle.alive {
+                particle.update(delta_time);
+            }
+        }
+    }
 }

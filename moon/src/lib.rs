@@ -5,6 +5,7 @@
 
 pub mod camera;
 pub mod collider;
+pub mod component;
 pub mod gl;
 pub mod input;
 pub mod math;
@@ -14,6 +15,7 @@ pub mod renderer;
 pub mod shader;
 pub mod texture;
 pub mod transform;
+pub mod ui;
 pub mod utils;
 pub mod web;
 
