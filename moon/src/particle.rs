@@ -1,3 +1,5 @@
+//! THe [`Particle`] and [`ParticleSystem`].
+
 use nalgebra::{Vector2, Vector4};
 
 use crate::transform::Transform2D;
@@ -67,8 +69,8 @@ impl Default for Particle {
 }
 
 impl Particle {
-    pub fn update(&mut self, _time: f32) {
-        self.age += _time;
+    pub fn update(&mut self, delta_time: f32) {
+        self.age += delta_time;
         if self.age > self.lifetime {
             self.alive = false;
         } else {
@@ -78,5 +80,5 @@ impl Particle {
 }
 
 struct ParticleSystem {
-    particles: [Particle; MAX_PARTICLES],
+    particles: Vec<Particle>,
 }
