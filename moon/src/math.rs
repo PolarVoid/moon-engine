@@ -85,6 +85,13 @@ impl Color32 {
     pub const fn w(&self) -> f32 {
         self.3
     }
+    
+    /// Pure White Color.
+    pub const WHITE: Color32 = Color32(1.0, 1.0, 1.0, 1.0);
+    /// Pure Black Color.
+    pub const BLACK: Color32 = Color32(0.0, 0.0, 0.0, 1.0);
+    /// Magenta Color.
+    pub const MAGENTA: Color32 = Color32(1.0, 0.0, 1.0, 1.0);
 }
 
 impl From<&[f32; 4]> for Color32 {
@@ -222,13 +229,6 @@ impl From<Color32> for Color8 {
         )
     }
 }
-
-/// Pure White Color.
-pub const WHITE: Color32 = Color32(1.0, 1.0, 1.0, 1.0);
-/// Pure Black Color.
-pub const BLACK: Color32 = Color32(0.0, 0.0, 0.0, 1.0);
-/// Magenta Color.
-pub const MAGENTA: Color32 = Color32(1.0, 0.0, 1.0, 1.0);
 
 /// A [`Point`] is an alias to Vec2.
 pub type Point = Vec2;

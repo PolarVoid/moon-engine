@@ -134,12 +134,12 @@ impl Texture {
 
     /// A fully-white [`Texture`].
     pub fn white(gl: &GL) -> Self {
-        Self::colored(gl, crate::WHITE)
+        Self::colored(gl, Color32::WHITE)
     }
 
     /// A black and white checkerboard [`Texture`].
     pub fn checkerboard(gl: &GL) -> Self {
-        Self::checkerboard_colored(gl, crate::WHITE, crate::BLACK)
+        Self::checkerboard_colored(gl, Color32::WHITE, Color32::BLACK)
     }
 
     /// A checkerboard [`Texture`] with two [`Color32`]s.

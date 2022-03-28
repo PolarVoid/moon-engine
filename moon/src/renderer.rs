@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 use web_sys::WebGlUniformLocation;
 
-use crate::{gl, mesh, texture};
+use crate::{gl, mesh, texture, Color32};
 use crate::{Camera, Shader, Transform, GL};
 
 use gl::Bind;
@@ -50,7 +50,7 @@ impl Default for Renderer {
             textures: {
                 let mut textues = BTreeMap::<&str, Rc<Texture>>::new();
                 textues.insert("WHITE", Rc::new(Texture::white(&gl)));
-                textues.insert("MAGENTA", Rc::new(Texture::colored(&gl, crate::MAGENTA)));
+                textues.insert("MAGENTA", Rc::new(Texture::colored(&gl, Color32::MAGENTA)));
                 textues.insert("CHECKERBOARD", Rc::new(Texture::checkerboard(&gl)));
                 textues
             },
