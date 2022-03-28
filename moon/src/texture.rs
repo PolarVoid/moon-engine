@@ -118,6 +118,7 @@ impl Texture {
         )
         .expect("Failed to generate texture");
         gl.generate_mipmap(GL::TEXTURE_2D);
+
         Self {
             width,
             height,
