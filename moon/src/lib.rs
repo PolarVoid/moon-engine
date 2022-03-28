@@ -9,6 +9,7 @@ pub mod gl;
 pub mod input;
 pub mod math;
 pub mod mesh;
+pub mod particle;
 pub mod renderer;
 pub mod shader;
 pub mod texture;
