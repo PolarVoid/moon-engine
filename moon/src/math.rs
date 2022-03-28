@@ -36,6 +36,33 @@ impl Default for Color32 {
     }
 }
 
+impl Add for Color32 {
+    type Output = Color32;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Color32 (
+            clamp(self.0 + rhs.0, 0.0, 1.0),
+            clamp(self.1 + rhs.1, 0.0, 1.0),
+            clamp(self.2 + rhs.2, 0.0, 1.0),
+            clamp(self.3 + rhs.3, 0.0, 1.0),
+        )
+    }
+}
+
+impl Mul<f32> for Color32 {
+    type Output = Color32;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Color32 (
+            self.0 * rhs,
+            self.1 * rhs,
+            self.2 * rhs,
+            self.3 * rhs,
+        )
+    }
+}
+
+
 impl Color32 {
     /// Get the Red component of the [`Color32`].
     ///
@@ -92,6 +119,8 @@ impl Color32 {
     pub const BLACK: Color32 = Color32(0.0, 0.0, 0.0, 1.0);
     /// Magenta Color.
     pub const MAGENTA: Color32 = Color32(1.0, 0.0, 1.0, 1.0);
+    /// All fields zeroed out.
+    pub const ZEROES: Color32 = Color32(0.0, 0.0, 0.0, 0.0);
 }
 
 impl From<&[f32; 4]> for Color32 {
@@ -233,4 +262,51 @@ impl From<Color32> for Color8 {
 /// A [`Point`] is an alias to Vec2.
 pub type Point = Vec2;
 
+use std::ops::{Add, Mul};
+
 pub use nalgebra::clamp;
+
+use js_sys::Math::random as random_f64;
+
+/// Trait for generating random values
+pub trait Random {
+    /// Get a random value.
+    fn random() -> Self;
+    /// Get a random value, expanded to another range.
+    fn random_range(max: Self) -> Self;
+}
+
+impl Random for f32 {
+    fn random() -> Self {
+        random_f64() as f32
+    }
+
+    fn random_range(max: Self) -> Self {
+        random_f64() as f32 * max
+    }
+}
+
+impl Random for Vec2 {
+    fn random() -> Self {
+        Vec2::new(f32::random(), f32::random())
+    }
+
+    fn random_range(max: Self) -> Self {
+        Vec2::new(f32::random_range(max.x), f32::random_range(max.y))
+    }
+}
+
+impl Random for Color32 {
+    fn random() -> Self {
+        Color32(f32::random(), f32::random(), f32::random(), 1.0)
+    }
+
+    fn random_range(max: Self) -> Self {
+        Color32(
+            f32::random_range(max.0),
+            f32::random_range(max.1),
+            f32::random_range(max.2),
+            f32::random_range(max.3)
+        )
+    }
+}
