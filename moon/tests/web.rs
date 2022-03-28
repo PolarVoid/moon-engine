@@ -15,6 +15,7 @@ fn get_now_sec() {
     assert!(now_sec() > 0.0);
 }
 
+#[wasm_bindgen_test]
 fn can_get_context() {
     use moon::gl::get_context;
 
