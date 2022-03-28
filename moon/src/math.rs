@@ -40,7 +40,7 @@ impl Add for Color32 {
     type Output = Color32;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Color32 (
+        Color32(
             clamp(self.0 + rhs.0, 0.0, 1.0),
             clamp(self.1 + rhs.1, 0.0, 1.0),
             clamp(self.2 + rhs.2, 0.0, 1.0),
@@ -53,15 +53,9 @@ impl Mul<f32> for Color32 {
     type Output = Color32;
 
     fn mul(self, rhs: f32) -> Self::Output {
-        Color32 (
-            self.0 * rhs,
-            self.1 * rhs,
-            self.2 * rhs,
-            self.3 * rhs,
-        )
+        Color32(self.0 * rhs, self.1 * rhs, self.2 * rhs, self.3 * rhs)
     }
 }
-
 
 impl Color32 {
     /// Get the Red component of the [`Color32`].
@@ -112,7 +106,7 @@ impl Color32 {
     pub const fn w(&self) -> f32 {
         self.3
     }
-    
+
     /// Pure White Color.
     pub const WHITE: Color32 = Color32(1.0, 1.0, 1.0, 1.0);
     /// Pure Black Color.
@@ -306,7 +300,7 @@ impl Random for Color32 {
             f32::random_range(max.0),
             f32::random_range(max.1),
             f32::random_range(max.2),
-            f32::random_range(max.3)
+            f32::random_range(max.3),
         )
     }
 }

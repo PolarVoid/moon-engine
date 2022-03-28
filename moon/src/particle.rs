@@ -1,14 +1,14 @@
 //! The [`Particle`] and [`ParticleSystem`] structs.
 
-use crate::math::*;
 use crate::component::Component;
+use crate::math::*;
 use crate::transform::Transform2D;
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
 const MAX_PARTICLES: usize = 100;
 
 /// A [`ParticleProps`] defines how [`Particles`](Particle) are created.
-/// 
+///
 /// Reusing a [`ParticleProps`] allows for similar [`Particles`](Particle) to be emitted.
 pub struct ParticleProps {
     /// How long the [`Particle`] will last.
@@ -92,9 +92,7 @@ impl From<&ParticleProps> for Particle {
         Self {
             transform: Transform2D::default(),
             lifetime: properties.lifetime,
-            velocity: {
-                properties.velocity + Vec2::random_range(properties.velocity_modifier)
-            },
+            velocity: { properties.velocity + Vec2::random_range(properties.velocity_modifier) },
             color: Color32::ZEROES,
             color_start: properties.color_start + Color32::random_range(properties.color_modifier),
             color_end: properties.color_end + Color32::random_range(properties.color_modifier),
@@ -113,7 +111,7 @@ pub struct ParticleSystem {
 
 impl Default for ParticleSystem {
     fn default() -> Self {
-        Self { 
+        Self {
             emission: ParticleProps::default(),
             particles: Vec::with_capacity(MAX_PARTICLES),
             index: 0,
