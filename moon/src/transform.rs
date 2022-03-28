@@ -98,6 +98,7 @@ impl Transform {
 /// A 2D counterpart for the [`Transform`].
 ///
 /// A [`Transform2D`] contains Position and Scale [`Vec2`]s and a float for rotation.
+#[derive(Debug, Clone)]
 pub struct Transform2D {
     /// Position of the [`Transform2D`].
     pub position: Vec2,
