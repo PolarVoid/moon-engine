@@ -260,8 +260,6 @@ use std::ops::{Add, Mul};
 
 pub use nalgebra::clamp;
 
-use js_sys::Math::random as random_f64;
-
 /// Trait for generating random values
 pub trait Random {
     /// Get a random value.
@@ -272,11 +270,11 @@ pub trait Random {
 
 impl Random for f32 {
     fn random() -> Self {
-        random_f64() as f32
+        js_sys::Math::random() as f32
     }
 
     fn random_range(max: Self) -> Self {
-        random_f64() as f32 * max
+        f32::random() * max
     }
 }
 
