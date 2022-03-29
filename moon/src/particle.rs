@@ -7,6 +7,7 @@ use crate::transform::Transform2D;
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
 const MAX_PARTICLES: usize = 100000;
+const PARTICLE_PRESTART_TIME: f32 = 5.0;
 
 /// A [`ParticleProps`] defines how [`Particles`](Particle) are created.
 ///
@@ -25,6 +26,10 @@ pub struct ParticleProps {
     pub color_end: Color32,
     /// A modifier field for the color of the [`Particle`].
     pub color_modifier: Color32,
+    /// How many [`Particles`](Particle) to emit on each update.
+    pub burst_count: u32,
+    /// The number of [`Particles`](Particle) to begin with already instantiated.
+    pub prestart: u32,
     /// The size of the [`Particle`].
     pub size: Vec2,
 }
@@ -35,25 +40,44 @@ impl Default for ParticleProps {
             lifetime: 10.0,
             velocity: Vec2::new(0.0, -0.005),
             velocity_modifier: Vec2::new(0.0025, 0.002),
-            color_start: Color32::WHITE,
-            color_end: Color32::WHITE,
-            color_modifier: Color32::ZEROES,
+            color_start: Color32(0.0, 0.6, 1.0, 0.9),
+            color_end: Color32(0.95, 0.2, 1.0, 1.0),
+            color_modifier: Color32(0.2, 0.4, 0.1, 0.0),
+            burst_count: 15,
+            prestart: 10,
             size: Vec2::new(0.05, 0.05),
         }
     }
 }
 
 impl ParticleProps {
-    /// A 
+    /// A Fire [`ParticleProps`] preset.
     pub const fn fire() -> Self {
         Self {
             lifetime: 10.0,
-            velocity: Vec2::new(0.0, -0.005),
-            velocity_modifier: Vec2::new(0.002, 0.003),
+            velocity: Vec2::new(0.0, -0.006),
+            velocity_modifier: Vec2::new(0.002, 0.004),
             color_start: Color32(1.0, 1.0, 0.0, 1.0),
-            color_end: Color32(1.0, 0.7, 0.2, 1.0),
-            color_modifier: Color32(0.2, 0.3, 0.1, 1.0),
+            color_end: Color32(1.0, 0.0, 0.0, 1.0),
+            color_modifier: Color32(0.2, 0.2, 0.3, 0.0),
+            burst_count: 5,
+            prestart: 50,
             size: Vec2::new(0.05, 0.05),
+        }
+    }
+
+    /// A Smoke [`ParticleProps`] preset.
+    pub const fn smoke() -> Self {
+        Self {
+            lifetime: 15.0,
+            velocity: Vec2::new(0.0, -0.004),
+            velocity_modifier: Vec2::new(0.003, 0.002),
+            color_start: Color32(0.7, 0.7, 0.7, 1.0),
+            color_end: Color32::BLACK,
+            color_modifier: Color32(0.4, 0.4, 0.4, 0.0),
+            burst_count: 20,
+            prestart: 50,
+            size: Vec2::new(0.1, 0.15),
         }
     }
 }
@@ -157,9 +181,13 @@ impl Default for ParticleSystem {
 impl Component for ParticleSystem {
     fn init(&mut self) {
         self.particles.fill_with(Particle::default);
+        for _ in 0..self.emission.prestart {
+            self.update(PARTICLE_PRESTART_TIME);
+        }
     }
 
     fn update(&mut self, delta_time: f32) {
+        self.emit_many(self.emission.burst_count);
         for particle in self.particles.iter_mut() {
             if particle.alive {
                 particle.update(delta_time);

@@ -30,10 +30,9 @@ use shader::Shader;
 use transform::Transform;
 use utils::set_panic_hook;
 use web::Canvas;
-
-use crate::component::Component;
-use crate::particle::ParticleSystem;
-use crate::texture::Texture;
+use component::Component;
+use particle::ParticleSystem;
+use texture::Texture;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -89,10 +88,15 @@ impl Application {
 
         renderer.use_texture("WHITE");
 
-        let mut test = ParticleSystem::default();
-        test.transform.position = Vec2::new(0.0, 3.0);
-        test.init();
-        renderer.add_component("PARTICLE", Box::new(test));
+        let mut smoke = ParticleSystem::new_from_emission(particle::ParticleProps::default());
+        smoke.transform.position = Vec2::new(-4.0, 3.0);
+        smoke.init();
+        renderer.add_component("SMOKE", Box::new(smoke));
+
+        let mut fire = ParticleSystem::new_from_emission(particle::ParticleProps::fire());
+        fire.transform.position = Vec2::new(0.0, 3.0);
+        fire.init();
+        renderer.add_component("FIRE", Box::new(fire));
     }
 
     /// Called when window gets resized.
@@ -130,7 +134,7 @@ impl Application {
         self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
 
         if self.input.get_key_state(b'R') {
-            self.renderer.components.get_mut("PARTICLE").unwrap().init();
+            self.renderer.components.get_mut("SMOKE").unwrap().init();
         }
         let _horizontal = self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32;
         let _vertical = self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32;
@@ -138,12 +142,12 @@ impl Application {
         let ps = self
             .renderer
             .components
-            .get_mut("PARTICLE")
+            .get_mut("SMOKE")
             .unwrap()
             .as_mut_any()
             .downcast_mut::<ParticleSystem>()
             .unwrap();
-        ps.emit_many(20);
+        
         ps.transform.position = self.input.mouse_position;
 
         self.renderer.update_components(delta_time);
