@@ -2,6 +2,7 @@
 
 use crate::component::Component;
 use crate::math::*;
+use crate::renderer::Quad;
 use crate::transform::Transform2D;
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
@@ -24,7 +25,7 @@ pub struct ParticleProps {
     /// A modifier field for the color of the [`Particle`].
     pub color_modifier: Color32,
     /// The size of the [`Particle`].
-    pub size: f32,
+    pub size: Vec2,
 }
 
 impl Default for ParticleProps {
@@ -36,7 +37,7 @@ impl Default for ParticleProps {
             color_start: Color32::BLACK,
             color_end: Color32::WHITE,
             color_modifier: Color32::ZEROES,
-            size: 1.0,
+            size: Vec2::from_element(0.1),
         }
     }
 }
@@ -57,7 +58,7 @@ pub struct Particle {
 impl Default for Particle {
     fn default() -> Self {
         Self {
-            transform: Transform2D::default(),
+            transform: Transform2D::new_with_scale(0.1, 0.1),
             lifetime: 10.0,
             velocity: Vec2::new(0.0, -1.0),
             color: Color32::ZEROES,
@@ -90,14 +91,12 @@ impl Component for Particle {
 impl From<&ParticleProps> for Particle {
     fn from(properties: &ParticleProps) -> Self {
         Self {
-            transform: Transform2D::default(),
+            transform: Transform2D::new_with_scale(properties.size.x, properties.size.y),
             lifetime: properties.lifetime,
             velocity: { properties.velocity + Vec2::random_range(properties.velocity_modifier) },
-            color: Color32::ZEROES,
             color_start: properties.color_start + Color32::random_range(properties.color_modifier),
             color_end: properties.color_end + Color32::random_range(properties.color_modifier),
-            age: 0.0,
-            alive: false,
+            ..Default::default()
         }
     }
 }
@@ -153,5 +152,17 @@ impl ParticleSystem {
             particle.init();
             self.index += 1;
         }
+    }
+
+    /// Get a [`Vec`] of [`Quad`] from all the [`Particles`](Particle).
+    pub fn get_quads(&self) -> Vec<Quad> {
+        self.particles.iter().map(|particle| {
+            Quad::new_from_position_and_size(
+                particle.transform.position.x, 
+                particle.transform.position.y, 
+                particle.transform.scale.x, 
+                particle.transform.scale.y
+            )
+        }).collect()
     }
 }
