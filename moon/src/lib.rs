@@ -90,6 +90,7 @@ impl Application {
         renderer.use_texture("WHITE");
 
         let mut test = ParticleSystem::default();
+        test.transform.position = Vec2::new(0.0, 3.0);
         test.init();
         renderer.add_component("PARTICLE", Box::new(test));
     }
@@ -112,11 +113,11 @@ impl Application {
 
     /// Handles Mouse movement.
     #[wasm_bindgen]
-    pub fn mouse_move(&mut self, _mouse_x: i32, _mouse_y: i32) {
-        //     let (x, y) = self
-        //         .camera
-        //         .screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
-        //     //self.objects[1].transform.position = Vector3::new(x, 0.0, y);
+    pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
+        let (x, y) = self.renderer
+            .camera
+            .screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
+        self.input.mouse_position = Vec2::new(x, y);
     }
 
     /// Renders a new frame.
@@ -131,6 +132,9 @@ impl Application {
         if self.input.get_key_state(b'R') {
             self.renderer.components.get_mut("PARTICLE").unwrap().init();
         }
+        let _horizontal = self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32;
+        let _vertical = self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32;
+
         let ps = self
             .renderer
             .components
@@ -139,7 +143,8 @@ impl Application {
             .as_mut_any()
             .downcast_mut::<ParticleSystem>()
             .unwrap();
-        ps.emit_many(5);
+        ps.emit_many(20);
+        ps.transform.position = self.input.mouse_position;
 
         self.renderer.update_components(delta_time);
 
