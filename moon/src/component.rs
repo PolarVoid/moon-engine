@@ -2,7 +2,7 @@
 
 use std::any::Any;
 
-use crate::{renderer::Quad, Mat4};
+use crate::renderer::Quad;
 
 /// The [`Component`] trait
 pub trait Component {
@@ -16,14 +16,6 @@ pub trait Component {
     /// Get the [`Component`]'s drawable [`Quad`].
     fn get_quads(&self) -> Option<Vec<Quad>> {
         None
-    }
-
-    /// Move the [`Component`] by the given `X` and `Y` deltas.
-    fn translate(&mut self, _pos_x: f32, _pos_y: f32) {}
-
-    /// Get the model matrix for the [`Component`].
-    fn get_matrix(&self) -> Mat4 {
-        Mat4::identity()
     }
 
     /// Borrow the [`Component`] as a [`&mut dyn Any`](Any).
