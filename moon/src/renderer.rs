@@ -6,7 +6,7 @@ use std::rc::Rc;
 use web_sys::WebGlUniformLocation;
 
 use crate::component::Component;
-use crate::{gl, mesh, texture, Color32};
+use crate::{gl, mesh, texture, Color32, Mat4};
 use crate::{Camera, Shader, Transform, GL};
 
 use gl::Bind;
@@ -51,7 +51,13 @@ impl Default for Quad {
 
 impl Quad {
     /// Create a new [`Quad`] from a given position, size and color.
-    pub fn new_from_position_and_size_and_color(pos_x: f32, pos_y: f32, size_x: f32, size_y: f32, color: Color32) -> Self {
+    pub fn new_from_position_and_size_and_color(
+        pos_x: f32,
+        pos_y: f32,
+        size_x: f32,
+        size_y: f32,
+        color: Color32,
+    ) -> Self {
         let size_x = size_x / 2.0;
         let size_y = size_y / 2.0;
         let color = <[f32; 4]>::from(color);
@@ -59,22 +65,22 @@ impl Quad {
             Vertex {
                 position: [pos_x - size_x, pos_y + size_y],
                 uv: [0.0, 0.0],
-                color
+                color,
             },
             Vertex {
                 position: [pos_x - size_x, pos_y - size_y],
                 uv: [0.0, 1.0],
-                color
+                color,
             },
             Vertex {
                 position: [pos_x + size_x, pos_y - size_y],
                 uv: [1.0, 1.0],
-                color
+                color,
             },
             Vertex {
                 position: [pos_x + size_x, pos_y + size_y],
                 uv: [1.0, 0.0],
-                color
+                color,
             },
         ])
     }
@@ -193,7 +199,18 @@ impl Default for Renderer {
 
 impl fmt::Debug for Renderer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Renderer").field("gl", &self.gl).field("program", &self.program).field("camera", &self.camera).field("batches", &self.batches).field("textures", &self.textures).field("u_time", &self.u_time).field("u_color", &self.u_color).field("u_model_matrix", &self.u_model_matrix).field("u_view_matrix", &self.u_view_matrix).field("u_projection_matrix", &self.u_projection_matrix).finish()
+        f.debug_struct("Renderer")
+            .field("gl", &self.gl)
+            .field("program", &self.program)
+            .field("camera", &self.camera)
+            .field("batches", &self.batches)
+            .field("textures", &self.textures)
+            .field("u_time", &self.u_time)
+            .field("u_color", &self.u_color)
+            .field("u_model_matrix", &self.u_model_matrix)
+            .field("u_view_matrix", &self.u_view_matrix)
+            .field("u_projection_matrix", &self.u_projection_matrix)
+            .finish()
     }
 }
 
@@ -330,9 +347,9 @@ impl Renderer {
             .expect("Batch list empty. Check if begin_draw was called before.");
         if batch.vertices.len() + 4 > MAX_BATCH_VERTICES as usize {
             let mesh = Mesh::new(
-                gl, 
-                Vec::with_capacity(MAX_BATCH_VERTICES as usize), 
-                Vec::with_capacity(MAX_BATCH_INDICES as usize)
+                gl,
+                Vec::with_capacity(MAX_BATCH_VERTICES as usize),
+                Vec::with_capacity(MAX_BATCH_INDICES as usize),
             );
             self.batches.push(mesh);
 
@@ -420,12 +437,20 @@ impl Renderer {
     /// Draw the [`Components`](Component) of the [`Renderer`].
     pub fn draw_components(&mut self) {
         let gl = &self.gl;
-        let mut layers: Vec<Vec<Quad>> = self.components.values().filter_map(|component| component.get_quads()).map(|quads| quads).collect();
-        for layer in layers.iter_mut() {
+        let mut layers: Vec<(Mat4, Vec<Quad>)> = self
+            .components
+            .values()
+            .filter_map(|component| {
+                component
+                    .get_quads()
+                    .map(|quads| (component.get_matrix(), quads))
+            })
+            .collect();
+        for (model, layer) in layers.iter_mut() {
             let mut mesh = Mesh::new(
-                gl, 
-                Vec::with_capacity(layer.len() * 4), 
-                Vec::with_capacity(layer.len() * 6)
+                gl,
+                Vec::with_capacity(layer.len() * 4),
+                Vec::with_capacity(layer.len() * 6),
             );
             for (id, quad) in layer.iter_mut().enumerate() {
                 let last: u32 = id as u32 * 4;
@@ -434,6 +459,11 @@ impl Renderer {
                 mesh.indices.append(&mut indices);
             }
             mesh.setup(gl);
+            gl.uniform_matrix4fv_with_f32_array(
+                self.u_model_matrix.as_ref(),
+                false,
+                model.as_slice(),
+            );
             gl.draw_elements_with_i32(
                 GL::TRIANGLES,
                 mesh.indices.len() as i32,

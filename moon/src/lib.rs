@@ -92,7 +92,6 @@ impl Application {
         let mut test = ParticleSystem::default();
         test.init();
         renderer.add_component("PARTICLE", Box::new(test));
-
     }
 
     /// Called when window gets resized.
@@ -128,11 +127,18 @@ impl Application {
         let delta_time = delta_time as f32 / 1000.0;
 
         self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
-        
+
         if self.input.get_key_state(b'R') {
             self.renderer.components.get_mut("PARTICLE").unwrap().init();
         }
-        let ps = self.renderer.components.get_mut("PARTICLE").unwrap().as_mut_any().downcast_mut::<ParticleSystem>().unwrap();
+        let ps = self
+            .renderer
+            .components
+            .get_mut("PARTICLE")
+            .unwrap()
+            .as_mut_any()
+            .downcast_mut::<ParticleSystem>()
+            .unwrap();
         ps.emit_many(5);
 
         self.renderer.update_components(delta_time);

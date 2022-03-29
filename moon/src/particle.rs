@@ -3,7 +3,7 @@
 use crate::component::Component;
 use crate::math::*;
 use crate::renderer::Quad;
-use crate::transform::Transform2D;
+use crate::transform::{Transform, Transform2D};
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
 const MAX_PARTICLES: usize = 10000;
@@ -102,9 +102,17 @@ impl From<&ParticleProps> for Particle {
         Self {
             transform: Transform2D::new_with_scale(properties.size.x, properties.size.y),
             lifetime: properties.lifetime,
-            velocity: { properties.velocity + Vec2::random_range(-properties.velocity_modifier, properties.velocity_modifier) },
-            color_start: properties.color_start + Color32::random_range(properties.color_modifier, properties.color_modifier),
-            color_end: properties.color_end + Color32::random_range(properties.color_modifier, properties.color_modifier),
+            velocity: {
+                properties.velocity
+                    + Vec2::random_range(
+                        -properties.velocity_modifier,
+                        properties.velocity_modifier,
+                    )
+            },
+            color_start: properties.color_start
+                + Color32::random_range(properties.color_modifier, properties.color_modifier),
+            color_end: properties.color_end
+                + Color32::random_range(properties.color_modifier, properties.color_modifier),
             ..Default::default()
         }
     }
@@ -113,6 +121,7 @@ impl From<&ParticleProps> for Particle {
 /// A [`ParticleSystem`] deals with the emission, and creation of [`Particles`](Particle).
 #[derive(Debug, Clone)]
 pub struct ParticleSystem {
+    transform: Transform,
     emission: ParticleProps,
     particles: Vec<Particle>,
     index: usize,
@@ -124,13 +133,14 @@ impl Default for ParticleSystem {
             emission: ParticleProps::default(),
             particles: Vec::with_capacity(MAX_PARTICLES),
             index: 0,
+            transform: Transform::default(),
         }
     }
 }
 
 impl Component for ParticleSystem {
     fn init(&mut self) {
-        self.particles.fill_with(|| Particle::default());
+        self.particles.fill_with(Particle::default);
     }
 
     fn update(&mut self, delta_time: f32) {
@@ -143,21 +153,19 @@ impl Component for ParticleSystem {
     /// Get a [`Vec`] of [`Quad`] from all the [`Particles`](Particle).
     fn get_quads(&self) -> Option<Vec<Quad>> {
         Some(
-            self.particles.iter()
-                .filter_map(|particle| 
-                    if particle.alive {
-                        Some(particle)
-                    } else {
-                        None
-                    }).map(|particle| {
-                        Quad::new_from_position_and_size_and_color(
-                            particle.transform.position.x, 
-                            particle.transform.position.y, 
-                            particle.transform.scale.x, 
-                            particle.transform.scale.y,
-                            particle.color
-                        )
-                    }).collect()
+            self.particles
+                .iter()
+                .filter(|particle| particle.alive)
+                .map(|particle| {
+                    Quad::new_from_position_and_size_and_color(
+                        particle.transform.position.x,
+                        particle.transform.position.y,
+                        particle.transform.scale.x,
+                        particle.transform.scale.y,
+                        particle.color,
+                    )
+                })
+                .collect(),
         )
     }
 
@@ -167,6 +175,15 @@ impl Component for ParticleSystem {
 
     fn as_mut_any(&mut self) -> &mut dyn std::any::Any {
         self
+    }
+
+    fn translate(&mut self, pos_x: f32, pos_y: f32) {
+        self.transform.position.x += pos_x;
+        self.transform.position.y += pos_y;
+    }
+
+    fn get_matrix(&self) -> Mat4 {
+        self.transform.matrix()
     }
 }
 

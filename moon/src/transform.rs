@@ -7,7 +7,7 @@ use crate::Vec3;
 /// A 3D representation of an entity's position, rotation and scale.
 ///
 /// A [`Transform`] contains [`Vec3`]s for Position, ROtation and Scale.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Transform {
     matrix: Mat4,
     /// Position component of the [`Transform`].

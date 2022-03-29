@@ -294,7 +294,10 @@ impl Random for Vec2 {
     }
 
     fn random_range(min: Self, max: Self) -> Self {
-        Vec2::new(f32::random_range(min.x, max.x), f32::random_range(min.y, max.y))
+        Vec2::new(
+            f32::random_range(min.x, max.x),
+            f32::random_range(min.y, max.y),
+        )
     }
 }
 
