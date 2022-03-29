@@ -6,7 +6,7 @@ use std::rc::Rc;
 use web_sys::WebGlUniformLocation;
 
 use crate::component::Component;
-use crate::{gl, mesh, texture, Color32, Mat4};
+use crate::{gl, mesh, texture, Color32};
 use crate::{Camera, Shader, Transform, GL};
 
 use gl::Bind;
@@ -437,16 +437,12 @@ impl Renderer {
     /// Draw the [`Components`](Component) of the [`Renderer`].
     pub fn draw_components(&mut self) {
         let gl = &self.gl;
-        let mut layers: Vec<(Mat4, Vec<Quad>)> = self
+        let mut layers: Vec<Vec<Quad>> = self
             .components
             .values()
-            .filter_map(|component| {
-                component
-                    .get_quads()
-                    .map(|quads| (component.get_matrix(), quads))
-            })
+            .filter_map(|component| component.get_quads())
             .collect();
-        for (model, layer) in layers.iter_mut() {
+        for layer in layers.iter_mut() {
             let mut mesh = Mesh::new(
                 gl,
                 Vec::with_capacity(layer.len() * 4),
@@ -459,11 +455,6 @@ impl Renderer {
                 mesh.indices.append(&mut indices);
             }
             mesh.setup(gl);
-            gl.uniform_matrix4fv_with_f32_array(
-                self.u_model_matrix.as_ref(),
-                false,
-                model.as_slice(),
-            );
             gl.draw_elements_with_i32(
                 GL::TRIANGLES,
                 mesh.indices.len() as i32,
