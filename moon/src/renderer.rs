@@ -91,32 +91,38 @@ impl Default for Quad {
 }
 
 impl Quad {
-    /// Create a new [`Quad`] from a given position and size.
-    pub fn new_from_position_and_size(pos_x: f32, pos_y: f32, size_x: f32, size_y: f32) -> Self {
+    /// Create a new [`Quad`] from a given position, size and color.
+    pub fn new_from_position_and_size_and_color(pos_x: f32, pos_y: f32, size_x: f32, size_y: f32, color: Color32) -> Self {
         let size_x = size_x / 2.0;
         let size_y = size_y / 2.0;
+        let color = <[f32; 4]>::from(color);
         Self([
             Vertex {
                 position: [pos_x - size_x, pos_y + size_y],
                 uv: [0.0, 0.0],
-                ..Default::default()
+                color
             },
             Vertex {
                 position: [pos_x - size_x, pos_y - size_y],
                 uv: [0.0, 1.0],
-                ..Default::default()
+                color
             },
             Vertex {
                 position: [pos_x + size_x, pos_y - size_y],
                 uv: [1.0, 1.0],
-                ..Default::default()
+                color
             },
             Vertex {
                 position: [pos_x + size_x, pos_y + size_y],
                 uv: [1.0, 0.0],
-                ..Default::default()
+                color
             },
         ])
+    }
+
+    /// Create a new [`Quad`] from a given position and size.
+    pub fn new_from_position_and_size(pos_x: f32, pos_y: f32, size_x: f32, size_y: f32) -> Self {
+        Self::new_from_position_and_size_and_color(pos_x, pos_y, size_x, size_y, Color32::WHITE)
     }
 
     /// Create a new [`Quad`] from a given position, size, and a reference to a [`SubTexture`].
