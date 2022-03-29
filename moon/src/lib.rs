@@ -19,22 +19,20 @@ pub mod ui;
 pub mod utils;
 pub mod web;
 
-use std::rc::Rc;
-
 use wasm_bindgen::prelude::*;
 
 use camera::Camera;
 use gl::GL;
 use input::InputManager;
 pub use math::*;
-use renderer::Quad;
 use renderer::Renderer;
 use shader::Shader;
 use transform::Transform;
 use utils::set_panic_hook;
 use web::Canvas;
 
-use crate::texture::SubTexture;
+use crate::component::Component;
+use crate::particle::ParticleSystem;
 use crate::texture::Texture;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -89,7 +87,12 @@ impl Application {
 
         renderer.add_texture("PLATFORMER", spritesheet);
 
-        renderer.use_texture("PLATFORMER");
+        renderer.use_texture("WHITE");
+
+        let mut test = ParticleSystem::default();
+        test.init();
+        renderer.add_component("PARTICLE", Box::new(test));
+
     }
 
     /// Called when window gets resized.
@@ -121,42 +124,21 @@ impl Application {
     ///
     /// Called every frame, and draws its output onto the [Canvas](web_sys::HtmlCanvasElement).
     #[wasm_bindgen]
-    pub fn render(&mut self, _delta_time: u32) {
-        use nalgebra::Vector3;
+    pub fn render(&mut self, delta_time: u32) {
+        let delta_time = delta_time as f32 / 1000.0;
+
         self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
-
-        self.renderer.begin_draw();
-
-        let position = [
-            self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32,
-            self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32,
-        ];
-        let position = Vector3::new(position[0] as f32, position[1] as f32, 0.0)
-            / (_delta_time as f32 * 100.0)
-            * 15.0;
-
-        self.renderer
-            .camera
-            .transform
-            .set_position(self.renderer.camera.transform.position + position);
-
-        let texture = self.renderer.get_texture("PLATFORMER");
-        let tiles = SubTexture::create_tiles_from_spritesheet(Rc::clone(&texture), 10, 6);
-        for x_offset in 0..10 {
-            for y_offset in 0..7 {
-                let index = ((x_offset + y_offset - (web::now_sec() * 6.0) as usize) % 7) * 6 + 1;
-                let quad = Quad::new_from_position_and_size_and_sprite(
-                    x_offset as f32 - 5.0,
-                    y_offset as f32 - 3.0,
-                    1.0,
-                    1.0,
-                    tiles.get(index).unwrap(),
-                );
-                self.renderer.add_quad(quad);
-            }
+        
+        if self.input.get_key_state(b'R') {
+            self.renderer.components.get_mut("PARTICLE").unwrap().init();
         }
+        let ps = self.renderer.components.get_mut("PARTICLE").unwrap().as_mut_any().downcast_mut::<ParticleSystem>().unwrap();
+        ps.emit_many(5);
 
-        self.renderer.end_draw();
+        self.renderer.update_components(delta_time);
+
+        self.renderer.draw_components();
+
         // self.renderer.begin_layer();
         // self.renderer.add_quad(Quad::default());
         // self.renderer.use_texture("MAGENTA");
