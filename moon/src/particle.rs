@@ -136,7 +136,7 @@ impl Component for ParticleSystem {
 impl ParticleSystem {
     /// Emit a single [`Particle`], according to the defined [`ParticleProps`] for emission.
     pub fn emit(&mut self) {
-        if self.index == MAX_PARTICLES {
+        if self.index >= MAX_PARTICLES {
             self.index = 0;
         }
         let particle = self.particles.get_mut(self.index);
@@ -151,8 +151,7 @@ impl ParticleSystem {
             particle.color_end = new_particle.color_end;
 
             particle.init();
-        } else {
-            todo!()
+            self.index += 1;
         }
     }
 }
