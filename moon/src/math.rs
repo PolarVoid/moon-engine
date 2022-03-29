@@ -53,7 +53,7 @@ impl Mul<f32> for Color32 {
     type Output = Color32;
 
     fn mul(self, rhs: f32) -> Self::Output {
-        Color32(self.0 * rhs, self.1 * rhs, self.2 * rhs, self.3)
+        Color32(self.0 * rhs, self.1 * rhs, self.2 * rhs, self.3 * rhs)
     }
 }
 
