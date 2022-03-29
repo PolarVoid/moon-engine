@@ -3,10 +3,10 @@
 use crate::component::Component;
 use crate::math::*;
 use crate::renderer::Quad;
-use crate::transform::{Transform, Transform2D};
+use crate::transform::Transform2D;
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
-const MAX_PARTICLES: usize = 10000;
+const MAX_PARTICLES: usize = 100000;
 
 /// A [`ParticleProps`] defines how [`Particles`](Particle) are created.
 ///
@@ -34,11 +34,26 @@ impl Default for ParticleProps {
         Self {
             lifetime: 10.0,
             velocity: Vec2::new(0.0, -0.005),
+            velocity_modifier: Vec2::new(0.0025, 0.002),
+            color_start: Color32::WHITE,
+            color_end: Color32::WHITE,
+            color_modifier: Color32::ZEROES,
+            size: Vec2::new(0.05, 0.05),
+        }
+    }
+}
+
+impl ParticleProps {
+    /// A 
+    pub const fn fire() -> Self {
+        Self {
+            lifetime: 10.0,
+            velocity: Vec2::new(0.0, -0.005),
             velocity_modifier: Vec2::new(0.002, 0.003),
             color_start: Color32(1.0, 1.0, 0.0, 1.0),
-            color_end: Color32(1.0, 0.0, 0.0, 1.0),
-            color_modifier: Color32::ZEROES,
-            size: Vec2::from_element(0.05),
+            color_end: Color32(1.0, 0.7, 0.2, 1.0),
+            color_modifier: Color32(0.2, 0.3, 0.1, 1.0),
+            size: Vec2::new(0.05, 0.05),
         }
     }
 }
@@ -121,7 +136,8 @@ impl From<&ParticleProps> for Particle {
 /// A [`ParticleSystem`] deals with the emission, and creation of [`Particles`](Particle).
 #[derive(Debug, Clone)]
 pub struct ParticleSystem {
-    transform: Transform,
+    /// The [`Transform2D`] of the [`ParticleSystem`].
+    pub transform: Transform2D,
     emission: ParticleProps,
     particles: Vec<Particle>,
     index: usize,
@@ -133,7 +149,7 @@ impl Default for ParticleSystem {
             emission: ParticleProps::default(),
             particles: Vec::with_capacity(MAX_PARTICLES),
             index: 0,
-            transform: Transform::default(),
+            transform: Transform2D::default(),
         }
     }
 }
@@ -176,15 +192,6 @@ impl Component for ParticleSystem {
     fn as_mut_any(&mut self) -> &mut dyn std::any::Any {
         self
     }
-
-    fn translate(&mut self, pos_x: f32, pos_y: f32) {
-        self.transform.position.x += pos_x;
-        self.transform.position.y += pos_y;
-    }
-
-    fn get_matrix(&self) -> Mat4 {
-        self.transform.matrix()
-    }
 }
 
 impl ParticleSystem {
@@ -203,6 +210,7 @@ impl ParticleSystem {
         }
 
         let mut new_particle = Particle::from(&self.emission);
+        new_particle.transform = self.transform + new_particle.transform;
 
         let particle = self.particles.get_mut(self.index);
 
