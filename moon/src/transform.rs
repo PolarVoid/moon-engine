@@ -117,3 +117,13 @@ impl Default for Transform2D {
         }
     }
 }
+
+impl Transform2D {
+    /// Create a new [`Transform2D`] a given scale
+    pub fn new_with_scale(scale_x: f32, scale_y: f32) -> Self {
+        Self {
+            scale: Vec2::new(scale_x, scale_y),
+            ..Default::default()
+        }
+    }
+}
