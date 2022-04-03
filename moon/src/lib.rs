@@ -25,14 +25,13 @@ use camera::Camera;
 use gl::GL;
 use input::InputManager;
 pub use math::*;
+use particle::ParticleSystem;
 use renderer::Renderer;
 use shader::Shader;
+use texture::Texture;
 use transform::Transform;
 use utils::set_panic_hook;
 use web::Canvas;
-use component::Component;
-use particle::ParticleSystem;
-use texture::Texture;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -82,21 +81,33 @@ impl Application {
         let u_tex0 = renderer.program.get_uniform_location(&renderer.gl, "uTex0");
         renderer.gl.uniform1i(u_tex0.as_ref(), 0);
 
-        let spritesheet = Texture::new_with_texture_id(&renderer.gl, 0);
-
-        renderer.add_texture("PLATFORMER", spritesheet);
+        renderer.add_texture("TILEMAP", Texture::new_with_texture_id(&renderer.gl, 0));
+        renderer.add_texture("SHREK", Texture::new_with_texture_id(&renderer.gl, 1));
 
         renderer.use_texture("WHITE");
 
-        let mut smoke = ParticleSystem::new_from_emission(particle::ParticleProps::default());
-        smoke.transform.position = Vec2::new(-4.0, 3.0);
-        smoke.init();
+        let simple = ParticleSystem::new_from_emission_and_position(
+            particle::ParticleProps::default(),
+            0.0,
+            0.0,
+        );
+        renderer.add_component("DEFAULT", Box::new(simple));
+
+        let fire = ParticleSystem::new_from_emission_and_position(
+            particle::ParticleProps::fire(),
+            -5.0,
+            0.0,
+        );
+        renderer.add_component("FIRE", Box::new(fire));
+
+        let smoke = ParticleSystem::new_from_emission_and_position(
+            particle::ParticleProps::smoke(),
+            5.0,
+            0.0,
+        );
         renderer.add_component("SMOKE", Box::new(smoke));
 
-        let mut fire = ParticleSystem::new_from_emission(particle::ParticleProps::fire());
-        fire.transform.position = Vec2::new(0.0, 3.0);
-        fire.init();
-        renderer.add_component("FIRE", Box::new(fire));
+        renderer.init_components();
     }
 
     /// Called when window gets resized.
@@ -118,7 +129,8 @@ impl Application {
     /// Handles Mouse movement.
     #[wasm_bindgen]
     pub fn mouse_move(&mut self, mouse_x: i32, mouse_y: i32) {
-        let (x, y) = self.renderer
+        let (x, y) = self
+            .renderer
             .camera
             .screen_to_world_coordinates(mouse_x as f32, mouse_y as f32);
         self.input.mouse_position = Vec2::new(x, y);
@@ -129,30 +141,55 @@ impl Application {
     /// Called every frame, and draws its output onto the [Canvas](web_sys::HtmlCanvasElement).
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
+        let renderer = &mut self.renderer;
         let delta_time = delta_time as f32 / 1000.0;
 
-        self.renderer.clear([0.5, 0.2, 0.3, 1.0]);
+        renderer.clear([0.5, 0.2, 0.3, 1.0]);
 
         if self.input.get_key_state(b'R') {
-            self.renderer.components.get_mut("SMOKE").unwrap().init();
+            renderer.init_components();
         }
-        let _horizontal = self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32;
-        let _vertical = self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32;
+        if self.input.get_key_state(b'1') {
+            renderer
+                .get_mut_component::<ParticleSystem>("FIRE")
+                .unwrap()
+                .toggle_alive();
+        }
+        if self.input.get_key_state(b'2') {
+            renderer
+                .get_mut_component::<ParticleSystem>("DEFAULT")
+                .unwrap()
+                .toggle_alive();
+        }
+        if self.input.get_key_state(b'3') {
+            renderer
+                .get_mut_component::<ParticleSystem>("SMOKE")
+                .unwrap()
+                .toggle_alive();
+        }
+        let horizontal =
+            self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32;
+        let vertical =
+            self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32;
 
-        let ps = self
-            .renderer
-            .components
-            .get_mut("SMOKE")
-            .unwrap()
-            .as_mut_any()
-            .downcast_mut::<ParticleSystem>()
+        let simple = renderer
+            .get_mut_component::<ParticleSystem>("DEFAULT")
             .unwrap();
-        
-        ps.transform.position = self.input.mouse_position;
 
-        self.renderer.update_components(delta_time);
+        simple.transform.position = self.input.mouse_position;
 
-        self.renderer.draw_components();
+        let smoke = renderer
+            .get_mut_component::<ParticleSystem>("SMOKE")
+            .unwrap();
+
+        if smoke.alive {
+            smoke.transform.position +=
+                Vec2::new(horizontal as f32 * delta_time, vertical as f32 * delta_time);
+        }
+
+        renderer.update_components(delta_time);
+
+        renderer.draw_components();
 
         // self.renderer.begin_layer();
         // self.renderer.add_quad(Quad::default());
