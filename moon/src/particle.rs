@@ -1,5 +1,7 @@
 //! The [`Particle`] and [`ParticleSystem`] structs.
 
+use std::f32::consts::PI;
+
 use crate::component::Component;
 use crate::math::*;
 use crate::renderer::Quad;
@@ -7,7 +9,6 @@ use crate::transform::Transform2D;
 
 /// Maximum [`Particles`](Particle) in a [`ParticleSystem`].
 const MAX_PARTICLES: usize = 100000;
-const PARTICLE_PRESTART_TIME: f32 = 5.0;
 
 /// A [`ParticleProps`] defines how [`Particles`](Particle) are created.
 ///
@@ -28,8 +29,6 @@ pub struct ParticleProps {
     pub color_modifier: Color32,
     /// How many [`Particles`](Particle) to emit on each update.
     pub burst_count: u32,
-    /// The number of [`Particles`](Particle) to begin with already instantiated.
-    pub prestart: u32,
     /// The size of the [`Particle`].
     pub size: Vec2,
 }
@@ -38,13 +37,12 @@ impl Default for ParticleProps {
     fn default() -> Self {
         Self {
             lifetime: 10.0,
-            velocity: Vec2::new(0.0, -0.005),
-            velocity_modifier: Vec2::new(0.0025, 0.002),
+            velocity: Vec2::new(0.0, -0.3),
+            velocity_modifier: Vec2::new(0.25, 0.2),
             color_start: Color32(0.0, 0.6, 1.0, 0.9),
             color_end: Color32(0.95, 0.2, 1.0, 1.0),
             color_modifier: Color32(0.2, 0.4, 0.1, 0.0),
             burst_count: 15,
-            prestart: 10,
             size: Vec2::new(0.05, 0.05),
         }
     }
@@ -55,13 +53,12 @@ impl ParticleProps {
     pub const fn fire() -> Self {
         Self {
             lifetime: 10.0,
-            velocity: Vec2::new(0.0, -0.006),
-            velocity_modifier: Vec2::new(0.002, 0.004),
+            velocity: Vec2::new(0.0, -0.2),
+            velocity_modifier: Vec2::new(0.15, 0.1),
             color_start: Color32(1.0, 1.0, 0.0, 1.0),
             color_end: Color32(1.0, 0.0, 0.0, 1.0),
             color_modifier: Color32(0.2, 0.2, 0.3, 0.0),
             burst_count: 5,
-            prestart: 50,
             size: Vec2::new(0.05, 0.05),
         }
     }
@@ -70,13 +67,12 @@ impl ParticleProps {
     pub const fn smoke() -> Self {
         Self {
             lifetime: 15.0,
-            velocity: Vec2::new(0.0, -0.004),
-            velocity_modifier: Vec2::new(0.003, 0.002),
+            velocity: Vec2::new(0.0, -0.4),
+            velocity_modifier: Vec2::new(0.3, 0.2),
             color_start: Color32(0.7, 0.7, 0.7, 1.0),
             color_end: Color32::BLACK,
             color_modifier: Color32(0.4, 0.4, 0.4, 0.0),
             burst_count: 20,
-            prestart: 50,
             size: Vec2::new(0.1, 0.15),
         }
     }
@@ -112,6 +108,7 @@ impl Default for Particle {
 
 impl Component for Particle {
     fn init(&mut self) {
+        self.transform.rotation = f32::random_range_max(PI);
         self.color = self.color_start;
         self.alive = true;
         self.age = 0.0;
@@ -122,7 +119,8 @@ impl Component for Particle {
         if self.age > self.lifetime {
             self.alive = false;
         } else {
-            self.transform.position += self.velocity;
+            self.transform.position += self.velocity * delta_time;
+            self.transform.rotation += f32::random_range(-1.0, 1.0) * delta_time;
             self.color = Color32::lerp(self.color_start, self.color_end, self.age / self.lifetime);
         }
     }
@@ -165,6 +163,8 @@ pub struct ParticleSystem {
     emission: ParticleProps,
     particles: Vec<Particle>,
     index: usize,
+    /// A [`ParticleSystem`] needs to be alive to emit and update [`Particles`](Particle).
+    pub alive: bool,
 }
 
 impl Default for ParticleSystem {
@@ -174,6 +174,7 @@ impl Default for ParticleSystem {
             particles: Vec::with_capacity(MAX_PARTICLES),
             index: 0,
             transform: Transform2D::default(),
+            alive: false,
         }
     }
 }
@@ -181,12 +182,15 @@ impl Default for ParticleSystem {
 impl Component for ParticleSystem {
     fn init(&mut self) {
         self.particles.fill_with(Particle::default);
-        for _ in 0..self.emission.prestart {
-            self.update(PARTICLE_PRESTART_TIME);
-        }
+        self.alive = true;
     }
 
     fn update(&mut self, delta_time: f32) {
+        // Do not update if inactive
+        if !self.alive {
+            return;
+        }
+
         self.emit_many(self.emission.burst_count);
         for particle in self.particles.iter_mut() {
             if particle.alive {
@@ -201,9 +205,10 @@ impl Component for ParticleSystem {
                 .iter()
                 .filter(|particle| particle.alive)
                 .map(|particle| {
-                    Quad::new_from_position_and_size_and_color(
+                    Quad::new_from_position_and_rotation_and_size_and_color(
                         particle.transform.position.x,
                         particle.transform.position.y,
+                        particle.transform.rotation,
                         particle.transform.scale.x,
                         particle.transform.scale.y,
                         particle.color,
@@ -229,6 +234,20 @@ impl ParticleSystem {
             emission,
             ..Default::default()
         }
+    }
+
+    /// Create a new [`ParticleSystem`] using a [`ParticleProps`] for the emission, and `X` and `Y` components for its position.
+    pub fn new_from_emission_and_position(emission: ParticleProps, pos_x: f32, pos_y: f32) -> Self {
+        Self {
+            emission,
+            transform: Transform2D::new_with_position(pos_x, pos_y),
+            ..Default::default()
+        }
+    }
+
+    /// Toggle the `alive` field of the [`ParticleSystem`].
+    pub fn toggle_alive(&mut self) {
+        self.alive = !self.alive;
     }
 
     /// Emit a single [`Particle`], according to the defined [`ParticleProps`] for emission.
