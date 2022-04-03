@@ -50,6 +50,54 @@ impl Default for Quad {
 }
 
 impl Quad {
+    /// Create a new [`Quad`] from a given position, rotation, size and color.
+    pub fn new_from_position_and_rotation_and_size_and_color(
+        pos_x: f32,
+        pos_y: f32,
+        rotation: f32,
+        size_x: f32,
+        size_y: f32,
+        color: Color32,
+    ) -> Self {
+        let size_x = size_x / 2.0;
+        let size_y = size_y / 2.0;
+        let color = <[f32; 4]>::from(color);
+        let (sin_theta, cos_theta) = rotation.sin_cos();
+        let mut points = [
+            [-size_x, -size_y],
+            [-size_x, size_y],
+            [size_x, size_y],
+            [size_x, -size_y],
+        ];
+        for point in points.iter_mut() {
+            let (x, y) = (point[0], point[1]);
+            point[0] = pos_x + x * cos_theta - y * sin_theta;
+            point[1] = pos_y + x * sin_theta + y * cos_theta;
+        }
+        Self([
+            Vertex {
+                position: points[0],
+                uv: [0.0, 0.0],
+                color,
+            },
+            Vertex {
+                position: points[1],
+                uv: [0.0, 1.0],
+                color,
+            },
+            Vertex {
+                position: points[2],
+                uv: [1.0, 1.0],
+                color,
+            },
+            Vertex {
+                position: points[3],
+                uv: [1.0, 0.0],
+                color,
+            },
+        ])
+    }
+
     /// Create a new [`Quad`] from a given position, size and color.
     pub fn new_from_position_and_size_and_color(
         pos_x: f32,
@@ -427,11 +475,41 @@ impl Renderer {
         self.components.insert(name, component);
     }
 
+    /// (Re)Initialize the [`Components`](Component) of the [`Renderer`].
+    pub fn init_components(&mut self) {
+        for component in self.components.values_mut() {
+            component.init()
+        }
+    }
+
     /// Update the [`Components`](Component) of the [`Renderer`].
     pub fn update_components(&mut self, delta_time: f32) {
         for component in self.components.values_mut() {
             component.update(delta_time)
         }
+    }
+
+    /// Get a [`Components`](Component) using a key, and ty to cast it to a given type.
+    pub fn get_component<T: 'static + Component>(&self, key: &'static str) -> Result<&T, String> {
+        self.components
+            .get(key)
+            .unwrap()
+            .as_any()
+            .downcast_ref::<T>()
+            .ok_or_else(|| String::from("Could not cast to type."))
+    }
+
+    /// Get a mutable [`Components`](Component) using a key, and ty to cast it to a given type.
+    pub fn get_mut_component<T: 'static + Component>(
+        &mut self,
+        key: &'static str,
+    ) -> Result<&mut T, String> {
+        self.components
+            .get_mut(key)
+            .unwrap()
+            .as_mut_any()
+            .downcast_mut::<T>()
+            .ok_or_else(|| String::from("Could not cast to type."))
     }
 
     /// Draw the [`Components`](Component) of the [`Renderer`].
