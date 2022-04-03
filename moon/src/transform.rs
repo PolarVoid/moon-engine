@@ -134,6 +134,14 @@ impl Add for Transform2D {
 
 impl Transform2D {
     /// Create a new [`Transform2D`] a given scale
+    pub fn new_with_position(pos_x: f32, pos_y: f32) -> Self {
+        Self {
+            position: Vec2::new(pos_x, pos_y),
+            ..Default::default()
+        }
+    }
+
+    /// Create a new [`Transform2D`] a given scale
     pub fn new_with_scale(scale_x: f32, scale_y: f32) -> Self {
         Self {
             scale: Vec2::new(scale_x, scale_y),
