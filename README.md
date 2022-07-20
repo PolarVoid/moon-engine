@@ -1,8 +1,8 @@
 # moon-engine
 A Game library written with Rust, compiled to WebAssembly and rendered with WebGL2. Intended to be used as my final year project.
 
-![Crates.io](https://img.shields.io/crates/v/moon-engine)
-![docs.rs](https://img.shields.io/docsrs/moon-engine)
+[![Crates.io](https://img.shields.io/crates/v/moon-engine)](https://crates.io/crates/moon-engine)
+[![docs.rs](https://img.shields.io/docsrs/moon-engine)](https://docs.rs/moon-engine/latest/moon_engine/)
 
 Requires node.js and npm to be installed. 
 If you do not already have these installed, a manager like [nvm](https://github.com/nvm-sh/nvm/blob/master/README.md) is **HIGHLY** recommended.
