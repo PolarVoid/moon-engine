@@ -353,11 +353,10 @@ impl Renderer {
     /// Sets the currently bound [`Texture`] to the one that matches the key. If no such texture is found, a default MAGENTA one is found.
     pub fn use_texture(&self, key: &str) {
         let gl = &self.gl;
-        if let Some(texture) = self.textures.get(key) {
-            texture.bind(gl);
-        } else {
-            self.textures.get("MAGENTA").unwrap().bind(gl);
-        }
+        self.textures
+            .get(key)
+            .unwrap_or_else(|| self.textures.get("MAGENTA").unwrap())
+            .bind(gl);
     }
 
     /// Get the requested [`Texture`], or MAGENTA if none is found.
@@ -365,7 +364,7 @@ impl Renderer {
         Rc::clone(
             self.textures
                 .get(key)
-                .unwrap_or_else(|| self.textures.get("MAGENTA").unwrap()),
+                .unwrap_or_else(|| self.textures.get("MAGENTA").unwrap())
         )
     }
 
