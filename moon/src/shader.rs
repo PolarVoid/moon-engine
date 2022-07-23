@@ -55,6 +55,13 @@ impl gl::Bind for Shader {
     }
 }
 
+impl Drop for Shader {
+    fn drop(&mut self) {
+        let gl = gl::get_context();
+        gl.delete_program(self.program.as_ref());
+    }
+}
+
 impl Shader {
     /// Create a new Shader Program with default Vertex and Fragment shaders.
     pub fn new(gl: &GL) -> Self {
