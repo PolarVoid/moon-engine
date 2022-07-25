@@ -19,6 +19,8 @@ jobs:
     - uses: actions/checkout@v3
     - name: wasm-pack-action
       uses: jetli/wasm-pack-action@v0.3.0
+    - name: Switching to moon directory
+      run: cd moon
     - name: Build
       run: wasm-pack --verbose build
     - name: Run tests
