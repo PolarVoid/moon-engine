@@ -6,6 +6,7 @@ description = "A WebGL2/WASM Game Library written in the Rust programming langua
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/polarvoid/moon-engine"
+readme = "../README.md"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
