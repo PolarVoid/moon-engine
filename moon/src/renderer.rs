@@ -364,7 +364,7 @@ impl Renderer {
         Rc::clone(
             self.textures
                 .get(key)
-                .unwrap_or_else(|| self.textures.get("MAGENTA").unwrap())
+                .unwrap_or_else(|| self.textures.get("MAGENTA").unwrap()),
         )
     }
 
