@@ -1,0 +1,27 @@
+name: wasm-pack build and package
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./moon
+    steps:
+    - uses: actions/checkout@v3
+    - name: wasm-pack-action
+      uses: jetli/wasm-pack-action@v0.3.0
+    - name: Build
+      run: wasm-pack --verbose build
+    - name: Run tests
+      run: cargo test --verbose
