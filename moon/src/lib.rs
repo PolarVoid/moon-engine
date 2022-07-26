@@ -71,19 +71,24 @@ impl Application {
     pub fn init(&mut self) {
         let renderer = &mut self.renderer;
 
+        // Initialize global WebGL state
         renderer
             .gl
             .blend_func(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA);
         renderer.gl.enable(GL::BLEND);
+
         // Initialize the default Shader
         renderer.init_shader();
 
+        // Obtain Texture Slot 0 uniform location
         let u_tex0 = renderer.program.get_uniform_location(&renderer.gl, "uTex0");
         renderer.gl.uniform1i(u_tex0.as_ref(), 0);
 
+        // Add default Textures to the Renderer list
         renderer.add_texture("TILEMAP", Texture::new_with_texture_id(&renderer.gl, 0));
         renderer.add_texture("SHREK", Texture::new_with_texture_id(&renderer.gl, 1));
 
+        // Use a 1x1 pixel "WHITE" texture
         renderer.use_texture("WHITE");
 
         let simple = ParticleSystem::new_from_emission_and_position(
@@ -107,6 +112,7 @@ impl Application {
         );
         renderer.add_component("SMOKE", Box::new(smoke));
 
+        // Initialize Renderer components
         renderer.init_components();
     }
 
@@ -144,55 +150,71 @@ impl Application {
         let renderer = &mut self.renderer;
         let delta_time = delta_time as f32 / 1000.0;
 
+        // Clear the screen
         renderer.clear([0.5, 0.2, 0.3, 1.0]);
 
+        // Reset all Components to their initial state
         if self.input.get_key_state(b'R') {
             renderer.init_components();
         }
+
+        // Pause and Play the "FIRE" particle system
         if self.input.get_key_state(b'1') {
             renderer
                 .get_mut_component::<ParticleSystem>("FIRE")
                 .unwrap()
                 .toggle_alive();
         }
+
+        // Pause and Play the "DEFAULT" particle system
         if self.input.get_key_state(b'2') {
             renderer
                 .get_mut_component::<ParticleSystem>("DEFAULT")
                 .unwrap()
                 .toggle_alive();
         }
+
+        // Pause and Play the "SMOKE" particle system
         if self.input.get_key_state(b'3') {
             renderer
                 .get_mut_component::<ParticleSystem>("SMOKE")
                 .unwrap()
                 .toggle_alive();
         }
+
+        // Get the horizontal and vertical axes of movement using the WASD keys
         let horizontal =
             self.input.get_key_state(b'D') as i32 - self.input.get_key_state(b'A') as i32;
         let vertical =
             self.input.get_key_state(b'S') as i32 - self.input.get_key_state(b'W') as i32;
 
+        // Get a mutable reference to the "DEFAULT" particle system
         let simple = renderer
             .get_mut_component::<ParticleSystem>("DEFAULT")
             .unwrap();
 
+        // Update the position of the "DEFAULT" particle system
         simple.transform.position = self.input.mouse_position;
 
+        // Get a mutable reference to the "SMOKE" particle system
         let smoke = renderer
             .get_mut_component::<ParticleSystem>("SMOKE")
             .unwrap();
 
+        // Update the position of the "SMOKE" particle system if it is alive
         if smoke.alive {
             smoke.transform.position +=
                 Vec2::new(horizontal as f32 * delta_time, vertical as f32 * delta_time);
         }
 
+        // Call the update() function on all components
         renderer.update_components(delta_time);
 
+        // Render all components on-screen by issuing the draw call(s)
         renderer.draw_components();
 
         // self.renderer.begin_layer();
-        // self.renderer.add_quad(Quad::default());
+        // self.renderer.add_quad(&renderer::Quad::default());
         // self.renderer.use_texture("MAGENTA");
         // self.renderer.draw_layer();
         // self.renderer.delete_layer();
