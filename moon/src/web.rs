@@ -15,7 +15,7 @@ extern "C" {
 /// A macro that can be used to write output to the browser
 #[macro_export]
 macro_rules! console_log {
-    ($($t:tt)*) => (crate::web::log(&format_args!($($t)*).to_string()))
+    ($($t:tt)*) => ($crate::web::log(&format_args!($($t)*).to_string()))
 }
 
 /// Get the time in seconds using [`Performance`](web_sys::Performance)
