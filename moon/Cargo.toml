@@ -1,6 +1,6 @@
 [package]
 name = "moon-engine"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Alvin Philips <alvinphilips257@gmail.com>"]
 description = "A WebGL2/WASM Game Library written in the Rust programming language."
 edition = "2021"
@@ -16,8 +16,8 @@ default = ["console_error_panic_hook"]
 
 [dependencies]
 wasm-bindgen = "0.2.79"
-js-sys = "0.3.56"
-nalgebra = "0.30.1"
+js-sys = "0.3.59"
+nalgebra = "0.31.0"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
