@@ -10,7 +10,7 @@ use crate::Vec2;
 ///
 /// # Examples
 /// ```
-/// use moon::input::InputManager;
+/// use moon_engine::input::InputManager;
 ///
 /// let mut input = InputManager::new();
 ///

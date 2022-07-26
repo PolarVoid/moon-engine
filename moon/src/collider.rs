@@ -24,8 +24,8 @@ pub trait Collide<T: Collider> {
     /// # Examples
     ///
     /// ```
-    /// # use moon::Point;
-    /// # use moon::collider::{Collide, Circle};
+    /// use moon_engine::Point;
+    /// use moon_engine::collider::{Collide, Circle};
     /// let a = Point::new(0.0, 0.5);
     /// let b = Circle::new_size(0.1);
     ///

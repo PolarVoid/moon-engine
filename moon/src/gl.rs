@@ -10,7 +10,7 @@ use crate::Canvas;
 /// # Examples
 ///
 /// ```no_run
-/// use moon::*;
+/// use moon_engine::*;
 /// let gl = gl::get_context();
 /// ```
 pub type GL = WebGl2RenderingContext;
@@ -32,7 +32,7 @@ pub trait Bind {
 /// # Examples
 ///
 /// ```no_run
-/// use moon::*;
+/// use moon_engine::*;
 /// # let gl = gl::get_context();
 ///
 /// let has_errors = gl::check_gl_error(&gl);
@@ -56,7 +56,7 @@ pub fn check_gl_error(gl: &GL) -> bool {
 /// # Examples
 ///
 /// ```no_run
-/// use moon::gl::*;
+/// use moon_engine::gl::*;
 ///
 /// let context: GL = get_context();
 /// ```

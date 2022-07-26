@@ -23,7 +23,7 @@ macro_rules! console_log {
 /// # Examples
 ///
 /// ```no_run
-/// # use moon::web::now_sec;
+/// # use moon_engine::web::now_sec;
 /// let time = now_sec();
 /// println!("The current time is: {}", time);
 /// ```

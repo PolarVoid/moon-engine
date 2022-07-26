@@ -24,7 +24,7 @@ pub type Ortho = nalgebra::Orthographic3<f32>;
 /// # Examples
 ///
 /// ```
-/// use moon::math::Color32;
+/// use moon_engine::math::Color32;
 /// let color = Color32::default();
 /// ```
 #[derive(Clone, Copy, Debug)]
@@ -167,7 +167,7 @@ impl From<Color8> for Color32 {
 /// # Examples
 ///
 /// ```
-/// use moon::math::Color8;
+/// use moon_engine::math::Color8;
 /// let color = Color8::default();
 /// ```
 #[derive(Clone, Copy)]
