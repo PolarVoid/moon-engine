@@ -1,7 +1,7 @@
 const CopyPlugin = require("copy-webpack-plugin");
 const path = require('path');
 
-module.exports = {
+let config = {
   entry: "./bootstrap.js",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -28,4 +28,12 @@ module.exports = {
       ]
     }),
   ],
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === "production") {
+    config.mode = "production";
+  }
+
+  return config;
 };
