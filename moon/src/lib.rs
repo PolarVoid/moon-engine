@@ -33,12 +33,6 @@ use transform::Transform;
 use utils::set_panic_hook;
 use web::Canvas;
 
-// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
-// allocator.
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 /// The [`Application`] struct acts as the communicator between the browser and the game logic. It consists of calls made from JavaScript.
 #[wasm_bindgen]
 pub struct Application {
