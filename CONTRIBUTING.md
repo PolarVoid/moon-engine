@@ -6,7 +6,7 @@ This is a _small guide_ to help you get started. I look forward to your contribu
 
 ## How can I contribute?
 
-#### Reporting Bugs
+### Reporting Bugs
 
 If you believe that **Moon Engine** is behaving incorrectly, or you are having trouble using it, please [raise an issue](https://github.com/polarvoid/moon-engine/issues).
 
@@ -14,7 +14,7 @@ Please try to provide as much context as possible and try to format your issue s
 
 If you would like to provide code samples, please ensure you use code blocks.
 
-#### Suggesting a Feature
+### Suggesting a Feature
 
 If you have a idea or suggestion, feel free to [raise an issue](https://github.com/polarvoid/moon-engine/issues) to talk about it. You could also [reach out](#get-in-touch) to me directly.
 
@@ -32,4 +32,5 @@ Follow the steps below to get started:
 If there's something you are unsure about/would like to talk about in person, feel free to either send me an email or message me on Discord.
 
 E-mail: alvinphilips257@gmail.com
+
 Discord: bigbadwolf#0654
