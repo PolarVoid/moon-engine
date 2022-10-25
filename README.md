@@ -18,11 +18,14 @@ In the root directory of the downloaded folder, run ```light-server --serve .```
 ### Controls
 
 |Key|Control|
-|--|--|
-|W|Move Up|
-|A|Move Left|
-|S|Move Down|
-|D|Move Right|
+|:--:|--|
+|`W`|Move Up|
+|`A`|Move Left|
+|`S`|Move Down|
+|`D`|Move Right|
+|`1`|Toggle `FIRE`|
+|`2`|Toggle `DEFAULT`|
+|`3`|Toggle `SMOKE`|
 
 #### Notes:
 
