@@ -21,12 +21,16 @@ Click anywhere on the Canvas to control the demo, and Esc to leave it
 
 |Key|Control|
 |--|--|
-|W|Move Forward|
+|W|Move Up|
 |A|Move Left|
-|S|Move Backward|
+|S|Move Down|
 |D|Move Right|
 
-Mouse movements to look around
+#### Notes:
+
+- The `WASD` controls are used to move the `SMOKE` Particle System.
+
+- Mouse movements to look around.
 
 ## Instructions
 ### Install Rust and wasm-pack
