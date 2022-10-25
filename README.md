@@ -17,8 +17,6 @@ In the root directory of the downloaded folder, run ```light-server --serve .```
 
 ### Controls
 
-Click anywhere on the Canvas to control the demo, and Esc to leave it
-
 |Key|Control|
 |--|--|
 |W|Move Up|
@@ -30,7 +28,7 @@ Click anywhere on the Canvas to control the demo, and Esc to leave it
 
 - The `WASD` controls are used to move the `SMOKE` Particle System.
 
-- Mouse movements to look around.
+- The mouse `X` and `Y` are used to change the position of the `DEFAULT` Particle System.
 
 ## Instructions
 ### Install Rust and wasm-pack
