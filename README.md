@@ -59,7 +59,7 @@ Build the wasm file. The initial run might take a while. Subsequent builds shoul
 <p>
 Make sure you've clicked on the link mentioned above and have <kbd>wasm-pack</kbd> installed and ready to use.
 
-To check whether <kbd>wasm-pack</kkbd> is installed, run;
+To check whether <kbd>wasm-pack</kkbd> is installed, run:
 
 ```
 wasm-pack --version
