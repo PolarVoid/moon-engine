@@ -53,7 +53,13 @@ Switch to the moon-engine/moon directory.
 ```cd moon-engine/moon```
 
 Build the wasm file. The initial run might take a while. Subsequent builds should be faster.
+
+<details>
+<summary>Note about <kbd>wasm-pack</kbd></summary>
+<p>
 Make sure you've clicked on the link mentioned above and have `wasm-pack` installed and ready to use.
+</p>
+</details>
 
 ```wasm-pack build```
 
