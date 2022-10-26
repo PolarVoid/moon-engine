@@ -54,10 +54,16 @@ Switch to the moon-engine/moon directory.
 
 Build the wasm file. The initial run might take a while. Subsequent builds should be faster.
 
-<details>
+<details open>
 <summary>Note about <kbd>wasm-pack</kbd></summary>
 <p>
-Make sure you've clicked on the link mentioned above and have `wasm-pack` installed and ready to use.
+Make sure you've clicked on the link mentioned above and have <kbd>wasm-pack</kbd> installed and ready to use.
+
+To check whether <kbd>wasm-pack</kkbd> is installed,run
+
+```
+wasm-pack --version
+```
 </p>
 </details>
 
