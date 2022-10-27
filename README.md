@@ -1,4 +1,4 @@
-# moon-engine
+# Moon Engine
 A Game library written with Rust, compiled to WebAssembly and rendered with WebGL2. Intended to be used as my final year project.
 
 [![Crates.io](https://img.shields.io/crates/v/moon-engine)](https://crates.io/crates/moon-engine)
