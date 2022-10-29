@@ -17,7 +17,7 @@ Install light-server using:
 npm install -g light-server
 ```
 
-In the root directory of the downloaded folder, run 
+In the root directory of the downloaded folder, run:
 
 ```
 light-server --serve .
