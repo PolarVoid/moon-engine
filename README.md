@@ -11,9 +11,17 @@ If you do not already have these installed, a manager like [nvm](https://github.
 
 Download the latest package from this repo.
 
-Install light-server using ```npm install -g light-server```
+Install light-server using: 
 
-In the root directory of the downloaded folder, run ```light-server --serve .```
+```
+npm install -g light-server
+```
+
+In the root directory of the downloaded folder, run 
+
+```
+light-server --serve .
+```
 
 ### Controls
 
@@ -37,20 +45,34 @@ In the root directory of the downloaded folder, run ```light-server --serve .```
 ### Install Rust and wasm-pack
 Install Rust using [rustup](https://www.rust-lang.org/tools/install)
 
-Check that Rust installed successfully using ```rustc --version```
+Check that Rust installed successfully using: 
+
+```
+rustc --version
+```
 
 Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
 
 ### Ensuring npm is up-to-date
-Make sure your version of npm is up-to-date with ```npm install npm@latest -g```
+Make sure your version of npm is up-to-date with:
+
+```
+ npm install npm@latest -g
+```
 
 ### Clone this repository
-Either use a client/download this repo as a zip or clone using ```git clone https://github.com/polarvoid/moon-engine.git```
+Either use a client/download this repo as a zip or clone using:
+
+```
+git clone https://github.com/polarvoid/moon-engine.git
+```
 
 ### Final setup
 Switch to the moon-engine/moon directory.
 
-```cd moon-engine/moon```
+```
+cd moon-engine/moon
+```
 
 Build the wasm file. The initial run might take a while. Subsequent builds should be faster.
 
@@ -67,7 +89,11 @@ wasm-pack --version
 </p>
 </details>
 
-```wasm-pack build```
+To build:
+
+```
+wasm-pack build
+```
 
 On a non-Windows system, you will have to change the slashes used in the include_str!() macro from \\ to /. Otherwise, rustc might throw an error at you.
 
@@ -78,9 +104,18 @@ cd www
 npm install
 ```
 
-To run a live development server, use the command ```npm run start```
+To run a live development server, use the command:
 
-To build the application, use ```npm run build```. The files will be stored in a folder called dist/ within the www directory.
+```
+npm run start
+```
+
+To build the application, use:
+
+```
+npm run build
+``` 
+The files will be stored in a folder called dist/ within the www directory.
 
 
 ## Credits
