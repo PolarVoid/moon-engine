@@ -45,7 +45,7 @@ light-server --serve .
 ### Install Rust and wasm-pack
 Install Rust using [rustup](https://www.rust-lang.org/tools/install)
 
-Check that Rust installed successfully using: 
+Check that Rust installed successfully: 
 
 ```
 rustc --version
@@ -54,10 +54,10 @@ rustc --version
 Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
 
 ### Ensuring npm is up-to-date
-Make sure your version of npm is up-to-date with:
+Make sure your version of npm is up-to-date:
 
 ```
- npm install npm@latest -g
+npm install npm@latest -g
 ```
 
 ### Clone this repository
@@ -104,7 +104,7 @@ cd www
 npm install
 ```
 
-To run a live development server, use the command:
+To run a live development server, use:
 
 ```
 npm run start
@@ -115,8 +115,8 @@ To build the application, use:
 ```
 npm run build
 ``` 
-The files will be stored in a folder called dist/ within the www directory.
 
+The files will be stored in a folder called dist/ within the www directory.
 
 ## Credits
 
