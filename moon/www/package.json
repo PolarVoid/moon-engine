@@ -1,5 +1,5 @@
 {
-  "name": "moon-engine",
+  "name": "moon",
   "version": "0.0.3",
   "description": "A WebGL2/WASM Game Library written in the Rust programming language",
   "main": "index.js",
