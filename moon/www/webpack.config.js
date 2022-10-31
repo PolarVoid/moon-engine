@@ -1,5 +1,5 @@
 const CopyPlugin = require("copy-webpack-plugin");
-const path = require('path');
+const path = require("path");
 
 let config = {
   entry: "./bootstrap.js",
@@ -11,12 +11,12 @@ let config = {
     rules: [
       {
         test: /\.wasm$/,
-        type: 'webassembly/sync',
-      }
-    ]
+        type: "webassembly/sync",
+      },
+    ],
   },
   experiments: {
-    syncWebAssembly: true
+    syncWebAssembly: true,
   },
   mode: "development",
   plugins: [
@@ -25,7 +25,7 @@ let config = {
         "index.html",
         "favicon.ico",
         { from: "texture", to: "texture" },
-      ]
+      ],
     }),
   ],
 };
