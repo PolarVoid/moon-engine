@@ -27,14 +27,101 @@
         left: 20px;
         color: white;
       }
+      .info {
+        position: absolute;
+        left: 0;
+        bottom: 20px;
+        background-color: black;
+        color: white;
+        opacity: 80%;
+        border-radius: 0 10px 10px 0;
+        width: 25px;
+        overflow: clip;
+        height: 200px;
+        padding: 20px 0;
+        transition: 40ms ease-in;
+      }
+      .info:hover {
+        opacity: 90%;
+        padding: 20px;
+        overflow: none;
+        width: auto;
+      }
+      .info * {
+        visibility: hidden;
+        transition: 40ms ease-in;
+      }
+      .info:hover * {
+        visibility: visible;
+      }
+      .info span {
+        font-size: large;
+      }
+      .center {
+        display: flex;
+        justify-content: center;
+      }
+      a, a:visited, a:active {
+        text-decoration: none;
+        color: deepskyblue;
+        font-weight: bold;
+      }
+      a:hover {
+        color: dodgerblue;
+      }
+      thead td {
+        font-weight: bold;
+      }
+      td:nth-child(1) {
+        padding-right: 10px;
+      }
+      td {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
-    <p id="debugInfo">FPS: <span id="fpsCounter">0</span></body><p>
+    <p id="debugInfo">FPS: <span id="fpsCounter">0</span><p>
     <img src="./texture/shrek.png" id="texture1"/>
     <img src="./texture/tilemap_packed.png" id="texture0"/>
     <canvas id="canvas" tabindex="0"></canvas>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <div class="info">
+      <p class="center">
+        <span>Particle Demo</span>
+      </p>
+      <p class="center">
+        <a href="https://github.com/polarvoid/moon-engine">GitHub Repo</a>
+      </p>
+      <br>
+      <br>
+      <table>
+        <thead>
+          <tr>
+            <td>Control</td>
+            <td>Action</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1, 2, 3</td>
+            <td>Toggle Particle Systems</td>
+          </tr>
+          <tr>
+            <td>R</td>
+            <td>Restart Simulation</td>
+          </tr>
+          <tr>
+            <td>Mouse</td>
+            <td>Move Blue PS</td>
+          </tr>
+          <tr>
+            <td>W, A, S, D</td>
+            <td>Move Smoke PS</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <script src="./bootstrap.js"></script>
   </body>
 </html>
