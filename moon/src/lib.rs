@@ -148,12 +148,12 @@ impl Application {
         renderer.clear([0.5, 0.2, 0.3, 1.0]);
 
         // Reset all Components to their initial state
-        if self.input.get_key_state(b'R') {
+        if self.input.consume_key(b'R') {
             renderer.init_components();
         }
 
         // Pause and Play the "FIRE" particle system
-        if self.input.get_key_state(b'1') {
+        if self.input.consume_key(b'1') {
             renderer
                 .get_mut_component::<ParticleSystem>("FIRE")
                 .unwrap()
@@ -161,7 +161,7 @@ impl Application {
         }
 
         // Pause and Play the "DEFAULT" particle system
-        if self.input.get_key_state(b'2') {
+        if self.input.consume_key(b'2') {
             renderer
                 .get_mut_component::<ParticleSystem>("DEFAULT")
                 .unwrap()
@@ -169,7 +169,7 @@ impl Application {
         }
 
         // Pause and Play the "SMOKE" particle system
-        if self.input.get_key_state(b'3') {
+        if self.input.consume_key(b'3') {
             renderer
                 .get_mut_component::<ParticleSystem>("SMOKE")
                 .unwrap()

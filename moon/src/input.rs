@@ -49,7 +49,14 @@ impl InputManager {
     ///
     /// Resets the key in the [`BTreeSet`].
     pub fn key_up(&mut self, key_code: u8) {
-        self.keyboard_states.remove(&key_code);
+        self.consume_key(key_code);
+    }
+
+    /// Key State.
+    ///
+    /// Removes the key, if present, and returns a [`bool`] to indicate if it was.
+    pub fn consume_key(&mut self, key_code: u8) -> bool {
+        self.keyboard_states.remove(&key_code)
     }
 
     /// Get the state of a key as a [`bool`].
