@@ -141,6 +141,12 @@ impl Application {
     /// Called every frame, and draws its output onto the [Canvas](web_sys::HtmlCanvasElement).
     #[wasm_bindgen]
     pub fn render(&mut self, delta_time: u32) {
+        if self.input.get_key_state(b'X') {
+            self.renderer.use_texture("SHREK");
+        } else {
+            self.renderer.use_texture("WHITE");
+        }
+
         let renderer = &mut self.renderer;
         let delta_time = delta_time as f32 / 1000.0;
 
